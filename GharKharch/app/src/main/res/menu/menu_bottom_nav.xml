@@ -4,14 +4,14 @@
     <item
         android:id="@+id/expenses"
         android:icon="@drawable/rupee_icon"
-        android:title="TODO" />
+        android:title="Expenses" />
     <item
         android:id="@+id/analytics"
         android:icon="@drawable/analytics_icon"
-        android:title="TODO" />
+        android:title="Analytics" />
     <item
         android:id="@+id/settings"
         android:icon="@drawable/settings_icon"
-        android:title="TODO" />
+        android:title="Settings" />
 
 </menu>
