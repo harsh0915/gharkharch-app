@@ -10,5 +10,6 @@
     <color name="backgroundColorVariant">#20385B</color>
     <color name="primaryTextColor">#FFFFFF</color>
     <color name="primaryTextColorVariant">#7C7B7B</color>
-    <color name="top_bar_bg">#111B28</color>
+    <color name="secondaryColor">#111B28</color>
+
 </resources>

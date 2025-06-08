@@ -1,26 +1,34 @@
 package Adapters;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.itmart.gharkharch.R;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHolder> {
 
     Context context;
-    ArrayList<Integer> expensesList;
+    List<Integer> expensesList;
 
-    public ExpensesAdapter(Context context, ArrayList<Integer> data) {
+    public ExpensesAdapter(Context context, List<Integer> data) {
+        this.context = context;
+        this.expensesList = data;
     }
 
     @NonNull
     @Override
     public ExpensesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_expense, parent, false);
+
+        return new ViewHolder(view);
     }
 
     @Override

@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/margin_large"
+    android:layout_marginVertical="@dimen/margin_very_small"
+    android:background="@drawable/rounded_panel"
+    android:backgroundTint="@color/secondaryColor"
+    android:elevation="5dp"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="@dimen/padding_large">
+
+    <TextView
+        android:id="@+id/month"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_weight="1"
+        android:text="month"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_large" />
+
+    <TextView
+        android:id="@+id/expense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:text="total expense"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_large" />
 
 </LinearLayout>
