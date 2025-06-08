@@ -1,0 +1,38 @@
+<resources>
+
+    <dimen name="height_for_lines">2dp</dimen>
+
+    <!--margins-->
+    <dimen name="margin_zero">0dp</dimen>
+    <dimen name="margin_very_small">3dp</dimen>
+    <dimen name="margin_small">5dp</dimen>
+    <dimen name="margin_medium">10dp</dimen>
+    <dimen name="margin_large">15dp</dimen>
+    <dimen name="margin_xlarge">20dp</dimen>
+
+    <!--padding-->
+    <dimen name="padding_zero">0dp</dimen>
+    <dimen name="padding_very_small">3dp</dimen>
+    <dimen name="padding_small">5dp</dimen>
+    <dimen name="padding_medium">10dp</dimen>
+    <dimen name="padding_large">15dp</dimen>
+    <dimen name="padding_xlarge">20dp</dimen>
+
+    <!--text size-->
+
+    <dimen name="text_size_very_small">10sp</dimen>
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_medium">15sp</dimen>
+    <dimen name="text_size_large">17sp</dimen>
+    <dimen name="text_size_heading">20sp</dimen>
+    <dimen name="text_size_title">30sp</dimen>
+
+    <!--icon size-->
+
+    <dimen name="icon_small">14dp</dimen>
+    <dimen name="icon_medium">24dp</dimen>
+    <dimen name="icon_large">28dp</dimen>
+    <dimen name="circle_corner_radius">28dp</dimen>
+    <dimen name="rec_corner_radius">10dp</dimen>
+
+</resources>
