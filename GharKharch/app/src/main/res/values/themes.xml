@@ -6,5 +6,9 @@
     </style>
 
     <style name="Theme.GharKharch" parent="Base.Theme.GharKharch">
+<!--        <item name="android:colorPrimary"></item>-->
+<!--        <item name="colorOnPrimary"></item>-->
+<!--        <item name="colorSecondary"></item>-->
+<!--        <item name="colorOnSecondary"></item>-->
     </style>
 </resources>
