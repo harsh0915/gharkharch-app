@@ -5,16 +5,20 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.itmart.gharkharch.Fragments.AddCategoryFragment;
+import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.AnalyticsFragment;
+import com.itmart.gharkharch.Fragments.BookExpense;
 import com.itmart.gharkharch.Fragments.ExpensesFragment;
 import com.itmart.gharkharch.Fragments.SettingsFragment;
 
 import java.util.HashMap;
 import java.util.List;
 
-import DatabaseHelper.GlobalData;
+import Utilities.GlobalData;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,14 +37,13 @@ public class MainActivity extends AppCompatActivity {
         initializeUiElements();
         setupClickListeners();
 
-        //loads the initial fragment
+//        loads the initial fragment
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_expenses);
-
-            currentFragment = ExpensesFragment.newInstance(expensesData);
+            currentFragment= new AddCategoryFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(fragmentContainer.getId(), currentFragment)
+                    .add(fragmentContainer.getId(), currentFragment)
                     .commit();
         }
     }
@@ -66,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
                 selectedFragment = fragmentMap.get(id);
             else {
                 if (id == R.id.nav_expenses) {
-                    selectedFragment = ExpensesFragment.newInstance(expensesData);
+                    selectedFragment = new AddCategoryFragment();
                 } else if (item.getItemId() == R.id.nav_analytics) {
-                    selectedFragment = AnalyticsFragment.newInstance("hello", "world");
+                    selectedFragment = new AddSubCategoryFragment();
                 } else {
-                    selectedFragment = SettingsFragment.newInstance("hello", "world");
+                    selectedFragment = new BookExpense();
                 }
                 fragmentMap.put(id, selectedFragment);
                 getSupportFragmentManager()
@@ -81,11 +84,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment != null && selectedFragment != currentFragment) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .hide(currentFragment)
-                        .show(selectedFragment)
-                        .commit();
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                if (currentFragment != null) {
+                    transaction.hide(currentFragment);
+                }
+                transaction.show(selectedFragment);
+                transaction.commit();
 
                 currentFragment = selectedFragment;
             }

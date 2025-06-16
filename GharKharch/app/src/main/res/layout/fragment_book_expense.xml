@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/subCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="Expense"
+        android:textSize="@dimen/text_size_large" />
+
+    <EditText
+        android:id="@+id/inputSubCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        android:hint="e.g. Vegetables, Books, Shoes"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="15"
+        android:padding="@dimen/padding_large"
+        android:textColorHint="@color/primaryTextColorVariant"
+        android:textSize="@dimen/text_size_large" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="Expense amount "
+        android:textSize="@dimen/text_size_large" />
+
+    <EditText
+        android:id="@+id/expenseAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        android:hint="e.g. 5000 rs"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="15"
+        android:padding="@dimen/padding_large"
+        android:textColorHint="@color/primaryTextColorVariant"
+        android:textSize="@dimen/text_size_large" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_medium"
+            android:text="Date :"
+            android:textSize="@dimen/text_size_large" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:text="15/02/2006"
+            android:textColor="@color/primaryTextColorVariant" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_medium"
+            android:text="Mode of payment :"
+            android:textSize="@dimen/text_size_large" />
+
+        <TextView
+            android:id="@+id/modesOfPayment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding_large"
+            android:text="CASH"
+            android:textColor="@color/primaryTextColorVariant"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_large"
+        android:backgroundTint="@color/buttonColor"
+        android:text="Save" />
+
+</LinearLayout>
+

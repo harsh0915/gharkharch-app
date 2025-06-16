@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
 
     <!--color-->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="lGrey">#616161</color>
 
     <!--colors for special views-->
     <color name="backgroundColor">#293F5F</color>
@@ -11,5 +12,7 @@
     <color name="primaryTextColor">#FFFFFF</color>
     <color name="primaryTextColorVariant">#7C7B7B</color>
     <color name="secondaryColor">#111B28</color>
+    <color name="buttonColor">#4662B8</color>
+    <color name="top_bar_bg">#0C1C31</color>
 
 </resources>

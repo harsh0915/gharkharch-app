@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">GharKharch</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="modesOfPayment">
+        <item>CASH</item>
+        <item>UPI</item>
+        <item>CARD</item>
+    </string-array>
+
 </resources>

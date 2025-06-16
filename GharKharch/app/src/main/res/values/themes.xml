@@ -2,13 +2,18 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.GharKharch" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
     <style name="Theme.GharKharch" parent="Base.Theme.GharKharch">
-<!--        <item name="android:colorPrimary"></item>-->
-<!--        <item name="colorOnPrimary"></item>-->
-<!--        <item name="colorSecondary"></item>-->
-<!--        <item name="colorOnSecondary"></item>-->
+        <item name="colorPrimary">@color/backgroundColor</item>
+        <item name="colorSecondary">@color/lGrey</item>
+        <!--        accent colors-->
+        <item name="colorOnSecondary">@color/primaryTextColor</item>
+        <item name="colorOnPrimary">@color/primaryTextColor</item>
+        <!--        text color-->
+        <item name="android:textColor">@color/primaryTextColor</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="android:textColorSecondary">@color/primaryTextColorVariant</item>
     </style>
+
 </resources>

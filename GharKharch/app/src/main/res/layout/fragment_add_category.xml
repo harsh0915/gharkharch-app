@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_large"
+        android:text="Category"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_large" />
+
+    <EditText
+        android:id="@+id/inputCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor"
+        android:hint="e.g. Household, Education"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="15"
+        android:padding="@dimen/padding_large"
+        android:textColorHint="@color/primaryTextColorVariant"
+        android:textSize="@dimen/text_size_large" />
+
+    <Button
+        android:id="@+id/addBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_large"
+        android:backgroundTint="@color/buttonColor"
+        android:text="Add"
+        android:textColor="@color/primaryTextColor" />
+
+</LinearLayout>

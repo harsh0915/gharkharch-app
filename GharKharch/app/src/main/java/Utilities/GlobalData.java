@@ -1,4 +1,4 @@
-package DatabaseHelper;
+package Utilities;
 
 import android.content.Context;
 import android.os.Handler;

@@ -1,6 +1,14 @@
 package DatabaseHelper;
 
-public class DatabaseHelper {
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+    private Context context;
+    private static DatabaseHelper instance;
+    private static final String DATABASE_NAME = "gharKharch_db";
+    private static final int DATABASE_VERSION = 1;
 
     //    tables
     public static String TABLE_CATEGORIES = "categories";
@@ -8,12 +16,49 @@ public class DatabaseHelper {
     public static String TABLE_EXPENSES = "expenses";
 
     //    fields for categories
-    public static String COLUMN_CAT_ID = "cat_id";
-    public static String COLUMN_CAT_NAME = "cat_name";
-    public static String dummy = "dummy";
+    public static String COLUMN_CATEGORY_ID = "cat_id";
+    public static String COLUMN_CATEGORY_NAME = "cat_name";
+    public static String COLUMN_USER_ID = "user_id";
 
-//    public static String COLUMN_DATE = "cat_id";
-//    public static String  = "cat_id";
-//    public static String COLUMN_CAT_ID = "cat_id";
+    //    fields for sub categories
+    public static String COLUMN_SUB_CATEGORY_ID = "sub_cat_id";
+    public static String COLUMN_SUB_CATEGORY_NAME = "cat_name";
+
+    //    fields for expense table
+    public static String COLUMN_EXPENSE_ID = "expense_id";
+    public static String COLUMN_EXPENSE_AMOUNT = "expense_amount";
+    public static String COLUMN_EXPENSE_DATE = "expense_date";
+    public static String COLUMN_EXPENSE_MODE = "expense_mode";
+    //    create tables
+    public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_CATEGORY_NAME + " TEXT );";
+    public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUBCATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_SUB_CATEGORY_NAME + " TEXT NOT NULL," + COLUMN_CATEGORY_ID + " NOT NULL );";
+    public String CREATE_EXPENSE_TABLE = "create table " + TABLE_EXPENSES + "(" + COLUMN_EXPENSE_ID + "INTEGER PRIMARY KEY AUTOINCREMENT ," + COLUMN_SUB_CATEGORY_ID + "INTEGER NOT NULL," + COLUMN_EXPENSE_AMOUNT + " INTEGER, " + COLUMN_EXPENSE_DATE + " INTEGER, " + COLUMN_EXPENSE_MODE + " INTEGER);";
+
+    private DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+    }
+
+    // Public method to get the single instance of the database helper
+    public static synchronized DatabaseHelper getInstance(Context context) {
+        if (instance == null) {
+            instance = new DatabaseHelper(context);
+        }
+        return instance;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CREATE_CATEGORIES_TABLE);
+        db.execSQL(CREATE_SUB_CATEGORY_TABLE);
+        db.execSQL(CREATE_EXPENSE_TABLE);
+    }
+
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
+        onCreate(db);
+    }
 
 }
