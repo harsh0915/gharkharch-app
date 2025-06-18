@@ -24,9 +24,9 @@ import Adapters.ExpensesAdapter;
 public class ExpensesFragment extends Fragment {
 
     public static String paramExpenses = "expenses_list";
-    ExpensesAdapter adapter;
-    List<Integer> expensesList;
-    RecyclerView expensesRCV;
+    private ExpensesAdapter adapter;
+    private List<Integer> expensesList;
+    private RecyclerView expensesRCV;
 
     public ExpensesFragment() {
         // Required empty public constructor

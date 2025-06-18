@@ -16,8 +16,8 @@ import com.itmart.gharkharch.R;
 
 
 public class AddSubCategoryFragment extends Fragment {
-    EditText inputSubCategory;
-    Button saveBtn;
+    private EditText inputSubCategory;
+    private Button saveBtn;
 
     @Nullable
     @Override

@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">GharKharch</string>
+    <string name="hint_category">e.g. Household, Education</string>
+    <string name="hint_sub_category">e.g. Vegetables, School Fee, Books, etc.</string>
+    <string name="hint_amount">e.g. 5000 rs</string>
 
     <string-array name="modesOfPayment">
         <item>CASH</item>
