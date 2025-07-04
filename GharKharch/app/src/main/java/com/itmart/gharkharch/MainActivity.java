@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -46,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
             currentFragment = new AddCategoryFragment();
             getSupportFragmentManager().beginTransaction().add(fragmentContainer.getId(), currentFragment).commit();
         }
+
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                show_quit_confirmation_dialog();
+            }
+        });
     }
 
     private void initializeUiElements() {
@@ -113,5 +122,11 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.d("harshTag", "Sql table creation error!\nError : " + e.getMessage());
         }
+    }
+
+
+    private void show_quit_confirmation_dialog() {
+        globalData.generateSnackBar(bottomNavigationView, "Are you sure you want to quit ghar_kharch?");
+
     }
 }

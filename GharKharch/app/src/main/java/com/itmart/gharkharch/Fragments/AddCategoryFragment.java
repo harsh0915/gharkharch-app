@@ -1,7 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,15 +16,13 @@ import androidx.fragment.app.Fragment;
 
 import com.itmart.gharkharch.R;
 
-import java.util.UUID;
-
 import DatabaseHelper.DatabaseHelper;
 import Utilities.GlobalData;
 
 public class AddCategoryFragment extends Fragment {
     private EditText inputCategory;
     private Button addBtn;
-    private SQLiteDatabase writeableDb;
+    private DatabaseHelper databaseHelper;
     private GlobalData globalData;
 
     @Override
@@ -50,7 +47,7 @@ public class AddCategoryFragment extends Fragment {
         addBtn.setOnClickListener(v -> {
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
-                globalData.generateSnackBar(v, "Please make sure you provide a name before providing a category!");
+                globalData.generateSnackBar(v, "A category name can't be empty!");
             else addCategory(new_category);
         });
     }
@@ -58,17 +55,27 @@ public class AddCategoryFragment extends Fragment {
     private void addCategory(String new_category) {
 
         try {
-            writeableDb = DatabaseHelper.getInstance(requireContext()).getWritableDatabase();
+            databaseHelper = DatabaseHelper.getInstance(requireContext());
+            SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
-            values.put("email", "harsh@example.com");
+            values.put(DatabaseHelper.COLUMN_USER_ID, "harsh@example.com");
 
-            long id = writeableDb.insert("users", null, values);
-            Log.d("harshTag", "Category added successfully!. Row_ID : " + id);
+            try {
+                long id = writeable_db.insert(DatabaseHelper.TABLE_CATEGORIES, null, values);
+
+                if (id == -1)
+                    Log.d("harshTagSqlQuery", "Something went wrong while updating the table. Rows updated : " + id);
+                else Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
+
+            } catch (Exception e) {
+                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+            }
+
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
         } catch (Exception e) {
-            Log.d("harshTag", "Sql error!\nError : " + e.getMessage());
+            Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }
     }
 }

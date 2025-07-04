@@ -3,15 +3,15 @@
 
     <item
         android:id="@+id/nav_expenses"
-        android:icon="@drawable/rupee_icon"
-        android:title="Expenses" />
+        android:icon="@drawable/category_icon"
+        android:title="Category" />
     <item
         android:id="@+id/nav_analytics"
         android:icon="@drawable/analytics_icon"
-        android:title="Analytics" />
+        android:title="Sub-Category" />
     <item
         android:id="@+id/nav_settings"
-        android:icon="@drawable/settings_icon"
-        android:title="Settings" />
+        android:icon="@drawable/save_icon"
+        android:title="Book Expense" />
 
 </menu>

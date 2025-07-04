@@ -12,13 +12,15 @@
         android:padding="@dimen/padding_large"
         android:text="Category"
         android:textColor="@color/primaryTextColor"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/inputCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/backgroundColor"
+        android:gravity="center"
         android:hint="@string/hint_category"
         android:importantForAutofill="no"
         android:inputType="text"
