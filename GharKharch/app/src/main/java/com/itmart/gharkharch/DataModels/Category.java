@@ -5,17 +5,23 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-public class Category implements Parcelable {
+import Adapters.SearchListAdapter;
+
+public class Category implements Parcelable, SearchListAdapter.SearchableItem {
 
     private int category_id;
-    private int category_name;
+    private String category_name;
     private String user_id;
 
-    public Category(int category_id,String category_name,String user_id){};
+    public Category(int category_id, String category_name, String user_id) {
+        this.category_id = category_id;
+        this.category_name = category_name;
+        this.user_id = user_id;
+    }
 
     protected Category(Parcel in) {
         category_id = in.readInt();
-        category_name = in.readInt();
+        category_name = in.readString();
         user_id = in.readString();
     }
 
@@ -35,7 +41,7 @@ public class Category implements Parcelable {
         return category_id;
     }
 
-    public int getCategory_name() {
+    public String getCategory_name() {
         return category_name;
     }
 
@@ -51,7 +57,17 @@ public class Category implements Parcelable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(category_id);
-        dest.writeInt(category_name);
+        dest.writeString(category_name);
         dest.writeString(user_id);
+    }
+
+    @Override
+    public int get_item_id() {
+        return category_id;
+    }
+
+    @Override
+    public String get_item_name() {
+        return category_name;
     }
 }

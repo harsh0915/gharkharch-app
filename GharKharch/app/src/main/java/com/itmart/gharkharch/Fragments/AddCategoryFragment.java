@@ -23,19 +23,19 @@ public class AddCategoryFragment extends Fragment {
     private EditText inputCategory;
     private Button addBtn;
     private DatabaseHelper databaseHelper;
-    private GlobalData globalData;
+    private GlobalData gdata;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        globalData = new GlobalData(requireContext());
+        gdata = new GlobalData(requireContext());
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_category, container, false);
-        inputCategory = view.findViewById(R.id.inputCategory);
+        inputCategory = view.findViewById(R.id.input_category);
         addBtn = view.findViewById(R.id.addBtn);
         return view;
     }
@@ -47,7 +47,7 @@ public class AddCategoryFragment extends Fragment {
         addBtn.setOnClickListener(v -> {
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
-                globalData.generateSnackBar(v, "A category name can't be empty!");
+                gdata.generateSnackBar(v, "A category name can't be empty!");
             else addCategory(new_category);
         });
     }
@@ -74,6 +74,8 @@ public class AddCategoryFragment extends Fragment {
 
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
+            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!");
+
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }

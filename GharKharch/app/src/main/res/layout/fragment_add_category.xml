@@ -16,10 +16,10 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/inputCategory"
+        android:id="@+id/input_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+        android:background="@drawable/search_bar_bordered_bg"
         android:gravity="center"
         android:hint="@string/hint_category"
         android:importantForAutofill="no"

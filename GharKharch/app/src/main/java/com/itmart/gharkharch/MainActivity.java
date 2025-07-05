@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        loads the initial fragment
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_expenses);
+            bottomNavigationView.setSelectedItemId(R.id.nav_add_category);
             currentFragment = new AddCategoryFragment();
             getSupportFragmentManager().beginTransaction().add(fragmentContainer.getId(), currentFragment).commit();
         }
@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (fragmentMap.containsKey(id)) selectedFragment = fragmentMap.get(id);
             else {
-                if (id == R.id.nav_expenses) {
+                if (id == R.id.nav_add_category) {
                     selectedFragment = new AddCategoryFragment();
-                } else if (item.getItemId() == R.id.nav_analytics) {
+                } else if (item.getItemId() == R.id.nav_add_sub_category) {
                     selectedFragment = new AddSubCategoryFragment();
                 } else {
                     selectedFragment = new BookExpense();

@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_expenses"
+        android:id="@+id/nav_add_category"
         android:icon="@drawable/category_icon"
         android:title="Category" />
     <item
-        android:id="@+id/nav_analytics"
-        android:icon="@drawable/analytics_icon"
+        android:id="@+id/nav_add_sub_category"
+        android:icon="@drawable/category_icon"
         android:title="Sub-Category" />
     <item
         android:id="@+id/nav_settings"

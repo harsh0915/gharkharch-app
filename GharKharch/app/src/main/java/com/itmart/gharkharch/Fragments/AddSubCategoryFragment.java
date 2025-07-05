@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -20,30 +21,40 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Adapters.CategoryAdapter;
+import Adapters.SearchListAdapter;
 import DatabaseHelper.DatabaseHelper;
+import Utilities.GlobalData;
 
 
-public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.CategoryItemClicked {
-    private Button saveBtn;
+public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked {
+    private Button addBtn;
     private EditText inputSubCategory, inputCategory;
-    private List<String> category_list;
+    private List<SearchListAdapter.SearchableItem> category_list;
     private RecyclerView category_search_list;
-    private CategoryAdapter category_adapter;
+    private SearchListAdapter category_adapter;
     private DatabaseHelper databaseHelper;
+    private int under_category_id;
+    private GlobalData gdata;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        gdata = new GlobalData();
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_sub_category, container, false);
-        inputSubCategory = view.findViewById(R.id.inputSubCategory);
-        inputCategory = view.findViewById(R.id.inputCategory);
-        saveBtn = view.findViewById(R.id.addBtn);
+        inputSubCategory = view.findViewById(R.id.input_sub_category);
+        inputCategory = view.findViewById(R.id.input_category);
+        addBtn = view.findViewById(R.id.addBtn);
         category_search_list = view.findViewById(R.id.category_search_list);
         inflate_RCV();
         return view;
@@ -65,9 +76,17 @@ public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.
             }
         });
 
-        saveBtn.setOnClickListener(v -> {
+        addBtn.setOnClickListener(v -> {
+            String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
+            if (sub_cat_name.isEmpty())
+                gdata.generateSnackBar(addBtn, "A category name can't be empty!");
+            else if (cat_name.isEmpty())
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
+            else
+                addSubCategory(sub_cat_name, cat_name, under_category_id);
         });
 
+        //TODO:bind the search list adapter with the input text
         inputCategory.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -95,9 +114,41 @@ public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.
     private void inflate_RCV() {
         category_list = new ArrayList<>();
         fetch_category_list();
-        category_adapter = new CategoryAdapter(requireContext(), category_list, this);
+        category_adapter = new SearchListAdapter(requireContext(), category_list, this);
         category_search_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         category_search_list.setAdapter(category_adapter);
+    }
+
+    private void addSubCategory(String new_sub_category, String under_category, int under_cat_id) {
+
+        try {
+            databaseHelper = DatabaseHelper.getInstance(requireContext());
+            SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
+            values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, under_category);
+            values.put(DatabaseHelper.COLUMN_CATEGORY_ID, under_cat_id);
+
+            try {
+                long id = writeable_db.insert(DatabaseHelper.TABLE_SUBCATEGORIES, null, values);
+
+                if (id == -1)
+                    Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
+                else
+                    Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
+
+            } catch (Exception e) {
+                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+            }
+
+            inputCategory.setText("");
+            inputSubCategory.setText("");
+            inputCategory.setHint(R.string.hint_category);
+            inputSubCategory.setHint(R.string.hint_sub_category);
+            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.");
+        } catch (Exception e) {
+            Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
+        }
     }
 
     private void fetch_category_list() {
@@ -105,7 +156,7 @@ public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.
             databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
-            String query = "select " + DatabaseHelper.COLUMN_CATEGORY_NAME + " from " + DatabaseHelper.TABLE_CATEGORIES;
+            String query = "select " + DatabaseHelper.COLUMN_CATEGORY_NAME + " , " + DatabaseHelper.COLUMN_CATEGORY_ID + " from " + DatabaseHelper.TABLE_CATEGORIES;
             Cursor cursor = null;
 
             try {
@@ -114,7 +165,9 @@ public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.
                 if (cursor.moveToFirst()) {
                     do {
                         String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-                        category_list.add(cat_name);
+                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                        Category category = new Category(cat_id, cat_name, null);
+                        category_list.add(category);
                     } while (cursor.moveToNext());
                 }
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");
@@ -127,12 +180,12 @@ public class AddSubCategoryFragment extends Fragment implements CategoryAdapter.
         } catch (Exception e) {
             Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
         }
-
     }
 
     @Override
-    public void on_item_clicked(String cat_name) {
-        inputCategory.setText(cat_name);
+    public void on_item_clicked(SearchListAdapter.SearchableItem clicked_item) {
+        inputCategory.setText(clicked_item.get_item_name());
+        under_category_id = clicked_item.get_item_id();
         inputCategory.setSelection(inputCategory.getText().length());
     }
 }

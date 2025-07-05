@@ -7,7 +7,6 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/subCategory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_medium"
@@ -16,10 +15,12 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/inputSubCategory"
+        android:id="@+id/input_sub_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:background="@drawable/search_bar_bordered_bg"
+        android:gravity="center"
         android:hint="@string/hint_sub_category"
         android:importantForAutofill="no"
         android:inputType="text"
@@ -37,10 +38,12 @@
         android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/expenseAmount"
+        android:id="@+id/input_expense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+        android:layout_marginBottom="@dimen/margin_small"
+        android:background="@drawable/search_bar_bordered_bg"
+        android:gravity="center"
         android:hint="@string/hint_amount"
         android:importantForAutofill="no"
         android:inputType="text"
@@ -52,6 +55,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_small"
         android:orientation="horizontal">
 
         <TextView
@@ -63,18 +67,19 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/date_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
             android:text="15/02/2006"
             android:textColor="@color/primaryTextColorVariant" />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
 
         <TextView
             android:layout_width="wrap_content"
@@ -85,7 +90,7 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/modesOfPayment"
+            android:id="@+id/modes_of_payment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
@@ -95,14 +100,13 @@
 
     </LinearLayout>
 
-
     <Button
         android:id="@+id/saveBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_large"
         android:backgroundTint="@color/buttonColor"
-        android:text="Save" />
+        android:text="Add" />
 
 </LinearLayout>
 
