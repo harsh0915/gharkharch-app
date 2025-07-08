@@ -27,7 +27,7 @@ import com.itmart.gharkharch.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import Adapters.SearchListAdapter;
+import com.itmart.gharkharch.Adapters.SearchListAdapter;
 import DatabaseHelper.DatabaseHelper;
 import Utilities.GlobalData;
 

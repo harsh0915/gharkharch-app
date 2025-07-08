@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-import Adapters.SearchListAdapter;
+import com.itmart.gharkharch.Adapters.SearchListAdapter;
 
 public class Category implements Parcelable, SearchListAdapter.SearchableItem {
 

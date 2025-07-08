@@ -1,4 +1,4 @@
-package Adapters;
+package com.itmart.gharkharch.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ExpensesAdapter extends RecyclerView.Adapter<ExpensesAdapter.ViewHolder> {

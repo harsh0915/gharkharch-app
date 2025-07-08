@@ -1,4 +1,4 @@
-package Adapters;
+package com.itmart.gharkharch.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,7 +9,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.R;
 
 import java.util.List;
