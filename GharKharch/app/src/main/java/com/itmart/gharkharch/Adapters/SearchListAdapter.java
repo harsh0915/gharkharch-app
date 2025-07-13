@@ -39,7 +39,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
     @NonNull
     @Override
     public SearchListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_category, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_searchable, parent, false);
         return new ViewHolder(view);
     }
 

@@ -74,6 +74,10 @@
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:layout_marginVertical="@dimen/margin_small"
+            android:background="@drawable/rounded_panel"
+            android:backgroundTint="@color/backgroundColor"
+            android:clipToOutline="true"
+            android:outlineProvider="background"
             android:visibility="gone" />
 
     </FrameLayout>
