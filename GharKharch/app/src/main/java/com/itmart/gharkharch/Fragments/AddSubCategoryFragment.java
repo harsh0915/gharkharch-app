@@ -20,14 +20,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
+
 import DatabaseHelper.DatabaseHelper;
 import Utilities.GlobalData;
 
@@ -36,6 +40,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private Button addBtn;
     private EditText inputSubCategory, inputCategory;
     private List<SearchListAdapter.SearchableItem> category_list;
+    private HashSet<String> category_fast_lookup;
     private RecyclerView category_search_list;
     private SearchListAdapter category_adapter;
     private DatabaseHelper databaseHelper;
@@ -78,10 +83,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
         addBtn.setOnClickListener(v -> {
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
+            if (!category_fast_lookup.contains(cat_name)) {
+                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ",false);
+                return;
+            }
             if (sub_cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A category name can't be empty!");
+                gdata.generateSnackBar(addBtn, "A category name can't be empty!",false);
             else if (cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!",false);
             else
                 addSubCategory(sub_cat_name, cat_name, under_category_id);
         });
@@ -113,6 +122,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
     private void inflate_RCV() {
         category_list = new ArrayList<>();
+        category_fast_lookup = new HashSet<>();
         fetch_category_list();
         category_adapter = new SearchListAdapter(requireContext(), category_list, this);
         category_search_list.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -145,7 +155,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             inputSubCategory.setText("");
             inputCategory.setHint(R.string.hint_category);
             inputSubCategory.setHint(R.string.hint_sub_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.");
+            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.",false);
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }
@@ -166,8 +176,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                     do {
                         String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
                         int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                        Category category = new Category(cat_id, cat_name, null);
+                        Category category = new Category(cat_id, cat_name);
                         category_list.add(category);
+                        category_fast_lookup.add(cat_name);
                     } while (cursor.moveToNext());
                 }
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");

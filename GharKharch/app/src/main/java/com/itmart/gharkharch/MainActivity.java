@@ -110,9 +110,8 @@ public class MainActivity extends AppCompatActivity {
                 if (cursor.moveToFirst()) {
                     int category_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
                     String category_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-                    String user_id = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_USER_ID));
 
-                    Category category = new Category(category_id, category_name, user_id);
+                    Category category = new Category(category_id, category_name);
                     categoryList.add(category);
                 }
             } while (cursor.moveToNext());
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void show_quit_confirmation_dialog() {
-        globalData.generateSnackBar(bottomNavigationView, "Are you sure you want to quit ghar_kharch?");
+        globalData.generateSnackBar(bottomNavigationView, "Are you sure you want to quit ghar_kharch?", true);
 
     }
 }

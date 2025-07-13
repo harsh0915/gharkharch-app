@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,11 +31,18 @@ public class GlobalData {
         return expensesData;
     }
 
-    public void generateSnackBar(View view, String msg) {
+    public void generateSnackBar(View view, String msg,boolean need_button) {
         Snackbar snackbar = Snackbar.make(view, msg, Snackbar.LENGTH_LONG);
-        snackbar.setAction("Ok", v -> {
-            snackbar.dismiss();
-        });
+        if(need_button){
+            snackbar.setAction("Ok", v -> {
+                snackbar.dismiss();
+            });
+        }
         new Handler(Looper.getMainLooper()).post(snackbar::show);
     }
+
+    public void generateToast(String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+    }
+
 }

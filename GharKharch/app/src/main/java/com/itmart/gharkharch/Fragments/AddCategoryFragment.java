@@ -47,7 +47,7 @@ public class AddCategoryFragment extends Fragment {
         addBtn.setOnClickListener(v -> {
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
-                gdata.generateSnackBar(v, "A category name can't be empty!");
+                gdata.generateSnackBar(v, "A category name can't be empty!",false);
             else addCategory(new_category);
         });
     }
@@ -59,7 +59,6 @@ public class AddCategoryFragment extends Fragment {
             SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
-            values.put(DatabaseHelper.COLUMN_USER_ID, "harsh@example.com");
 
             try {
                 long id = writeable_db.insert(DatabaseHelper.TABLE_CATEGORIES, null, values);
@@ -74,7 +73,7 @@ public class AddCategoryFragment extends Fragment {
 
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!");
+            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!",false);
 
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());

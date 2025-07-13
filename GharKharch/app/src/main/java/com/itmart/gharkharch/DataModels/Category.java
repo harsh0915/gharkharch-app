@@ -11,18 +11,15 @@ public class Category implements Parcelable, SearchListAdapter.SearchableItem {
 
     private int category_id;
     private String category_name;
-    private String user_id;
 
-    public Category(int category_id, String category_name, String user_id) {
+    public Category(int category_id, String category_name) {
         this.category_id = category_id;
         this.category_name = category_name;
-        this.user_id = user_id;
     }
 
     protected Category(Parcel in) {
         category_id = in.readInt();
         category_name = in.readString();
-        user_id = in.readString();
     }
 
     public static final Creator<Category> CREATOR = new Creator<Category>() {
@@ -45,9 +42,6 @@ public class Category implements Parcelable, SearchListAdapter.SearchableItem {
         return category_name;
     }
 
-    public String getUser_id() {
-        return user_id;
-    }
 
     @Override
     public int describeContents() {
@@ -58,7 +52,6 @@ public class Category implements Parcelable, SearchListAdapter.SearchableItem {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(category_id);
         dest.writeString(category_name);
-        dest.writeString(user_id);
     }
 
     @Override

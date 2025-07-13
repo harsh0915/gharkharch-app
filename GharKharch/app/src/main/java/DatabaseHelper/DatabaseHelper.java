@@ -35,8 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //    create tables
     public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" +
             COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            COLUMN_CATEGORY_NAME + " TEXT, "+
-            COLUMN_USER_ID + " TEXT );";
+            COLUMN_CATEGORY_NAME + " TEXT );";
     public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUBCATEGORIES + "(" +
             COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_SUB_CATEGORY_NAME + " TEXT NOT NULL, " +

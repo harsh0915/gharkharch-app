@@ -23,7 +23,7 @@ public class BookExpense extends Fragment {
 
     private TextView modes_of_payment, date_picker;
     private EditText input_sub_category, input_expense;
-    private Button saveBtn;
+    private Button addBtn;
     private GlobalData gdata;
 
     @Override
@@ -40,7 +40,7 @@ public class BookExpense extends Fragment {
         input_expense = view.findViewById(R.id.input_expense);
         date_picker = view.findViewById(R.id.date_picker);
         modes_of_payment = view.findViewById(R.id.modes_of_payment);
-        saveBtn = view.findViewById(R.id.saveBtn);
+        addBtn = view.findViewById(R.id.saveBtn);
         return view;
     }
 
@@ -88,9 +88,9 @@ public class BookExpense extends Fragment {
         date_picker.setOnClickListener(v -> {
         });
 
-        saveBtn.setOnClickListener(v -> {
+        addBtn.setOnClickListener(v -> {
             //TODO:some saving logic
-            gdata.generateSnackBar(v, "Expense added.");
+            gdata.generateSnackBar(v, "Expense added.",false);
         });
     }
 }
