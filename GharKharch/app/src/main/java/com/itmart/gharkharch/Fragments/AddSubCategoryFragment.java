@@ -103,7 +103,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                rcv_category_search.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -115,9 +115,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputCategory.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 rcv_category_search.setVisibility(View.VISIBLE);
-                addBtn.setVisibility(View.GONE);
             } else {
-                addBtn.setVisibility(View.VISIBLE);
                 rcv_category_search.setVisibility(View.GONE);
             }
         });
@@ -155,11 +153,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             try {
                 long id = writeable_db.insert(DatabaseHelper.TABLE_SUBCATEGORIES, null, values);
 
-                if (id == -1)
+                if (id == -1){
                     Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
-                else
+                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" category already exists!!", false);
+                }
+                else {
                     Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
-
+                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.", false);
+                }
             } catch (Exception e) {
                 Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             }
@@ -168,7 +169,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             inputSubCategory.setText("");
             inputCategory.setHint(R.string.hint_category);
             inputSubCategory.setHint(R.string.hint_sub_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.", false);
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }
@@ -214,5 +214,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputCategory.setText(clicked_item.get_item_name());
         under_category_id = clicked_item.get_item_id();
         inputCategory.setSelection(inputCategory.getText().length());
+        rcv_category_search.setVisibility(View.GONE);
     }
 }

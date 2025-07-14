@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.itmart.gharkharch.R;
@@ -21,10 +22,11 @@ import Utilities.GlobalData;
 
 public class BookExpense extends Fragment {
 
-    private TextView modes_of_payment, date_picker;
+    private TextView date_picker;
     private EditText input_sub_category, input_expense;
     private Button addBtn;
     private GlobalData gdata;
+    private Spinner modes_of_payment;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class BookExpense extends Fragment {
         input_expense = view.findViewById(R.id.input_expense);
         date_picker = view.findViewById(R.id.date_picker);
         modes_of_payment = view.findViewById(R.id.modes_of_payment);
-        addBtn = view.findViewById(R.id.saveBtn);
+        addBtn = view.findViewById(R.id.addBtn);
         return view;
     }
 
@@ -82,8 +84,6 @@ public class BookExpense extends Fragment {
             }
         });
 
-        modes_of_payment.setOnClickListener(v -> {
-        });
 
         date_picker.setOnClickListener(v -> {
         });

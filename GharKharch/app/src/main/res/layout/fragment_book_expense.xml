@@ -1,112 +1,184 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:padding="@dimen/padding_large">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_medium"
-        android:text="Expense"
+        android:layout_marginVertical="@dimen/margin_medium"
+        android:padding="@dimen/padding_large"
+        android:text="Date"
         android:textSize="@dimen/text_size_large"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/date_picker"
+        app:layout_constraintEnd_toStartOf="@id/date_picker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/date_picker" />
+
+    <TextView
+        android:id="@+id/date_picker"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_medium"
+        android:background="@drawable/search_bar_bordered_bg"
+        android:padding="@dimen/padding_large"
+        android:text="15/02/2006"
+        android:textColor="@color/primaryTextColorVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_small"
+        android:padding="@dimen/padding_large"
+        android:text="Expense On"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/input_sub_category"
+        app:layout_constraintEnd_toStartOf="@id/input_sub_category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_sub_category" />
 
     <EditText
         android:id="@+id/input_sub_category"
-        android:layout_width="wrap_content"
+        style="@style/custom_edit_text"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_small"
-        android:background="@drawable/search_bar_bordered_bg"
-        android:gravity="center"
+        android:layout_marginVertical="@dimen/margin_small"
         android:hint="@string/hint_sub_category"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:maxLength="15"
-        android:padding="@dimen/padding_large"
-        android:textColorHint="@color/primaryTextColorVariant"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/date_picker" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_medium"
-        android:text="Expense amount "
+        android:padding="@dimen/padding_large"
+        android:text="Amount "
         android:textSize="@dimen/text_size_large"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/input_expense"
+        app:layout_constraintEnd_toStartOf="@id/input_expense"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_expense" />
 
     <EditText
         android:id="@+id/input_expense"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_medium"
         android:layout_marginBottom="@dimen/margin_small"
         android:background="@drawable/search_bar_bordered_bg"
-        android:gravity="center"
         android:hint="@string/hint_amount"
         android:importantForAutofill="no"
         android:inputType="number"
         android:maxLength="15"
         android:padding="@dimen/padding_large"
         android:textColorHint="@color/primaryTextColorVariant"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <TextView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_small"
-        android:orientation="horizontal">
+        android:padding="@dimen/padding_large"
+        android:text="Mode of payment"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/modes_of_payment"
+        app:layout_constraintEnd_toStartOf="@id/modes_of_payment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/modes_of_payment" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_medium"
-            android:text="Date :"
-            android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/date_picker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_large"
-            android:text="15/02/2006"
-            android:textColor="@color/primaryTextColorVariant" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/modes_of_payment"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_medium"
-            android:text="Mode of payment :"
-            android:textSize="@dimen/text_size_large"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/modes_of_payment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="@dimen/padding_large"
-            android:text="CASH"
-            android:textColor="@color/primaryTextColorVariant"
-            android:textStyle="bold" />
-
-    </LinearLayout>
+        android:layout_marginVertical="@dimen/margin_small"
+        android:background="@drawable/search_bar_bordered_bg"
+        android:entries="@array/modesOfPayment"
+        android:padding="@dimen/padding_large"
+        android:spinnerMode="dialog"
+        android:textColor="@color/primaryTextColorVariant"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_expense" />
 
     <Button
-        android:id="@+id/saveBtn"
+        android:id="@+id/addBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_large"
+        android:layout_marginStart="@dimen/margin_medium"
         android:backgroundTint="@color/buttonColor"
-        android:text="Add" />
+        android:text="Add"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/modes_of_payment" />
 
-</LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/category_search_list"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginVertical="@dimen/margin_small"
+        android:background="@drawable/rounded_panel"
+        android:backgroundTint="@color/backgroundColor"
+        android:clipToOutline="true"
+        android:elevation="5dp"
+        android:outlineProvider="background"
+        android:translationZ="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/input_sub_category"
+        app:layout_constraintStart_toStartOf="@id/input_sub_category"
+        app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
+
+    <LinearLayout
+        android:id="@+id/list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/addBtn">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/padding_large"
+            android:text="Expense List"
+            android:textSize="@dimen/text_size_large" />
+
+        <SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_bar_bordered_bg"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/search_icon" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/category_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginVertical="@dimen/margin_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/list_container"
+        app:layout_constraintStart_toStartOf="@id/list_container"
+        app:layout_constraintTop_toBottomOf="@id/list_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

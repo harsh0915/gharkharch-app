@@ -1,79 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:padding="@dimen/padding_large">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_large"
-        android:text="Sub Category "
+        android:text="Ledger"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/text_size_large"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/input_sub_category"
+        app:layout_constraintEnd_toStartOf="@id/input_sub_category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_sub_category" />
 
     <EditText
         android:id="@+id/input_sub_category"
-        android:layout_width="wrap_content"
+        style="@style/custom_edit_text"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/search_bar_bordered_bg"
-        android:gravity="center"
         android:hint="@string/hint_sub_category"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:maxLength="15"
-        android:padding="@dimen/padding_large"
-        android:textColorHint="@color/primaryTextColorVariant"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_small"
         android:padding="@dimen/padding_large"
         android:text="Under"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/text_size_large"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/input_category"
+        app:layout_constraintEnd_toStartOf="@id/input_category"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_category" />
 
     <EditText
         android:id="@+id/input_category"
-        android:layout_width="250dp"
+        style="@style/custom_edit_text"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/search_bar_bordered_bg"
-        android:ellipsize="end"
-        android:gravity="center"
+        android:layout_marginVertical="@dimen/margin_small"
         android:hint="@string/hint_category"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:maxLength="15"
-        android:padding="@dimen/padding_large"
-        android:textColorHint="@color/primaryTextColorVariant"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
 
     <Button
         android:id="@+id/addBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginVertical="@dimen/margin_large"
+        android:layout_marginStart="@dimen/margin_medium"
         android:backgroundTint="@color/buttonColor"
-        android:text="Add"
-        android:textColor="@color/primaryTextColor" />
+        android:text="Save"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_category" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/category_search_list"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
         android:layout_marginVertical="@dimen/margin_small"
         android:background="@drawable/rounded_panel"
         android:backgroundTint="@color/backgroundColor"
         android:clipToOutline="true"
         android:outlineProvider="background"
-        android:visibility="gone" />
+        android:translationZ="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/input_category"
+        app:layout_constraintStart_toStartOf="@id/input_category"
+        app:layout_constraintTop_toBottomOf="@id/input_category" />
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/addBtn">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/padding_large"
+            android:text="Ledger"
+            android:textSize="@dimen/text_size_large" />
+
+        <SearchView
+            android:id="@+id/search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_bar_bordered_bg"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/search_icon" />
+
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sub_category_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginVertical="@dimen/margin_small"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/list_container"
+        app:layout_constraintStart_toStartOf="@id/list_container"
+        app:layout_constraintTop_toBottomOf="@id/list_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
