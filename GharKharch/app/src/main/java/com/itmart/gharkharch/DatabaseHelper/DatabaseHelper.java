@@ -1,4 +1,4 @@
-package DatabaseHelper;
+package com.itmart.gharkharch.DatabaseHelper;
 
 import android.content.Context;
 import android.database.SQLException;
@@ -7,9 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private Context context;
     private static DatabaseHelper instance;
-    private static final String DATABASE_NAME = "gharKharch_db";
+    private static final String DATABASE_NAME = "ghar_kharch_db";
     private static final int DATABASE_VERSION = 1;
 
     //    tables
@@ -48,8 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_EXPENSE_MODE + " INTEGER DEFAULT 0);";
 
     private DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
+        super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     // Public method to get the single instance of the database helper

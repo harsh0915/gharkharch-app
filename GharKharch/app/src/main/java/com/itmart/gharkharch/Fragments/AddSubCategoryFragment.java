@@ -21,8 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.itmart.gharkharch.DataModels.Category;
+import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
@@ -31,31 +33,33 @@ import java.util.List;
 
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 
-import DatabaseHelper.DatabaseHelper;
-import Utilities.GlobalData;
+import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
+import com.itmart.gharkharch.Utilities.GlobalData;
 
 
 public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked {
     private Button addBtn;
     private EditText inputSubCategory, inputCategory;
-    private List<SearchListAdapter.SearchableItem> category_list;
+    private List<GenericItem> category_list;
     private HashSet<String> category_fast_lookup;
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
     private DatabaseHelper databaseHelper;
     private int under_category_id;
+    private TextView page_title;
     private GlobalData gdata;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gdata = new GlobalData();
+        gdata = GlobalData.getInstance(requireContext());
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_sub_category, container, false);
+        page_title = requireActivity().findViewById(R.id.page_title);
         inputSubCategory = view.findViewById(R.id.input_sub_category);
         inputCategory = view.findViewById(R.id.input_category);
         addBtn = view.findViewById(R.id.addBtn);
@@ -84,13 +88,13 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         addBtn.setOnClickListener(v -> {
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
             if (!category_fast_lookup.contains(cat_name)) {
-                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", false);
+                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ");
                 return;
             }
             if (sub_cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A category name can't be empty!", false);
+                gdata.generateSnackBar(addBtn, "A category name can't be empty!");
             else if (cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!", false);
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
             else addSubCategory(sub_cat_name, cat_name, under_category_id);
         });
 
@@ -129,6 +133,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         if (!hidden) {
             fetch_category_list();
         }
+        page_title.setText("Expense Heads");
     }
 
     private void inflate_RCV() {
@@ -153,13 +158,12 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             try {
                 long id = writeable_db.insert(DatabaseHelper.TABLE_SUBCATEGORIES, null, values);
 
-                if (id == -1){
+                if (id == -1) {
                     Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
-                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" category already exists!!", false);
-                }
-                else {
+                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" category already exists!!");
+                } else {
                     Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
-                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.", false);
+                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.");
                 }
             } catch (Exception e) {
                 Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
@@ -206,11 +210,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         } catch (Exception e) {
             Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
         }
-        Log.i("harshTagFetching", " fetching ");
     }
 
     @Override
-    public void on_item_clicked(SearchListAdapter.SearchableItem clicked_item) {
+    public void on_item_clicked(GenericItem clicked_item) {
         inputCategory.setText(clicked_item.get_item_name());
         under_category_id = clicked_item.get_item_id();
         inputCategory.setSelection(inputCategory.getText().length());

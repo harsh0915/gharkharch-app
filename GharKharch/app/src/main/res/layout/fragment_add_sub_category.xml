@@ -115,7 +115,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/sub_category_list"
+        android:id="@+id/rcv_sub_category_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginVertical="@dimen/margin_small"

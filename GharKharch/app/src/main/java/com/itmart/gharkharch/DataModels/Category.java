@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 
-public class Category implements Parcelable, SearchListAdapter.SearchableItem {
+public class Category implements Parcelable, GenericItem {
 
     private int category_id;
     private String category_name;

@@ -15,7 +15,7 @@
 
         <!--activities-->
         <activity
-            android:name=".LandingPage"
+            android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>

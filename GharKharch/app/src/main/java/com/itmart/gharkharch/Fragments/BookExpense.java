@@ -18,11 +18,11 @@ import android.widget.TextView;
 
 import com.itmart.gharkharch.R;
 
-import Utilities.GlobalData;
+import com.itmart.gharkharch.Utilities.GlobalData;
 
 public class BookExpense extends Fragment {
 
-    private TextView date_picker;
+    private TextView date_picker, page_title;
     private EditText input_sub_category, input_expense;
     private Button addBtn;
     private GlobalData gdata;
@@ -31,13 +31,14 @@ public class BookExpense extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gdata = new GlobalData();
+        gdata = GlobalData.getInstance(requireContext());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book_expense, container, false);
+        page_title = requireActivity().findViewById(R.id.page_title);
         input_sub_category = view.findViewById(R.id.input_sub_category);
         input_expense = view.findViewById(R.id.input_expense);
         date_picker = view.findViewById(R.id.date_picker);
@@ -67,30 +68,39 @@ public class BookExpense extends Fragment {
             }
         });
 
-        input_expense.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-
         date_picker.setOnClickListener(v -> {
         });
 
         addBtn.setOnClickListener(v -> {
             //TODO:some saving logic
-            gdata.generateSnackBar(v, "Expense added.",false);
+            gdata.generateSnackBar(v, "Expense added.");
         });
     }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        page_title.setText("Book Expense");
+    }
+
+//    public void getExpenses() {
+//        try {
+//            String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
+//            Cursor cursor = readableDb.rawQuery(query, null);
+//            do {
+//                if (cursor.moveToFirst()) {
+//                    int category_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+//                    String category_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+//
+//                    Category category = new Category(category_id, category_name);
+//                    categoryList.add(category);
+//                }
+//            } while (cursor.moveToNext());
+//
+//            cursor.close();
+//            Log.d("harshTag", "Successful extraction of data from expenses table!");
+//        } catch (Exception e) {
+//            Log.d("harshTag", "Sql table creation error!\nError : " + e.getMessage());
+//        }
+//    }
 }

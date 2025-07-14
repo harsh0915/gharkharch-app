@@ -1,9 +1,7 @@
 package com.itmart.gharkharch;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -28,10 +26,10 @@ import com.itmart.gharkharch.Fragments.BookExpense;
 import java.util.HashMap;
 import java.util.List;
 
-import DatabaseHelper.DatabaseHelper;
-import Utilities.GlobalData;
+import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
+import com.itmart.gharkharch.Utilities.GlobalData;
 
-public class LandingPage extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private FrameLayout fragmentContainer;
@@ -63,8 +61,10 @@ public class LandingPage extends AppCompatActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(fragmentContainer.getId(), currentFragment)
+                    .hide(currentFragment)
                     .commit();
         }
+        bottomNavigationView.setSelectedItemId(R.id.nav_add_category);
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -76,7 +76,7 @@ public class LandingPage extends AppCompatActivity {
 
     private void initializeUiElements() {
 
-        globalData = new GlobalData(this);
+        globalData = GlobalData.getInstance(this);
         fragmentMap = new HashMap<>();
         //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -174,28 +174,6 @@ public class LandingPage extends AppCompatActivity {
 
         });
     }
-
-    public void getExpenses() {
-        try {
-            String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
-            Cursor cursor = readableDb.rawQuery(query, null);
-            do {
-                if (cursor.moveToFirst()) {
-                    int category_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                    String category_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-
-                    Category category = new Category(category_id, category_name);
-                    categoryList.add(category);
-                }
-            } while (cursor.moveToNext());
-
-            cursor.close();
-            Log.d("harshTag", "Successful extraction of data from expenses table!");
-        } catch (Exception e) {
-            Log.d("harshTag", "Sql table creation error!\nError : " + e.getMessage());
-        }
-    }
-
 
     private void show_quit_confirmation_dialog() {
         Snackbar snackbar = Snackbar.make(bottomNavigationView, "Are you sure you want to quit ghar_kharch?", Snackbar.LENGTH_LONG);

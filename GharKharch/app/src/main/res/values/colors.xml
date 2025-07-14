@@ -15,5 +15,6 @@
     <color name="secondaryColor">#111B28</color>
     <color name="buttonColor">#4662B8</color>
     <color name="top_bar_bg">#0C1C31</color>
+    <color name="dialog_bg">#4662B8</color>
 
 </resources>

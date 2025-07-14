@@ -5,7 +5,7 @@
     android:id="@+id/landing_page"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LandingPage">
+    tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/content_panel"
@@ -20,6 +20,7 @@
             android:fitsSystemWindows="true">
 
             <TextView
+                android:id="@+id/page_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/padding_xlarge"

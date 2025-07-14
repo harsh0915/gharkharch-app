@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-public class Expense implements Parcelable {
+public class Expense implements Parcelable, GenericItem {
 
     private int expense_id;
     private String expense_name;
@@ -76,5 +76,15 @@ public class Expense implements Parcelable {
         dest.writeInt(expense_amount);
         dest.writeLong(expense_date);
         dest.writeInt(expense_mode);
+    }
+
+    @Override
+    public int get_item_id() {
+        return 0;
+    }
+
+    @Override
+    public String get_item_name() {
+        return "";
     }
 }
