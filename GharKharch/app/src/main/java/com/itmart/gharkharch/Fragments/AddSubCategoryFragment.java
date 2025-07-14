@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,13 +21,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -41,8 +40,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private EditText inputSubCategory, inputCategory;
     private List<SearchListAdapter.SearchableItem> category_list;
     private HashSet<String> category_fast_lookup;
-    private RecyclerView category_search_list;
-    private SearchListAdapter category_adapter;
+    private RecyclerView rcv_category_search;
+    private SearchListAdapter search_adapter;
     private DatabaseHelper databaseHelper;
     private int under_category_id;
     private GlobalData gdata;
@@ -60,14 +59,15 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputSubCategory = view.findViewById(R.id.input_sub_category);
         inputCategory = view.findViewById(R.id.input_category);
         addBtn = view.findViewById(R.id.addBtn);
-        category_search_list = view.findViewById(R.id.category_search_list);
-        inflate_RCV();
+        rcv_category_search = view.findViewById(R.id.category_search_list);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        inflate_RCV();
 
         requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -84,15 +84,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         addBtn.setOnClickListener(v -> {
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
             if (!category_fast_lookup.contains(cat_name)) {
-                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ",false);
+                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", false);
                 return;
             }
             if (sub_cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A category name can't be empty!",false);
+                gdata.generateSnackBar(addBtn, "A category name can't be empty!", false);
             else if (cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!",false);
-            else
-                addSubCategory(sub_cat_name, cat_name, under_category_id);
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!", false);
+            else addSubCategory(sub_cat_name, cat_name, under_category_id);
         });
 
         //TODO:bind the search list adapter with the input text
@@ -114,19 +113,33 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         inputCategory.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) category_search_list.setVisibility(View.VISIBLE);
-            else category_search_list.setVisibility(View.GONE);
+            if (hasFocus) {
+                rcv_category_search.setVisibility(View.VISIBLE);
+                addBtn.setVisibility(View.GONE);
+            } else {
+                addBtn.setVisibility(View.VISIBLE);
+                rcv_category_search.setVisibility(View.GONE);
+            }
         });
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            fetch_category_list();
+        }
     }
 
     private void inflate_RCV() {
         category_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
         fetch_category_list();
-        category_adapter = new SearchListAdapter(requireContext(), category_list, this);
-        category_search_list.setLayoutManager(new LinearLayoutManager(requireContext()));
-        category_search_list.setAdapter(category_adapter);
+        search_adapter = new SearchListAdapter(requireContext(), category_list, this);
+        rcv_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rcv_category_search.setAdapter(search_adapter);
     }
 
     private void addSubCategory(String new_sub_category, String under_category, int under_cat_id) {
@@ -155,13 +168,15 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             inputSubCategory.setText("");
             inputCategory.setHint(R.string.hint_category);
             inputSubCategory.setHint(R.string.hint_sub_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.",false);
+            gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.", false);
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }
     }
 
-    private void fetch_category_list() {
+    public void fetch_category_list() {
+        category_list.clear();
+        category_fast_lookup.clear();
         try {
             databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
@@ -191,6 +206,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         } catch (Exception e) {
             Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
         }
+        Log.i("harshTagFetching", " fetching ");
     }
 
     @Override

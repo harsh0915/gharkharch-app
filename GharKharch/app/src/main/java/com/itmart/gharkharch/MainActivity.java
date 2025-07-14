@@ -46,7 +46,10 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_add_category);
             currentFragment = new AddCategoryFragment();
-            getSupportFragmentManager().beginTransaction().add(fragmentContainer.getId(), currentFragment).commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(fragmentContainer.getId(), currentFragment)
+                    .commit();
         }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -83,7 +86,10 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = new BookExpense();
                 }
                 fragmentMap.put(id, selectedFragment);
-                getSupportFragmentManager().beginTransaction().add(fragmentContainer.getId(), selectedFragment).hide(selectedFragment).commit();
+                getSupportFragmentManager()
+                        .beginTransaction().add(fragmentContainer.getId(), selectedFragment)
+                        .hide(selectedFragment)
+                        .commit();
             }
 
             if (selectedFragment != null && selectedFragment != currentFragment) {

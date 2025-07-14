@@ -47,8 +47,10 @@ public class AddCategoryFragment extends Fragment {
         addBtn.setOnClickListener(v -> {
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
-                gdata.generateSnackBar(v, "A category name can't be empty!",false);
-            else addCategory(new_category);
+                gdata.generateSnackBar(v, "A category name can't be empty!", false);
+            else {
+                addCategory(new_category);
+            }
         });
     }
 
@@ -73,7 +75,7 @@ public class AddCategoryFragment extends Fragment {
 
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!",false);
+            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!", false);
 
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
