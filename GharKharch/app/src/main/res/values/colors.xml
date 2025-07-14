@@ -5,6 +5,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="lGrey">#616161</color>
+    <color name="red">#FF0000</color>
 
     <!--colors for special views-->
     <color name="backgroundColor">#293F5F</color>

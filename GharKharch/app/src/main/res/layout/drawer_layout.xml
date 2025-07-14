@@ -1,7 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColorVariant"
+        android:fitsSystemWindows="true">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/backgroundColorVariant"
+            android:padding="@dimen/padding_xlarge"
+            android:text="Settings"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_heading"
+            android:textStyle="bold" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/edit_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Edit Profile"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/edit_profile_icon" />
+
+        <TextView
+            android:id="@+id/change_themes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Themes"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_large"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/themes_icon" />
+
+        <TextView
+            android:id="@+id/manage_expenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Manage Expenses"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/expenses_icon" />
+
+        <TextView
+            android:id="@+id/analyse_expenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Analyse Expenses"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/analytics_icon" />
+
+        <TextView
+            android:id="@+id/clear_all_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Clear All Data"
+            android:textColor="@color/red"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/delete_icon" />
+
+    </LinearLayout>
 
 </LinearLayout>

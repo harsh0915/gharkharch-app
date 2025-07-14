@@ -4,15 +4,22 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
@@ -24,7 +31,7 @@ import java.util.List;
 import DatabaseHelper.DatabaseHelper;
 import Utilities.GlobalData;
 
-public class MainActivity extends AppCompatActivity {
+public class LandingPage extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private FrameLayout fragmentContainer;
@@ -33,11 +40,18 @@ public class MainActivity extends AppCompatActivity {
     private Fragment currentFragment;
     private SQLiteDatabase readableDb;
     private List<Category> categoryList;
+    private ImageView menu_button;
+    private DrawerLayout landing_page;
+    private FrameLayout drawer_panel;
+    private LinearLayout content_panel;
+    //drawer elements
+    private TextView edit_profile, change_themes, manage_expenses, analyse_expenses, clear_all_data;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_landing_page);
         readableDb = DatabaseHelper.getInstance(this).getReadableDatabase();
         initializeUiElements();
         setupClickListeners();
@@ -64,10 +78,19 @@ public class MainActivity extends AppCompatActivity {
 
         globalData = new GlobalData(this);
         fragmentMap = new HashMap<>();
-//        views
+        //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fragmentContainer = findViewById(R.id.fragmentContainer);
-
+        menu_button = findViewById(R.id.menu_button);
+        landing_page = findViewById(R.id.landing_page);
+        drawer_panel = findViewById(R.id.drawer_panel);
+        content_panel = findViewById(R.id.content_panel);
+        //drawer elements
+        edit_profile = findViewById(R.id.edit_profile);
+        change_themes = findViewById(R.id.change_themes);
+        manage_expenses = findViewById(R.id.manage_expenses);
+        analyse_expenses = findViewById(R.id.analyse_expenses);
+        clear_all_data = findViewById(R.id.clear_all_data);
     }
 
     private void setupClickListeners() {
@@ -106,6 +129,50 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+
+        menu_button.setOnClickListener(v -> {
+            if (!landing_page.isDrawerOpen(drawer_panel))
+                landing_page.openDrawer(GravityCompat.END);
+            else
+                landing_page.closeDrawer(GravityCompat.END);
+        });
+
+        landing_page.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                // Move content as drawer slides
+                float moveFactor = drawerView.getWidth() * slideOffset;
+                content_panel.setTranslationX(-moveFactor);
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+                //checks if drawer is being opened applies a blur effect
+                if (
+                        (newState == DrawerLayout.STATE_DRAGGING)
+                                || (newState == DrawerLayout.STATE_IDLE && landing_page.isDrawerOpen(drawer_panel))
+                                || (newState == DrawerLayout.STATE_SETTLING)
+                ) {
+                    menu_button.setImageResource(R.drawable.menu_icon_active);
+                } else {
+                    menu_button.setImageResource(R.drawable.menu_icon);
+                }
+            }
+
+        });
+
+        manage_expenses.setOnClickListener(v->{
+
+        });
     }
 
     public void getExpenses() {
@@ -131,7 +198,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void show_quit_confirmation_dialog() {
-        globalData.generateSnackBar(bottomNavigationView, "Are you sure you want to quit ghar_kharch?", true);
-
+        Snackbar snackbar = Snackbar.make(bottomNavigationView, "Are you sure you want to quit ghar_kharch?", Snackbar.LENGTH_LONG);
+        snackbar.setAction("Ok", v -> {
+            snackbar.dismiss();
+            finishAffinity();
+        });
+        snackbar.show();
     }
 }
