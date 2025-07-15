@@ -41,7 +41,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         this.list = list;
         this.item_type = item_type;
         this.globalData = GlobalData.getInstance(context);
-        this.db_listener=db_listener;
+        this.db_listener = db_listener;
     }
 
     @NonNull
@@ -58,7 +58,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         holder.item_name.setText(item.get_item_name());
 
         holder.delete_item.setOnClickListener(v -> {
-            fun_delete_item(item.get_item_id());
+            fun_delete_item(item.get_item_id(), item.get_item_name(), position);
         });
 
         holder.edit_item.setOnClickListener(v -> {
@@ -71,7 +71,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         return list.size();
     }
 
-    private void fun_delete_item(int itemId) {
+    private void fun_delete_item(int itemId, String itemName, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_generic, null);
         builder.setView(dialog_layout);
@@ -81,6 +81,34 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+
+        TextView dialog_title, dialog_msg, positive_btn, negative_btn;
+
+        dialog_title = dialog_layout.findViewById(R.id.dialog_title);
+        dialog_msg = dialog_layout.findViewById(R.id.dialog_msg);
+        positive_btn = dialog_layout.findViewById(R.id.positive_btn);
+        negative_btn = dialog_layout.findViewById(R.id.negative_btn);
+
+        dialog_title.setText("Are you sure you want to delete \"" + itemName + "\" ?");
+        if (item_type.getValue() == 1) {
+            dialog_msg.setText("You won't be able to delete it until you have no expense heads under it! ");
+        } else if (item_type.getValue() == 2) {
+            dialog_msg.setText("You won't be able to delete it until you have no expense under it! ");
+        } else {
+            dialog_msg.setVisibility(View.GONE);
+        }
+        positive_btn.setText("Delete");
+
+        positive_btn.setOnClickListener(v -> {
+            globalData.delete_item(itemId, item_type.getValue());
+            dialog.dismiss();
+            db_listener.database_updated();
+            notifyItemChanged(position);
+        });
+
+        negative_btn.setOnClickListener(v -> {
+            dialog.dismiss();
+        });
 
         dialog.show();
     }
@@ -109,13 +137,13 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         positive_btn.setOnClickListener(v -> {
             switch (item_type) {
                 case Category:
-                    globalData.edit_category(item_id, text_editor.getText().toString());
+                    globalData.edit_category(item_id, text_editor.getText().toString().trim());
                     break;
                 case Sub_Category:
-                    // Handle Sub_Category update logic
+                    globalData.edit_sub_category(item_id, text_editor.getText().toString().trim());
                     break;
                 case Expenses:
-                    // Handle Expenses update logic
+                    globalData.edit_expense(item_id, Integer.parseInt(text_editor.getText().toString().trim()));
                     break;
             }
             dialog.dismiss();

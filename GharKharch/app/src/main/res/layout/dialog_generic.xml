@@ -12,7 +12,8 @@
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_large"
+        android:paddingHorizontal="@dimen/padding_large"
+        android:paddingVertical="@dimen/padding_small"
         android:text="dialog title"
         android:textSize="@dimen/text_size_heading" />
 
@@ -20,7 +21,8 @@
         android:id="@+id/dialog_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_large"
+        android:paddingHorizontal="@dimen/padding_large"
+        android:paddingVertical="@dimen/padding_small"
         android:text="dialog msg"
         android:textSize="@dimen/text_size_large" />
 

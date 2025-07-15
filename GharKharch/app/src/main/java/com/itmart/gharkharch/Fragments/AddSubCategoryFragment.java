@@ -62,7 +62,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gdata = GlobalData.getInstance(requireContext());
-        item_type = GenericItemType.Category;
+        item_type = GenericItemType.Sub_Category;
     }
 
     @Nullable
@@ -159,7 +159,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     //starting of callbacks
     @Override
     public void database_updated() {
-
+        fetch_sub_category_list();
     }
 
     @Override
@@ -270,9 +270,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
                 if (cursor.moveToFirst()) {
                     do {
+                        int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_ID));
                         String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
                         int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                        SubCategory subCategory = new SubCategory(cat_id, sub_cat_name, cat_id);
+                        SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
                         sub_category_list.add(subCategory);
                         sub_category_fast_lookup.add(sub_cat_name);
                     } while (cursor.moveToNext());

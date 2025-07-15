@@ -174,6 +174,5 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         } catch (Exception e) {
             Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
         }
-        Log.i("harshTagFetching", " fetching ");
     }
 }
