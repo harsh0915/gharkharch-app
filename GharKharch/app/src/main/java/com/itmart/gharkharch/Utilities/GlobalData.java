@@ -1,5 +1,7 @@
 package com.itmart.gharkharch.Utilities;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -49,6 +52,13 @@ public class GlobalData {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
+
+    public void close_keyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+    }
+
+    //db ops
     public void edit_category(int id, String edited_cat_name) {
         try {
             SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();

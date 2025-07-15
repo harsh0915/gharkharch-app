@@ -13,7 +13,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //    tables
     public static String TABLE_CATEGORIES = "categories";
-    public static String TABLE_SUBCATEGORIES = "sub_categories";
+    public static String TABLE_SUB_CATEGORIES = "sub_categories";
     public static String TABLE_EXPENSES = "expenses";
 
     //    fields for categories
@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" +
             COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_CATEGORY_NAME + " TEXT UNIQUE );";
-    public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUBCATEGORIES + "(" +
+    public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUB_CATEGORIES + "(" +
             COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_SUB_CATEGORY_NAME + " TEXT UNIQUE, " +
             COLUMN_CATEGORY_ID + " NOT NULL );";

@@ -1,5 +1,7 @@
 package com.itmart.gharkharch.Fragments;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -19,12 +21,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.DataModels.GenericItem;
+import com.itmart.gharkharch.DataModels.GenericItemType;
+import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
@@ -37,22 +43,26 @@ import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.Utilities.GlobalData;
 
 
-public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked {
+public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
     private Button addBtn;
     private EditText inputSubCategory, inputCategory;
-    private List<GenericItem> category_list;
-    private HashSet<String> category_fast_lookup;
+    private List<GenericItem> category_list, sub_category_list;
+    private HashSet<String> category_fast_lookup, sub_category_fast_lookup;
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
     private DatabaseHelper databaseHelper;
     private int under_category_id;
     private TextView page_title;
+    private SimpleListAdapter simple_adapter;
+    private RecyclerView rcv_sub_category_list;
+    private GenericItemType item_type;
     private GlobalData gdata;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gdata = GlobalData.getInstance(requireContext());
+        item_type = GenericItemType.Category;
     }
 
     @Nullable
@@ -64,14 +74,17 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputCategory = view.findViewById(R.id.input_category);
         addBtn = view.findViewById(R.id.addBtn);
         rcv_category_search = view.findViewById(R.id.category_search_list);
+        rcv_sub_category_list = view.findViewById(R.id.rcv_sub_category_list);
         return view;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         inflate_RCV();
+        inflate_sub_category_RCV();
 
         requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -86,16 +99,23 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         addBtn.setOnClickListener(v -> {
+            gdata.close_keyboard(v);
+
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
-            if (!category_fast_lookup.contains(cat_name)) {
+            if (sub_cat_name.isEmpty()) {
+                gdata.generateSnackBar(addBtn, "A sub-category name can't be empty!");
+                return;
+            } else if (cat_name.isEmpty()) {
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
+                return;
+            } else if (!category_fast_lookup.contains(cat_name)) {
                 gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ");
                 return;
-            }
-            if (sub_cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A category name can't be empty!");
-            else if (cat_name.isEmpty())
-                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
-            else addSubCategory(sub_cat_name, cat_name, under_category_id);
+            } else addSubCategory(sub_cat_name, under_category_id);
+
+            fetch_sub_category_list();
+            simple_adapter.notifyDataSetChanged();
+            rcv_category_search.setVisibility(View.GONE);
         });
 
         //TODO:bind the search list adapter with the input text
@@ -136,6 +156,21 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         page_title.setText("Expense Heads");
     }
 
+    //starting of callbacks
+    @Override
+    public void database_updated() {
+
+    }
+
+    @Override
+    public void on_item_clicked(GenericItem clicked_item) {
+        inputCategory.setText(clicked_item.get_item_name());
+        under_category_id = clicked_item.get_item_id();
+        inputCategory.setSelection(inputCategory.getText().length());
+        rcv_category_search.setVisibility(View.GONE);
+    }
+    //ending of callbacks
+
     private void inflate_RCV() {
         category_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
@@ -145,22 +180,30 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_category_search.setAdapter(search_adapter);
     }
 
-    private void addSubCategory(String new_sub_category, String under_category, int under_cat_id) {
+    private void inflate_sub_category_RCV() {
+        sub_category_list = new ArrayList<>();
+        sub_category_fast_lookup = new HashSet<>();
+        fetch_sub_category_list();
+        simple_adapter = new SimpleListAdapter(requireContext(), sub_category_list, item_type, this);
+        rcv_sub_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rcv_sub_category_list.setAdapter(simple_adapter);
+    }
+
+    private void addSubCategory(String new_sub_category, int under_cat_id) {
 
         try {
             databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
-            values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, under_category);
             values.put(DatabaseHelper.COLUMN_CATEGORY_ID, under_cat_id);
 
             try {
-                long id = writeable_db.insert(DatabaseHelper.TABLE_SUBCATEGORIES, null, values);
+                long id = writeable_db.insert(DatabaseHelper.TABLE_SUB_CATEGORIES, null, values);
 
                 if (id == -1) {
                     Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
-                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" category already exists!!");
+                    gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category already exists!!");
                 } else {
                     Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
                     gdata.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.");
@@ -212,11 +255,38 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         }
     }
 
-    @Override
-    public void on_item_clicked(GenericItem clicked_item) {
-        inputCategory.setText(clicked_item.get_item_name());
-        under_category_id = clicked_item.get_item_id();
-        inputCategory.setSelection(inputCategory.getText().length());
-        rcv_category_search.setVisibility(View.GONE);
+    public void fetch_sub_category_list() {
+        sub_category_list.clear();
+        sub_category_fast_lookup.clear();
+        try {
+            databaseHelper = DatabaseHelper.getInstance(requireContext());
+            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
+
+            String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES;
+            Cursor cursor = null;
+
+            try {
+                cursor = readable_db.rawQuery(query, null);
+
+                if (cursor.moveToFirst()) {
+                    do {
+                        String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
+                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                        SubCategory subCategory = new SubCategory(cat_id, sub_cat_name, cat_id);
+                        sub_category_list.add(subCategory);
+                        sub_category_fast_lookup.add(sub_cat_name);
+                    } while (cursor.moveToNext());
+                }
+                Log.i("harshTagSqlQuery", "Data retrieved successfully");
+
+            } catch (Exception e) {
+                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+            } finally {
+                if (cursor != null) cursor.close();
+            }
+        } catch (Exception e) {
+            Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
+        }
     }
+
 }

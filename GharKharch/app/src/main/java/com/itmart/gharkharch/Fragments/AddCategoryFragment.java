@@ -44,8 +44,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     private SimpleListAdapter simple_adapter;
     private DatabaseHelper databaseHelper;
     private TextView page_title;
-    private GlobalData gdata;
     private GenericItemType item_type;
+    private GlobalData gdata;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +73,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         inflateRCV();
 
         addBtn.setOnClickListener(v -> {
+           gdata.close_keyboard(v);
+
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
                 gdata.generateSnackBar(v, "A category name can't be empty!");
@@ -81,8 +83,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
                 fetch_category_list();
                 simple_adapter.notifyDataSetChanged();
             }
-            InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
         });
     }
 
