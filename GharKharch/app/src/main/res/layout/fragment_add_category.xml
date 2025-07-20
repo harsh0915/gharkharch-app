@@ -37,7 +37,7 @@
         android:layout_marginVertical="@dimen/margin_medium"
         android:layout_marginStart="@dimen/margin_medium"
         android:backgroundTint="@color/buttonColor"
-        android:text="Add"
+        android:text="Save"
         android:textColor="@color/primaryTextColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_category" />
@@ -51,18 +51,31 @@
         app:layout_constraintTop_toBottomOf="@id/addBtn">
 
         <TextView
+            android:id="@+id/list_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="@dimen/padding_large"
+            android:paddingVertical="@dimen/padding_large"
             android:text="Category List"
             android:textSize="@dimen/text_size_large" />
 
         <SearchView
-            android:id="@+id/search_bar"
-            android:layout_width="match_parent"
+            android:id="@+id/search_view"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/search_bar_bordered_bg"
+            android:layout_marginVertical="@dimen/margin_medium"
+            android:layout_weight="1"
+            android:background="@drawable/search_bar_border"
+            android:iconifiedByDefault="false"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/close_search_icon"
             android:visibility="gone" />
 
         <ImageView

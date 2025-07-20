@@ -20,6 +20,7 @@ import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.itmart.gharkharch.Utilities.GlobalData;
@@ -27,7 +28,7 @@ import com.itmart.gharkharch.Utilities.GlobalData;
 public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.ViewHolder> {
 
     private final Context context;
-    private final List<GenericItem> list;
+    private final List<GenericItem> simple_item_list, backup_list;
     private final GenericItemType item_type;
     private final GlobalData globalData;
     private final DB_Interface db_listener;
@@ -36,12 +37,13 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         void database_updated();
     }
 
-    public SimpleListAdapter(Context context, List<GenericItem> list, GenericItemType item_type, DB_Interface db_listener) {
+    public SimpleListAdapter(Context context, List<GenericItem> simple_item_list, GenericItemType item_type, DB_Interface db_listener) {
         this.context = context;
-        this.list = list;
+        this.simple_item_list = simple_item_list;
         this.item_type = item_type;
         this.globalData = GlobalData.getInstance(context);
         this.db_listener = db_listener;
+        this.backup_list = new ArrayList<>();
     }
 
     @NonNull
@@ -53,7 +55,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull SimpleListAdapter.ViewHolder holder, int position) {
-        GenericItem item = list.get(position);
+        GenericItem item = simple_item_list.get(position);
 
         holder.item_name.setText(item.get_item_name());
 
@@ -74,7 +76,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return simple_item_list.size();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -167,6 +169,11 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         });
 
         dialog.show();
+    }
+
+    public void back_up_list(List<GenericItem> backup_list) {
+        this.backup_list.clear();
+        this.backup_list.addAll(backup_list);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -21,7 +21,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
-import com.itmart.gharkharch.Fragments.BookExpense;
+import com.itmart.gharkharch.Fragments.BookExpenseFragment;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
     //drawer elements
-    private TextView edit_profile, change_themes, manage_expenses, analyse_expenses, clear_all_data;
+    private TextView edit_profile, change_themes, manage_expenses, analyse_expenses;
 
 
     @Override
@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         change_themes = findViewById(R.id.change_themes);
         manage_expenses = findViewById(R.id.manage_expenses);
         analyse_expenses = findViewById(R.id.analyse_expenses);
-        clear_all_data = findViewById(R.id.clear_all_data);
     }
 
     private void setupClickListeners() {
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 } else if (item.getItemId() == R.id.nav_add_sub_category) {
                     selectedFragment = new AddSubCategoryFragment();
                 } else {
-                    selectedFragment = new BookExpense();
+                    selectedFragment = new BookExpenseFragment();
                 }
                 fragmentMap.put(id, selectedFragment);
                 getSupportFragmentManager()

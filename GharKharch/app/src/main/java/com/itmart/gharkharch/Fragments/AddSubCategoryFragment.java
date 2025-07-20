@@ -1,6 +1,7 @@
 package com.itmart.gharkharch.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
@@ -54,6 +57,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private RecyclerView rcv_sub_category_list;
     private GenericItemType item_type;
     private GlobalData gdata;
+    private ImageView search_button;
+    private SearchView search_view;
+    private TextView list_title;
+    private ImageView close_button;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,6 +80,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         addBtn = view.findViewById(R.id.addBtn);
         rcv_category_search = view.findViewById(R.id.category_search_list);
         rcv_sub_category_list = view.findViewById(R.id.rcv_sub_category_list);
+        search_button = view.findViewById(R.id.search_button);
+        search_view = view.findViewById(R.id.search_view);
+        list_title = view.findViewById(R.id.list_title);
+        close_button = view.findViewById(R.id.close_button);
         return view;
     }
 
@@ -122,6 +133,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             }
         });
 
+        search_button.setOnClickListener(v -> toggle_search_view());
+
+        close_button.setOnClickListener(v -> toggle_search_view());
+
         addBtn.setOnClickListener(v -> {
             gdata.close_keyboard(v);
 
@@ -152,8 +167,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             //refresh list when coming from another frag as it may have added another data set
             fetch_category_search_list();
             search_adapter.notifyDataSetChanged();
+            page_title.setText("Expense Heads");
         }
-        page_title.setText("Expense Heads");
     }
 
     //starting of callbacks
@@ -171,6 +186,20 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_category_search.setVisibility(View.GONE);
     }
     //ending of callbacks
+
+    public void toggle_search_view() {
+        if (search_button.getVisibility() == View.VISIBLE) {
+            search_view.setVisibility(View.VISIBLE);
+            close_button.setVisibility(View.VISIBLE);
+            search_button.setVisibility(View.GONE);
+            list_title.setVisibility(View.GONE);
+        } else {
+            search_view.setVisibility(View.GONE);
+            close_button.setVisibility(View.GONE);
+            search_button.setVisibility(View.VISIBLE);
+            list_title.setVisibility(View.VISIBLE);
+        }
+    }
 
     private void inflate_category_RCV() {
         category_search_list = new ArrayList<>();
@@ -210,7 +239,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             } catch (Exception e) {
                 Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             }
-            Log.i("harshTagFK", "Under cat id when adding :"+under_cat_id);
+            Log.i("harshTagFK", "Under cat id when adding :" + under_cat_id);
             inputCategory.setText("");
             inputSubCategory.setText("");
             inputCategory.setHint(R.string.hint_category);
@@ -241,7 +270,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                         category_fast_lookup.add(cat_name);
                     } while (cursor.moveToNext());
                 }
-                Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
                 Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
@@ -274,7 +302,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                         sub_category_list.add(subCategory);
                     } while (cursor.moveToNext());
                 }
-                Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
                 Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());

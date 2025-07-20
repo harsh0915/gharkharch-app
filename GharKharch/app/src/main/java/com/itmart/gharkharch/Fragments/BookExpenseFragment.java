@@ -1,6 +1,7 @@
 package com.itmart.gharkharch.Fragments;
 
 import android.annotation.SuppressLint;
+import android.app.WallpaperManager;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +47,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
-public class BookExpense extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
+public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
 
     private TextView date_picker, page_title;
     private EditText input_expense_name, input_expense_amount;
@@ -60,6 +63,12 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
     private GenericItemType item_type;
     private DatabaseHelper databaseHelper;
     private int under_sub_category_id;
+    private ImageView search_button;
+    private SearchView search_view;
+    private TextView list_title;
+    private ImageView close_button;
+    private List<GenericItem> filtered_list;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +77,10 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
         selected_date = Calendar.getInstance();
         gdata = GlobalData.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
+        expense_list = new ArrayList<>();
+        filtered_list = new ArrayList<>();
+        sub_category_search_list = new ArrayList<>();
+        sub_category_fast_lookup = new HashSet<>();
     }
 
     @Override
@@ -82,6 +95,10 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
         addBtn = view.findViewById(R.id.addBtn);
         rcv_expense_list = view.findViewById(R.id.rcv_expense_list);
         rcv_sub_category_search = view.findViewById(R.id.rcv_sub_category_search_list);
+        search_button = view.findViewById(R.id.search_button);
+        search_view = view.findViewById(R.id.search_view);
+        list_title = view.findViewById(R.id.list_title);
+        close_button = view.findViewById(R.id.close_button);
         return view;
     }
 
@@ -104,6 +121,8 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 rcv_sub_category_search.setVisibility(View.VISIBLE);
+                String query = s.toString().toLowerCase(); // Get current input, convert to lowercase for case-insensitivity
+                filterList(query);
             }
 
             @Override
@@ -130,6 +149,12 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
                 String selectedDate = datePicker.getHeaderText(); // formatted date string
                 Toast.makeText(v.getContext(), "Selected Date: " + selectedDate, Toast.LENGTH_SHORT).show();
             });
+        });
+
+        search_button.setOnClickListener(v -> toggle_search_view());
+
+        close_button.setOnClickListener(v -> {
+            toggle_search_view();
         });
 
         addBtn.setOnClickListener(v -> {
@@ -164,8 +189,8 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
             fetch_sub_category_search_list();
             search_adapter.notifyDataSetChanged();
             simple_adapter.notifyDataSetChanged();
+            page_title.setText("Book Expense");
         }
-        page_title.setText("Book Expense");
     }
 
     //beginning of callbacks
@@ -184,8 +209,21 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
     }
     //end of callbacks
 
+    public void toggle_search_view() {
+        if (search_button.getVisibility() == View.VISIBLE) {
+            search_view.setVisibility(View.VISIBLE);
+            close_button.setVisibility(View.VISIBLE);
+            search_button.setVisibility(View.GONE);
+            list_title.setVisibility(View.GONE);
+        } else {
+            search_view.setVisibility(View.GONE);
+            close_button.setVisibility(View.GONE);
+            search_button.setVisibility(View.VISIBLE);
+            list_title.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void inflate_expense_RCV() {
-        expense_list = new ArrayList<>();
         fetch_expenses();
         simple_adapter = new SimpleListAdapter(requireContext(), expense_list, item_type, this);
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -193,10 +231,8 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
     }
 
     private void inflate_sub_cat_RCV() {
-        sub_category_search_list = new ArrayList<>();
-        sub_category_fast_lookup = new HashSet<>();
         fetch_sub_category_search_list();
-        search_adapter = new SearchListAdapter(requireContext(), sub_category_search_list, this);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_list, this);
         rcv_sub_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_search.setAdapter(search_adapter);
     }
@@ -229,8 +265,10 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
     }
 
     public void fetch_sub_category_search_list() {
+        filtered_list.clear();
         sub_category_search_list.clear();
         sub_category_fast_lookup.clear();
+
         try {
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
@@ -249,10 +287,10 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
                         SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
                         sub_category_search_list.add(subCategory);
                         sub_category_fast_lookup.add(sub_cat_name);
+                        filtered_list.add(subCategory);
 
                     } while (cursor.moveToNext());
                 }
-                Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
                 Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
@@ -265,29 +303,61 @@ public class BookExpense extends Fragment implements SearchListAdapter.ItemClick
     }
 
     public void fetch_expenses() {
+        expense_list.clear();
         try {
-            expense_list.clear();
             String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-            Cursor cursor = readable_db.rawQuery(query, null);
-            do {
+            Cursor cursor = null;
+
+            try {
+                cursor = readable_db.rawQuery(query, null);
+
                 if (cursor.moveToFirst()) {
-                    int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
-                    String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_NAME));
-                    int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
-                    int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
-                    long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
-                    int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
+                    do {
+                        int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
+                        String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_NAME));
+                        int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
+                        int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
+                        long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
+                        int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
 
-                    Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode);
-                    expense_list.add(expense);
+                        Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode);
+                        expense_list.add(expense);
+                    } while (cursor.moveToNext());
                 }
-            } while (cursor.moveToNext());
 
-            cursor.close();
-            Log.i("harshTag", "Successful extraction of data from expenses table!");
+                cursor.close();
+            } catch (Exception e) {
+                Log.e("harshTag", "Sql error!\nError : " + e.getMessage());
+            } finally {
+                if (cursor != null) cursor.close();
+            }
         } catch (Exception e) {
-            Log.e("harshTag", "Sql error!\nError : " + e.getMessage());
+            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterList(String query) {
+        filtered_list.clear(); // Start with an empty filtered list
+
+        if (query.isEmpty()) {
+            // If query is empty, show all names
+            filtered_list.addAll(sub_category_search_list);
+        } else {
+            // Iterate through the original, sorted list
+            for (GenericItem item : sub_category_search_list) {
+                if (item.get_item_name().toLowerCase().startsWith(query)) {
+                    filtered_list.add(item);
+                }
+                // Optional: Performance optimization for very large lists and specific criteria
+                // If checking startsWith and the list is sorted, you could potentially break early
+                // if the current name's first character is greater than the query's first character.
+                // However, for typical prefix matching, it's often simpler to just iterate.
+            }
+        }
+        search_adapter.notifyDataSetChanged();
+        // Notify your RecyclerView adapter that the data has changed
+        // e.g., myRecyclerViewAdapter.notifyDataSetChanged();
     }
 }

@@ -4,6 +4,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -18,12 +19,13 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.itmart.gharkharch.DataModels.Expense;
+import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 
 public class GlobalData {
 
     private final Context context;
-    private List<Integer> expensesData;
     private static GlobalData instance;
 
     private GlobalData(Context context) {
@@ -35,14 +37,6 @@ public class GlobalData {
             instance = new GlobalData(context);
         }
         return instance;
-    }
-
-    public List<Integer> getExpensesData() {
-        expensesData = new ArrayList<>();
-        for (int i = 0; i < 12; i++) {
-            expensesData.add(i);
-        }
-        return expensesData;
     }
 
     public void generateSnackBar(View view, String msg) {
@@ -137,7 +131,7 @@ public class GlobalData {
                             Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
                     } catch (SQLiteConstraintException e) {
                         if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            generateToast("You cannot remove a category that has expense head within it.");
+                            generateToast("Cannot remove category as it is being used in an expense head.");
                         } else {
                             generateToast("Constraint Error : " + e.getMessage());
                         }
@@ -155,7 +149,7 @@ public class GlobalData {
                             Log.d("harshTagSqlQuery", "Rows delete successfully.");
                     } catch (SQLiteConstraintException e) {
                         if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            generateToast("You cannot remove a head that has a expense within it.");
+                            generateToast("Cannot remove head as it is being used in a ledger entry.");
                         } else {
                             generateToast("Constraint Error : " + e.getMessage());
                         }

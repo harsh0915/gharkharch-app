@@ -13,21 +13,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.ViewHolder> {
 
-    private final List<GenericItem> item_list;
-    private List<String> backup_list;
+    private final List<GenericItem> search_item_list, backup_list;
     private final ItemClicked interface_ItemClicked;
 
     public interface ItemClicked {
         public void on_item_clicked(GenericItem clicked_item);
     }
 
-    public SearchListAdapter(Context context, List<GenericItem> item_list, ItemClicked interface_ItemClicked) {
-        this.item_list = item_list;
+    public SearchListAdapter(Context context, List<GenericItem> search_item_list, ItemClicked interface_ItemClicked) {
+        this.search_item_list = search_item_list;
         this.interface_ItemClicked = interface_ItemClicked;
+        this.backup_list = new ArrayList<>();
     }
 
     @NonNull
@@ -39,7 +40,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull SearchListAdapter.ViewHolder holder, int position) {
-        GenericItem item = item_list.get(position);
+        GenericItem item = search_item_list.get(position);
         holder.item_name.setText(item.get_item_name());
         holder.itemView.setOnClickListener(v -> {
             interface_ItemClicked.on_item_clicked(item);
@@ -48,7 +49,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return item_list.size();
+        return search_item_list.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

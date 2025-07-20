@@ -1,7 +1,5 @@
 package com.itmart.gharkharch.Fragments;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -11,9 +9,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -46,6 +45,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     private TextView page_title;
     private GenericItemType item_type;
     private GlobalData gdata;
+    private ImageView search_button;
+    private SearchView search_view;
+    private TextView list_title;
+    private ImageView close_button;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -62,6 +65,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         inputCategory = view.findViewById(R.id.input_category);
         rcv_category_list = view.findViewById(R.id.rcv_category_list);
         addBtn = view.findViewById(R.id.addBtn);
+        search_button = view.findViewById(R.id.search_button);
+        search_view = view.findViewById(R.id.search_view);
+        list_title = view.findViewById(R.id.list_title);
+        close_button = view.findViewById(R.id.close_button);
         return view;
     }
 
@@ -71,6 +78,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         super.onViewCreated(view, savedInstanceState);
 
         inflate_category_RCV();
+
+        search_button.setOnClickListener(v -> toggle_search_view());
+
+        close_button.setOnClickListener(v -> toggle_search_view());
 
         addBtn.setOnClickListener(v -> {
             gdata.close_keyboard(v);
@@ -89,12 +100,29 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        page_title.setText("Expense Category");
+        if (!hidden) {
+            page_title.setText("Expense Category");
+        }
     }
 
     @Override
     public void database_updated() {
         fetch_category_list();
+    }
+
+    public void toggle_search_view() {
+        if (search_button.getVisibility() == View.VISIBLE) {
+            search_view.setVisibility(View.VISIBLE);
+            close_button.setVisibility(View.VISIBLE);
+            search_button.setVisibility(View.GONE);
+            list_title.setVisibility(View.GONE);
+        } else {
+            search_view.setVisibility(View.GONE);
+            close_button.setVisibility(View.GONE);
+            search_button.setVisibility(View.VISIBLE);
+            list_title.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void inflate_category_RCV() {

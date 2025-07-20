@@ -83,19 +83,6 @@
             android:textSize="@dimen/text_size_large"
             app:drawableStartCompat="@drawable/analytics_icon" />
 
-        <TextView
-            android:id="@+id/clear_all_data"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_small"
-            android:layout_marginVertical="@dimen/margin_small"
-            android:drawablePadding="@dimen/padding_large"
-            android:padding="@dimen/padding_large"
-            android:text="Clear All Data"
-            android:textColor="@color/red"
-            android:textSize="@dimen/text_size_large"
-            app:drawableStartCompat="@drawable/delete_icon" />
-
     </LinearLayout>
 
 </LinearLayout>
