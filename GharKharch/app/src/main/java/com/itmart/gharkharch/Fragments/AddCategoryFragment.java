@@ -70,10 +70,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        inflateRCV();
+        inflate_category_RCV();
 
         addBtn.setOnClickListener(v -> {
-           gdata.close_keyboard(v);
+            gdata.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
             if (new_category.isBlank())
@@ -97,7 +97,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         fetch_category_list();
     }
 
-    private void inflateRCV() {
+    private void inflate_category_RCV() {
         category_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
         fetch_category_list();
@@ -148,7 +148,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
             databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
-            String query = "select " + DatabaseHelper.COLUMN_CATEGORY_NAME + " , " + DatabaseHelper.COLUMN_CATEGORY_ID + " from " + DatabaseHelper.TABLE_CATEGORIES;
+            String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES;
             Cursor cursor = null;
 
             try {
@@ -166,13 +166,13 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
-                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             } finally {
                 if (cursor != null) cursor.close();
             }
 
         } catch (Exception e) {
-            Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
+            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
         }
     }
 }

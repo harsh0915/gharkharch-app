@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_landing_page);
+        setContentView(R.layout.activity_main);
         readableDb = DatabaseHelper.getInstance(this).getReadableDatabase();
         initializeUiElements();
         setupClickListeners();
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void show_quit_confirmation_dialog() {
-        Snackbar snackbar = Snackbar.make(bottomNavigationView, "Are you sure you want to quit ghar_kharch?", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(bottomNavigationView, "Are you sure you want to quit Gharkharch?", Snackbar.LENGTH_LONG);
         snackbar.setAction("Ok", v -> {
             snackbar.dismiss();
             finishAffinity();

@@ -14,8 +14,13 @@ public class Expense implements Parcelable, GenericItem {
     private long expense_date;
     private int expense_mode;
 
-    public Expense() {
-
+    public Expense(int expense_id, String expense_name, int sub_category_id, int expense_amount, long expense_date, int expense_mode) {
+        this.expense_id = expense_id;
+        this.expense_name = expense_name;
+        this.sub_category_id = sub_category_id;
+        this.expense_amount = expense_amount;
+        this.expense_date = expense_date;
+        this.expense_mode = expense_mode;
     }
 
     protected Expense(Parcel in) {
@@ -80,11 +85,16 @@ public class Expense implements Parcelable, GenericItem {
 
     @Override
     public int get_item_id() {
-        return 0;
+        return this.expense_id;
     }
 
     @Override
     public String get_item_name() {
-        return "";
+        return this.expense_name;
+    }
+
+    @Override
+    public int get_item_amount() {
+        return this.expense_amount;
     }
 }

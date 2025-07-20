@@ -11,8 +11,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="@dimen/padding_large"
+        android:paddingVertical="@dimen/padding_large"
         android:textSize="@dimen/text_size_large" />
+
+    <TextView
+        android:id="@+id/item_amount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="@dimen/padding_large"
+        android:textSize="@dimen/text_size_large"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/edit_item"

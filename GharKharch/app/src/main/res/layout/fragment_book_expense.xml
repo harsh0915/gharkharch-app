@@ -39,13 +39,13 @@
         android:text="Heads"
         android:textSize="@dimen/text_size_large"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/input_sub_category"
-        app:layout_constraintEnd_toStartOf="@id/input_sub_category"
+        app:layout_constraintBottom_toBottomOf="@id/input_expense_name"
+        app:layout_constraintEnd_toStartOf="@id/input_expense_name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/input_sub_category" />
+        app:layout_constraintTop_toTopOf="@id/input_expense_name" />
 
     <EditText
-        android:id="@+id/input_sub_category"
+        android:id="@+id/input_expense_name"
         style="@style/custom_edit_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
@@ -62,13 +62,13 @@
         android:text="Amount "
         android:textSize="@dimen/text_size_large"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/input_expense"
-        app:layout_constraintEnd_toStartOf="@id/input_expense"
+        app:layout_constraintBottom_toBottomOf="@id/input_expense_amount"
+        app:layout_constraintEnd_toStartOf="@id/input_expense_amount"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/input_expense" />
+        app:layout_constraintTop_toTopOf="@id/input_expense_amount" />
 
     <EditText
-        android:id="@+id/input_expense"
+        android:id="@+id/input_expense_amount"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_medium"
@@ -82,7 +82,7 @@
         android:textColorHint="@color/primaryTextColorVariant"
         android:textSize="@dimen/text_size_large"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
+        app:layout_constraintTop_toBottomOf="@id/input_expense_name" />
 
     <TextView
         android:layout_width="0dp"
@@ -108,7 +108,7 @@
         android:textColor="@color/primaryTextColorVariant"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_expense" />
+        app:layout_constraintTop_toBottomOf="@id/input_expense_amount" />
 
     <Button
         android:id="@+id/addBtn"
@@ -122,9 +122,9 @@
         app:layout_constraintTop_toBottomOf="@id/modes_of_payment" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/category_search_list"
+        android:id="@+id/rcv_sub_category_search_list"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_small"
         android:background="@drawable/rounded_panel"
         android:backgroundTint="@color/backgroundColor"
@@ -133,9 +133,9 @@
         android:outlineProvider="background"
         android:translationZ="5dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/input_sub_category"
-        app:layout_constraintStart_toStartOf="@id/input_sub_category"
-        app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
+        app:layout_constraintEnd_toEndOf="@id/input_expense_name"
+        app:layout_constraintStart_toStartOf="@id/input_expense_name"
+        app:layout_constraintTop_toBottomOf="@id/input_expense_name" />
 
     <LinearLayout
         android:id="@+id/list_container"
@@ -170,13 +170,20 @@
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/secondaryColor"
+        app:layout_constraintTop_toBottomOf="@id/list_container" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcv_expense_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginVertical="@dimen/margin_small"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/list_container"
+        app:layout_constraintEnd_toEndOf="@id/separator"
         app:layout_constraintStart_toStartOf="@id/list_container"
         app:layout_constraintTop_toBottomOf="@id/list_container" />
 

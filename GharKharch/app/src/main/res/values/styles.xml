@@ -22,4 +22,13 @@
         <item name="android:background">@drawable/search_bar_bordered_bg</item>
         <item name="android:textColorHint">@color/primaryTextColorVariant</item>
     </style>
+
+    <style name="custom_date_picker" parent="@style/ThemeOverlay.Material3.MaterialCalendar">
+        <item name="colorPrimary">@color/buttonColor</item>
+        <item name="colorOnPrimary">@color/buttonColor</item>
+        <item name="shapeCornerFamily">rounded</item>
+        <!-- Customize text field of the text input mode. -->
+<!--        <item name="textInputStyle">@style/</item>-->
+    </style>
+
 </resources>

@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,6 @@ import java.util.List;
 
 public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.ViewHolder> {
 
-    private Context context;
     private final List<GenericItem> item_list;
     private List<String> backup_list;
     private final ItemClicked interface_ItemClicked;
@@ -26,7 +26,6 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
     }
 
     public SearchListAdapter(Context context, List<GenericItem> item_list, ItemClicked interface_ItemClicked) {
-        this.context = context;
         this.item_list = item_list;
         this.interface_ItemClicked = interface_ItemClicked;
     }
@@ -50,11 +49,6 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
     @Override
     public int getItemCount() {
         return item_list.size();
-    }
-
-    public void update_list(List<GenericItem> updated_list) {
-        item_list.clear();
-        item_list.addAll(updated_list);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

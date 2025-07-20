@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -28,12 +29,11 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     private final Context context;
     private final List<GenericItem> list;
     private final GenericItemType item_type;
-    private GlobalData globalData;
-    private DB_Interface db_listener;
+    private final GlobalData globalData;
+    private final DB_Interface db_listener;
 
     public interface DB_Interface {
         void database_updated();
-//        void edit_item();
     }
 
     public SimpleListAdapter(Context context, List<GenericItem> list, GenericItemType item_type, DB_Interface db_listener) {
@@ -57,12 +57,18 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
         holder.item_name.setText(item.get_item_name());
 
+        if (item_type == GenericItemType.Expenses) {
+            holder.item_amount.setVisibility(View.VISIBLE);
+            holder.item_amount.setText("\u20B9" + item.get_item_amount());
+        } else
+            holder.item_amount.setVisibility(View.GONE);
+
         holder.delete_item.setOnClickListener(v -> {
             fun_delete_item(item.get_item_id(), item.get_item_name(), position);
         });
 
         holder.edit_item.setOnClickListener(v -> {
-            fun_edit_item(item.get_item_id(), item.get_item_name(), position);
+            fun_edit_item(item.get_item_id(), item.get_item_name(), item.get_item_amount(), position);
         });
     }
 
@@ -71,6 +77,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         return list.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void fun_delete_item(int itemId, String itemName, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_generic, null);
@@ -103,7 +110,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
             globalData.delete_item(itemId, item_type.getValue());
             dialog.dismiss();
             db_listener.database_updated();
-            notifyItemChanged(position);
+            notifyDataSetChanged();
         });
 
         negative_btn.setOnClickListener(v -> {
@@ -113,7 +120,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         dialog.show();
     }
 
-    private void fun_edit_item(int item_id, String item_name, int position) {
+    private void fun_edit_item(int item_id, String item_name, int item_amount, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_text_editor, null);
         builder.setView(dialog_layout);
@@ -131,7 +138,11 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         positive_btn = dialog_layout.findViewById(R.id.positive_btn);
         negative_btn = dialog_layout.findViewById(R.id.negative_btn);
 
-        text_editor.setText(item_name);
+        if (item_type == GenericItemType.Expenses)
+            text_editor.setText(String.valueOf(item_amount));
+        else
+            text_editor.setText(item_name);
+
         positive_btn.setText("Ok");
 
         positive_btn.setOnClickListener(v -> {
@@ -160,12 +171,13 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView item_name;
+        TextView item_name, item_amount;
         ImageView delete_item, edit_item;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             item_name = itemView.findViewById(R.id.item_name);
+            item_amount = itemView.findViewById(R.id.item_amount);
             delete_item = itemView.findViewById(R.id.delete_item);
             edit_item = itemView.findViewById(R.id.edit_item);
         }

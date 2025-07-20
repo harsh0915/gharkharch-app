@@ -1,7 +1,5 @@
 package com.itmart.gharkharch.Fragments;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
-
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -21,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -46,8 +43,8 @@ import com.itmart.gharkharch.Utilities.GlobalData;
 public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
     private Button addBtn;
     private EditText inputSubCategory, inputCategory;
-    private List<GenericItem> category_list, sub_category_list;
-    private HashSet<String> category_fast_lookup, sub_category_fast_lookup;
+    private List<GenericItem> category_search_list, sub_category_list;
+    private HashSet<String> category_fast_lookup;
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
     private DatabaseHelper databaseHelper;
@@ -61,8 +58,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gdata = GlobalData.getInstance(requireContext());
         item_type = GenericItemType.Sub_Category;
+        gdata = GlobalData.getInstance(requireContext());
+        databaseHelper = DatabaseHelper.getInstance(requireContext());
     }
 
     @Nullable
@@ -83,7 +81,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        inflate_RCV();
+        inflate_category_RCV();
         inflate_sub_category_RCV();
 
         requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -96,26 +94,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                     setEnabled(true);
                 }
             }
-        });
-
-        addBtn.setOnClickListener(v -> {
-            gdata.close_keyboard(v);
-
-            String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
-            if (sub_cat_name.isEmpty()) {
-                gdata.generateSnackBar(addBtn, "A sub-category name can't be empty!");
-                return;
-            } else if (cat_name.isEmpty()) {
-                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
-                return;
-            } else if (!category_fast_lookup.contains(cat_name)) {
-                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ");
-                return;
-            } else addSubCategory(sub_cat_name, under_category_id);
-
-            fetch_sub_category_list();
-            simple_adapter.notifyDataSetChanged();
-            rcv_category_search.setVisibility(View.GONE);
         });
 
         //TODO:bind the search list adapter with the input text
@@ -144,6 +122,26 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             }
         });
 
+        addBtn.setOnClickListener(v -> {
+            gdata.close_keyboard(v);
+
+            String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
+            if (sub_cat_name.isEmpty()) {
+                gdata.generateSnackBar(addBtn, "A sub-category name can't be empty!");
+                return;
+            } else if (cat_name.isEmpty()) {
+                gdata.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
+                return;
+            } else if (!category_fast_lookup.contains(cat_name)) {
+                gdata.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ");
+                return;
+            } else addSubCategory(sub_cat_name, under_category_id);
+
+            fetch_sub_category_list();
+            simple_adapter.notifyDataSetChanged();
+            rcv_category_search.setVisibility(View.GONE);
+        });
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -151,7 +149,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            fetch_category_list();
+            //refresh list when coming from another frag as it may have added another data set
+            fetch_category_search_list();
+            search_adapter.notifyDataSetChanged();
         }
         page_title.setText("Expense Heads");
     }
@@ -166,23 +166,23 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void on_item_clicked(GenericItem clicked_item) {
         inputCategory.setText(clicked_item.get_item_name());
         under_category_id = clicked_item.get_item_id();
+        //this line moves the cursor to the end of the text inside the edi text
         inputCategory.setSelection(inputCategory.getText().length());
         rcv_category_search.setVisibility(View.GONE);
     }
     //ending of callbacks
 
-    private void inflate_RCV() {
-        category_list = new ArrayList<>();
+    private void inflate_category_RCV() {
+        category_search_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
-        fetch_category_list();
-        search_adapter = new SearchListAdapter(requireContext(), category_list, this);
+        fetch_category_search_list();
+        search_adapter = new SearchListAdapter(requireContext(), category_search_list, this);
         rcv_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_category_search.setAdapter(search_adapter);
     }
 
     private void inflate_sub_category_RCV() {
         sub_category_list = new ArrayList<>();
-        sub_category_fast_lookup = new HashSet<>();
         fetch_sub_category_list();
         simple_adapter = new SimpleListAdapter(requireContext(), sub_category_list, item_type, this);
         rcv_sub_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -192,11 +192,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private void addSubCategory(String new_sub_category, int under_cat_id) {
 
         try {
-            databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
             values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
-            values.put(DatabaseHelper.COLUMN_CATEGORY_ID, under_cat_id);
+            values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_cat_id);
 
             try {
                 long id = writeable_db.insert(DatabaseHelper.TABLE_SUB_CATEGORIES, null, values);
@@ -211,7 +210,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             } catch (Exception e) {
                 Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             }
-
+            Log.i("harshTagFK", "Under cat id when adding :"+under_cat_id);
             inputCategory.setText("");
             inputSubCategory.setText("");
             inputCategory.setHint(R.string.hint_category);
@@ -221,14 +220,13 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         }
     }
 
-    public void fetch_category_list() {
-        category_list.clear();
+    public void fetch_category_search_list() {
+        category_search_list.clear();
         category_fast_lookup.clear();
         try {
-            databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
-            String query = "select " + DatabaseHelper.COLUMN_CATEGORY_NAME + " , " + DatabaseHelper.COLUMN_CATEGORY_ID + " from " + DatabaseHelper.TABLE_CATEGORIES;
+            String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES;
             Cursor cursor = null;
 
             try {
@@ -236,30 +234,28 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
                 if (cursor.moveToFirst()) {
                     do {
-                        String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
                         int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                        String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
                         Category category = new Category(cat_id, cat_name);
-                        category_list.add(category);
+                        category_search_list.add(category);
                         category_fast_lookup.add(cat_name);
                     } while (cursor.moveToNext());
                 }
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
-                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             } finally {
                 if (cursor != null) cursor.close();
             }
         } catch (Exception e) {
-            Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
+            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
         }
     }
 
     public void fetch_sub_category_list() {
         sub_category_list.clear();
-        sub_category_fast_lookup.clear();
         try {
-            databaseHelper = DatabaseHelper.getInstance(requireContext());
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
             String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES;
@@ -272,21 +268,21 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                     do {
                         int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_ID));
                         String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
-                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_CATEGORY));
+
                         SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
                         sub_category_list.add(subCategory);
-                        sub_category_fast_lookup.add(sub_cat_name);
                     } while (cursor.moveToNext());
                 }
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");
 
             } catch (Exception e) {
-                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
+                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
             } finally {
                 if (cursor != null) cursor.close();
             }
         } catch (Exception e) {
-            Log.i("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. ");
+            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
         }
     }
 

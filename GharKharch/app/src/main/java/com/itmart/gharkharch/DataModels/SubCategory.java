@@ -13,10 +13,10 @@ public class SubCategory implements Parcelable, GenericItem {
     private String sub_category_name;
     private int category_id;
 
-    public SubCategory(int sub_category_id,String sub_category_name,int category_id){
-        this.sub_category_id=sub_category_id;
-        this.sub_category_name=sub_category_name;
-        this.category_id=category_id;
+    public SubCategory(int sub_category_id, String sub_category_name, int category_id) {
+        this.sub_category_id = sub_category_id;
+        this.sub_category_name = sub_category_name;
+        this.category_id = category_id;
     }
 
     protected SubCategory(Parcel in) {
@@ -69,5 +69,10 @@ public class SubCategory implements Parcelable, GenericItem {
     @Override
     public String get_item_name() {
         return sub_category_name;
+    }
+
+    @Override
+    public int get_item_amount() {
+        return -1;
     }
 }

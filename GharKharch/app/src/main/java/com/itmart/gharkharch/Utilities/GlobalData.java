@@ -4,6 +4,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
@@ -119,40 +120,62 @@ public class GlobalData {
     public void delete_item(int id, int item_type) {
         try {
             SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
+            db.setForeignKeyConstraintsEnabled(true);
             String where_clause;
             String[] where_args;
             int rows;
             switch (item_type) {
 
                 case 1:
-                    where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
-                    where_args = new String[]{String.valueOf(id)};
-                    rows = db.delete(DatabaseHelper.TABLE_CATEGORIES, where_clause, where_args);
-                    if (rows == 0)
-                        Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from category table.");
-                    else
-                        Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
+                    try {
+                        where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
+                        where_args = new String[]{String.valueOf(id)};
+                        rows = db.delete(DatabaseHelper.TABLE_CATEGORIES, where_clause, where_args);
+                        if (rows == 0)
+                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from category table.");
+                        else
+                            Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
+                    } catch (SQLiteConstraintException e) {
+                        if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                            generateToast("You cannot remove a category that has expense head within it.");
+                        } else {
+                            generateToast("Constraint Error : " + e.getMessage());
+                        }
+                    }
                     break;
 
                 case 2:
-                    where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
-                    where_args = new String[]{String.valueOf(id)};
-                    rows = db.delete(DatabaseHelper.TABLE_SUB_CATEGORIES, where_clause, where_args);
-                    if (rows == 0)
-                        Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from sub-category table.");
-                    else
-                        Log.d("harshTagSqlQuery", "Rows delete successfully.");
+                    try {
+                        where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
+                        where_args = new String[]{String.valueOf(id)};
+                        rows = db.delete(DatabaseHelper.TABLE_SUB_CATEGORIES, where_clause, where_args);
+                        if (rows == 0)
+                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from sub-category table.");
+                        else
+                            Log.d("harshTagSqlQuery", "Rows delete successfully.");
+                    } catch (SQLiteConstraintException e) {
+                        if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                            generateToast("You cannot remove a head that has a expense within it.");
+                        } else {
+                            generateToast("Constraint Error : " + e.getMessage());
+                        }
+                    }
                     break;
 
                 case 3:
-                    where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
-                    where_args = new String[]{String.valueOf(id)};
-                    rows = db.delete(DatabaseHelper.TABLE_EXPENSES, where_clause, where_args);
-                    if (rows == 0)
-                        Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from expense table.");
-                    else
-                        Log.d("harshTagSqlQuery", "Row delete successfully.");
+                    try {
+                        where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
+                        where_args = new String[]{String.valueOf(id)};
+                        rows = db.delete(DatabaseHelper.TABLE_EXPENSES, where_clause, where_args);
+                        if (rows == 0)
+                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from expense table.");
+                        else
+                            Log.d("harshTagSqlQuery", "Row delete successfully.");
+                    } catch (SQLiteConstraintException e) {
+                        generateToast("Constraint Error : " + e.getMessage());
+                    }
                     break;
+
             }
         } catch (Exception e) {
             Log.i("harshTagSqlQuery", "Something went wrong!\nError : " + e.getMessage());

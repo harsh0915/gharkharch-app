@@ -69,7 +69,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/category_search_list"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_small"
         android:background="@drawable/rounded_panel"
         android:backgroundTint="@color/backgroundColor"
@@ -114,13 +114,20 @@
 
     </LinearLayout>
 
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/secondaryColor"
+        app:layout_constraintTop_toBottomOf="@id/list_container" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcv_sub_category_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginVertical="@dimen/margin_small"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/list_container"
+        app:layout_constraintEnd_toEndOf="@id/separator"
         app:layout_constraintStart_toStartOf="@id/list_container"
         app:layout_constraintTop_toBottomOf="@id/list_container" />
 
