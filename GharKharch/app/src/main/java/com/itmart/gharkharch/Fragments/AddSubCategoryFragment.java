@@ -202,7 +202,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
     //starting of callbacks
     @Override
-    public void database_updated() {
+    public void database_updated(int itemId, int value) {
+        gdata.delete_item(itemId, item_type.getValue(), rcv_category_search);
         fetch_sub_category_list();
     }
 

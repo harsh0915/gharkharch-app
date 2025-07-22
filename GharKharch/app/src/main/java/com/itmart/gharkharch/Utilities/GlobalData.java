@@ -4,7 +4,6 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
@@ -16,11 +15,10 @@ import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-import com.itmart.gharkharch.DataModels.Expense;
-import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 
 public class GlobalData {
@@ -47,6 +45,11 @@ public class GlobalData {
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
+    public String convertLongToDate(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+        Date date = new Date(timestamp);
+        return sdf.format(date);
+    }
 
     public void close_keyboard(View v) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
@@ -111,7 +114,7 @@ public class GlobalData {
         }
     }
 
-    public void delete_item(int id, int item_type) {
+    public void delete_item(int id, int item_type, View view) {
         try {
             SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
             db.setForeignKeyConstraintsEnabled(true);
@@ -131,9 +134,9 @@ public class GlobalData {
                             Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
                     } catch (SQLiteConstraintException e) {
                         if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            generateToast("Cannot remove category as it is being used in an expense head.");
+                            generateSnackBar(view, "Cannot remove category as it is being used in an expense head.");
                         } else {
-                            generateToast("Constraint Error : " + e.getMessage());
+                            generateSnackBar(view, "Constraint Error : " + e.getMessage());
                         }
                     }
                     break;
@@ -149,9 +152,9 @@ public class GlobalData {
                             Log.d("harshTagSqlQuery", "Rows delete successfully.");
                     } catch (SQLiteConstraintException e) {
                         if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            generateToast("Cannot remove head as it is being used in a ledger entry.");
+                            generateSnackBar(view, "Cannot remove head as it is being used in a ledger entry.");
                         } else {
-                            generateToast("Constraint Error : " + e.getMessage());
+                            generateSnackBar(view, "Constraint Error : " + e.getMessage());
                         }
                     }
                     break;
@@ -166,7 +169,7 @@ public class GlobalData {
                         else
                             Log.d("harshTagSqlQuery", "Row delete successfully.");
                     } catch (SQLiteConstraintException e) {
-                        generateToast("Constraint Error : " + e.getMessage());
+                        generateSnackBar(view, "Constraint Error : " + e.getMessage());
                     }
                     break;
 

@@ -127,7 +127,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     }
 
     @Override
-    public void database_updated() {
+    public void database_updated(int itemId, int value) {
+        gdata.delete_item(itemId, item_type.getValue(), rcv_category_list);
         fetch_category_list();
     }
 

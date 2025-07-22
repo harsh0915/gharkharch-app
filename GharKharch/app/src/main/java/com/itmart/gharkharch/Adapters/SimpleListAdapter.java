@@ -20,7 +20,6 @@ import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.itmart.gharkharch.Utilities.GlobalData;
@@ -34,7 +33,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     private final DB_Interface db_listener;
 
     public interface DB_Interface {
-        void database_updated();
+        void database_updated(int itemId, int value);
     }
 
     public SimpleListAdapter(Context context, List<GenericItem> simple_item_list, GenericItemType item_type, DB_Interface db_listener) {
@@ -108,9 +107,8 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         positive_btn.setText("Delete");
 
         positive_btn.setOnClickListener(v -> {
-            globalData.delete_item(itemId, item_type.getValue());
             dialog.dismiss();
-            db_listener.database_updated();
+            db_listener.database_updated(itemId,item_type.getValue());
             notifyDataSetChanged();
         });
 
@@ -159,7 +157,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
                     break;
             }
             dialog.dismiss();
-            db_listener.database_updated();
+            db_listener.database_updated(-1, item_type.getValue());
             notifyItemChanged(position);
         });
 

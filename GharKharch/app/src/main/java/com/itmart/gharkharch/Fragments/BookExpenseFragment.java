@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
@@ -49,7 +49,7 @@ import java.util.List;
 
 public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
 
-    private TextView date_picker, page_title;
+    private TextView date_picker;
     private EditText input_expense_name, input_expense_amount;
     private List<GenericItem> expense_list, sub_category_search_list;
     private HashSet<String> sub_category_fast_lookup;
@@ -58,7 +58,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SearchListAdapter search_adapter;
     private Button addBtn;
     private GlobalData gdata;
-    private Calendar selected_date;
+    private long selected_date;
     private Spinner modes_of_payment;
     private GenericItemType item_type;
     private DatabaseHelper databaseHelper;
@@ -67,6 +67,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
+    private Calendar startTime, endTime;
     private List<GenericItem> filtered_search_list, filtered_expenses;
 
     private enum ListType {
@@ -78,7 +79,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         item_type = GenericItemType.Expenses;
-        selected_date = Calendar.getInstance();
         gdata = GlobalData.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
         expense_list = new ArrayList<>();
@@ -86,13 +86,27 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         filtered_search_list = new ArrayList<>();
         sub_category_fast_lookup = new HashSet<>();
         sub_category_search_list = new ArrayList<>();
+        selected_date = System.currentTimeMillis();
+        startTime = Calendar.getInstance();
+        endTime = Calendar.getInstance();
+
+        Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, 0);
+        startTime.set(Calendar.MINUTE, 0);
+        startTime.set(Calendar.SECOND, 0);
+        startTime.set(Calendar.MILLISECOND, 0);
+
+        Calendar endTime = Calendar.getInstance();
+        endTime.set(Calendar.HOUR_OF_DAY, 23);
+        endTime.set(Calendar.MINUTE, 59);
+        endTime.set(Calendar.SECOND, 59);
+        endTime.set(Calendar.MILLISECOND, 999);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_book_expense, container, false);
-        page_title = requireActivity().findViewById(R.id.page_title);
         input_expense_name = view.findViewById(R.id.input_expense_name);
         input_expense_amount = view.findViewById(R.id.input_expense_amount);
         date_picker = view.findViewById(R.id.date_picker);
@@ -115,6 +129,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         inflate_spinner();
         inflate_expense_RCV();
         inflate_sub_cat_RCV();
+
+        date_picker.setText(gdata.convertLongToDate(selected_date));
 
         requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -161,9 +177,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
 
             datePicker.addOnPositiveButtonClickListener(selection -> {
-                // Handle the selected date (selection is in UTC milliseconds)
-                String selectedDate = datePicker.getHeaderText(); // formatted date string
-                Toast.makeText(v.getContext(), "Selected Date: " + selectedDate, Toast.LENGTH_SHORT).show();
+                selected_date = selection;
+                date_picker.setText(gdata.convertLongToDate(selection));
+                date_picker.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.white));
             });
         });
 
@@ -220,13 +236,13 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             fetch_sub_category_search_list();
             search_adapter.notifyDataSetChanged();
             simple_adapter.notifyDataSetChanged();
-            page_title.setText("Book Expense");
         }
     }
 
     //beginning of callbacks
     @Override
-    public void database_updated() {
+    public void database_updated(int itemId, int value) {
+        gdata.delete_item(itemId, item_type.getValue(), rcv_expense_list);
         fetch_expenses();
     }
 
@@ -285,7 +301,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
             values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_category_id);
             values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, amount);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, selected_date.getTimeInMillis());
+            values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, selected_date);
             values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
 
             writeable_db.insert(DatabaseHelper.TABLE_EXPENSES, null, values);
