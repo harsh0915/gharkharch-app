@@ -49,12 +49,16 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
+    private List<GenericItem> filtered_categories_list;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gdata = GlobalData.getInstance(requireContext());
         item_type = GenericItemType.Category;
+        category_list = new ArrayList<>();
+        category_fast_lookup = new HashSet<>();
+        filtered_categories_list = new ArrayList<>();
     }
 
     @Nullable
@@ -81,7 +85,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
 
         search_button.setOnClickListener(v -> toggle_search_view());
 
-        close_button.setOnClickListener(v -> toggle_search_view());
+        close_button.setOnClickListener(v -> {
+            toggle_search_view();
+            search_view.setQuery("",false);
+        });
 
         addBtn.setOnClickListener(v -> {
             gdata.close_keyboard(v);
@@ -93,6 +100,20 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
                 addCategory(new_category);
                 fetch_category_list();
                 simple_adapter.notifyDataSetChanged();
+            }
+        });
+
+        search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String query = newText.toLowerCase();
+                filterList(query, filtered_categories_list, category_list);
+                return true;
             }
         });
     }
@@ -126,10 +147,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     }
 
     private void inflate_category_RCV() {
-        category_list = new ArrayList<>();
-        category_fast_lookup = new HashSet<>();
         fetch_category_list();
-        simple_adapter = new SimpleListAdapter(requireContext(), category_list, item_type, this);
+        simple_adapter = new SimpleListAdapter(requireContext(), filtered_categories_list, item_type, this);
         rcv_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_category_list.setAdapter(simple_adapter);
     }
@@ -170,6 +189,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     }
 
     public void fetch_category_list() {
+        filtered_categories_list.clear();
         category_list.clear();
         category_fast_lookup.clear();
         try {
@@ -189,6 +209,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
                         Category category = new Category(cat_id, cat_name);
                         category_list.add(category);
                         category_fast_lookup.add(cat_name);
+                        filtered_categories_list.add(category);
                     } while (cursor.moveToNext());
                 }
                 Log.i("harshTagSqlQuery", "Data retrieved successfully");
@@ -202,5 +223,27 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
         } catch (Exception e) {
             Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterList(String query, List<GenericItem> list_toBeFiltered, List<GenericItem> filterFrom) {
+        list_toBeFiltered.clear();
+
+        if (query.isEmpty()) {
+            // If query is empty, show all names
+            list_toBeFiltered.addAll(filterFrom);
+        } else {
+            // Iterate through the original, sorted list
+            for (GenericItem item : filterFrom) {
+                if (item.get_item_name().toLowerCase().startsWith(query)) {
+                    list_toBeFiltered.add(item);
+                }
+                // Optional: Performance optimization for very large lists and specific criteria
+                // If checking startsWith and the list is sorted, you could potentially break early
+                // if the current name's first character is greater than the query's first character.
+                // However, for typical prefix matching, it's often simpler to just iterate.
+            }
+        }
+        simple_adapter.notifyDataSetChanged();
     }
 }

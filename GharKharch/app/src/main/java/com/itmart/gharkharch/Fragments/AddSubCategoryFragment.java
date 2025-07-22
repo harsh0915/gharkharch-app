@@ -1,7 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -61,6 +60,12 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
+    private List<GenericItem> filtered_search_list, filtered_sub_categories;
+
+    private enum ListType {
+        Search,
+        Simple
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,6 +73,11 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         item_type = GenericItemType.Sub_Category;
         gdata = GlobalData.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
+        filtered_search_list = new ArrayList<>();
+        sub_category_list = new ArrayList<>();
+        category_search_list = new ArrayList<>();
+        category_fast_lookup = new HashSet<>();
+        filtered_sub_categories = new ArrayList<>();
     }
 
     @Nullable
@@ -117,6 +127,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 rcv_category_search.setVisibility(View.VISIBLE);
+                String query = s.toString().toLowerCase();
+                filterList(query, filtered_search_list, category_search_list, ListType.Search);
             }
 
             @Override
@@ -135,7 +147,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
         search_button.setOnClickListener(v -> toggle_search_view());
 
-        close_button.setOnClickListener(v -> toggle_search_view());
+        close_button.setOnClickListener(v -> {
+            toggle_search_view();
+            search_view.setQuery("", false);
+        });
 
         addBtn.setOnClickListener(v -> {
             gdata.close_keyboard(v);
@@ -155,6 +170,20 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             fetch_sub_category_list();
             simple_adapter.notifyDataSetChanged();
             rcv_category_search.setVisibility(View.GONE);
+        });
+
+        search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String query = newText.toLowerCase();
+                filterList(query, filtered_sub_categories, sub_category_list, ListType.Simple);
+                return true;
+            }
         });
 
     }
@@ -202,18 +231,15 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     private void inflate_category_RCV() {
-        category_search_list = new ArrayList<>();
-        category_fast_lookup = new HashSet<>();
         fetch_category_search_list();
-        search_adapter = new SearchListAdapter(requireContext(), category_search_list, this);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_search_list, this);
         rcv_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_category_search.setAdapter(search_adapter);
     }
 
     private void inflate_sub_category_RCV() {
-        sub_category_list = new ArrayList<>();
         fetch_sub_category_list();
-        simple_adapter = new SimpleListAdapter(requireContext(), sub_category_list, item_type, this);
+        simple_adapter = new SimpleListAdapter(requireContext(), filtered_sub_categories, item_type, this);
         rcv_sub_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_list.setAdapter(simple_adapter);
     }
@@ -250,6 +276,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     public void fetch_category_search_list() {
+        filtered_search_list.clear();
         category_search_list.clear();
         category_fast_lookup.clear();
         try {
@@ -268,6 +295,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                         Category category = new Category(cat_id, cat_name);
                         category_search_list.add(category);
                         category_fast_lookup.add(cat_name);
+                        filtered_search_list.add(category);
                     } while (cursor.moveToNext());
                 }
 
@@ -282,6 +310,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     public void fetch_sub_category_list() {
+        filtered_sub_categories.clear();
         sub_category_list.clear();
         try {
             SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
@@ -300,6 +329,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
                         SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
                         sub_category_list.add(subCategory);
+                        filtered_sub_categories.add(subCategory);
                     } while (cursor.moveToNext());
                 }
 
@@ -313,4 +343,28 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterList(String query, List<GenericItem> list_toBeFiltered, List<GenericItem> filterFrom, ListType list_type) {
+        list_toBeFiltered.clear();
+
+        if (query.isEmpty()) {
+            // If query is empty, show all names
+            list_toBeFiltered.addAll(filterFrom);
+        } else {
+            // Iterate through the original, sorted list
+            for (GenericItem item : filterFrom) {
+                if (item.get_item_name().toLowerCase().startsWith(query)) {
+                    list_toBeFiltered.add(item);
+                }
+                // Optional: Performance optimization for very large lists and specific criteria
+                // If checking startsWith and the list is sorted, you could potentially break early
+                // if the current name's first character is greater than the query's first character.
+                // However, for typical prefix matching, it's often simpler to just iterate.
+            }
+        }
+        if (list_type == ListType.Search)
+            search_adapter.notifyDataSetChanged();
+        else
+            simple_adapter.notifyDataSetChanged();
+    }
 }

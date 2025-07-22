@@ -1,12 +1,12 @@
 package com.itmart.gharkharch.Fragments;
 
 import android.annotation.SuppressLint;
-import android.app.WallpaperManager;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,8 +67,12 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
-    private List<GenericItem> filtered_list;
+    private List<GenericItem> filtered_search_list, filtered_expenses;
 
+    private enum ListType {
+        Search,
+        Simple
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,9 +82,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         gdata = GlobalData.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
         expense_list = new ArrayList<>();
-        filtered_list = new ArrayList<>();
-        sub_category_search_list = new ArrayList<>();
+        filtered_expenses = new ArrayList<>();
+        filtered_search_list = new ArrayList<>();
         sub_category_fast_lookup = new HashSet<>();
+        sub_category_search_list = new ArrayList<>();
     }
 
     @Override
@@ -111,7 +116,18 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         inflate_expense_RCV();
         inflate_sub_cat_RCV();
 
-        //TODO:bind the search list adapter with the input text
+        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (input_expense_name.hasFocus()) input_expense_name.clearFocus();
+                else {
+                    setEnabled(false);
+                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                }
+            }
+        });
+
         input_expense_name.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -121,8 +137,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 rcv_sub_category_search.setVisibility(View.VISIBLE);
-                String query = s.toString().toLowerCase(); // Get current input, convert to lowercase for case-insensitivity
-                filterList(query);
+                String query = s.toString().toLowerCase();
+                filterList(query, filtered_search_list, sub_category_search_list, ListType.Search);
             }
 
             @Override
@@ -155,6 +171,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
         close_button.setOnClickListener(v -> {
             toggle_search_view();
+            search_view.setQuery("", false);
         });
 
         addBtn.setOnClickListener(v -> {
@@ -176,6 +193,20 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             fetch_expenses();
             simple_adapter.notifyDataSetChanged();
             rcv_sub_category_search.setVisibility(View.GONE);
+        });
+
+        search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                String query = newText.toLowerCase();
+                filterList(query, filtered_expenses, expense_list, ListType.Simple);
+                return true;
+            }
         });
     }
 
@@ -225,14 +256,14 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     private void inflate_expense_RCV() {
         fetch_expenses();
-        simple_adapter = new SimpleListAdapter(requireContext(), expense_list, item_type, this);
+        simple_adapter = new SimpleListAdapter(requireContext(), filtered_expenses, item_type, this);
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_expense_list.setAdapter(simple_adapter);
     }
 
     private void inflate_sub_cat_RCV() {
         fetch_sub_category_search_list();
-        search_adapter = new SearchListAdapter(requireContext(), filtered_list, this);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_search_list, this);
         rcv_sub_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_search.setAdapter(search_adapter);
     }
@@ -265,7 +296,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     public void fetch_sub_category_search_list() {
-        filtered_list.clear();
+        filtered_search_list.clear();
         sub_category_search_list.clear();
         sub_category_fast_lookup.clear();
 
@@ -287,7 +318,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                         SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
                         sub_category_search_list.add(subCategory);
                         sub_category_fast_lookup.add(sub_cat_name);
-                        filtered_list.add(subCategory);
+                        filtered_search_list.add(subCategory);
 
                     } while (cursor.moveToNext());
                 }
@@ -303,6 +334,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     public void fetch_expenses() {
+        filtered_expenses.clear();
         expense_list.clear();
         try {
             String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
@@ -323,6 +355,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
                         Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode);
                         expense_list.add(expense);
+                        filtered_expenses.add(expense);
                     } while (cursor.moveToNext());
                 }
 
@@ -338,17 +371,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void filterList(String query) {
-        filtered_list.clear(); // Start with an empty filtered list
+    private void filterList(String query, List<GenericItem> list_toBeFiltered, List<GenericItem> filterFrom, ListType list_type) {
+        list_toBeFiltered.clear();
 
         if (query.isEmpty()) {
             // If query is empty, show all names
-            filtered_list.addAll(sub_category_search_list);
+            list_toBeFiltered.addAll(filterFrom);
         } else {
             // Iterate through the original, sorted list
-            for (GenericItem item : sub_category_search_list) {
+            for (GenericItem item : filterFrom) {
                 if (item.get_item_name().toLowerCase().startsWith(query)) {
-                    filtered_list.add(item);
+                    list_toBeFiltered.add(item);
                 }
                 // Optional: Performance optimization for very large lists and specific criteria
                 // If checking startsWith and the list is sorted, you could potentially break early
@@ -356,8 +389,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 // However, for typical prefix matching, it's often simpler to just iterate.
             }
         }
-        search_adapter.notifyDataSetChanged();
-        // Notify your RecyclerView adapter that the data has changed
-        // e.g., myRecyclerViewAdapter.notifyDataSetChanged();
+        if (list_type == ListType.Search)
+            search_adapter.notifyDataSetChanged();
+        else
+            simple_adapter.notifyDataSetChanged();
     }
 }

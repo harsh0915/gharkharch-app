@@ -18,17 +18,16 @@ import java.util.List;
 
 public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.ViewHolder> {
 
-    private final List<GenericItem> search_item_list, backup_list;
+    private final List<GenericItem> search_item_list;
     private final ItemClicked interface_ItemClicked;
 
     public interface ItemClicked {
-        public void on_item_clicked(GenericItem clicked_item);
+        void on_item_clicked(GenericItem clicked_item);
     }
 
     public SearchListAdapter(Context context, List<GenericItem> search_item_list, ItemClicked interface_ItemClicked) {
         this.search_item_list = search_item_list;
         this.interface_ItemClicked = interface_ItemClicked;
-        this.backup_list = new ArrayList<>();
     }
 
     @NonNull

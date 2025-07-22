@@ -28,7 +28,7 @@ import com.itmart.gharkharch.Utilities.GlobalData;
 public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.ViewHolder> {
 
     private final Context context;
-    private final List<GenericItem> simple_item_list, backup_list;
+    private final List<GenericItem> simple_item_list;
     private final GenericItemType item_type;
     private final GlobalData globalData;
     private final DB_Interface db_listener;
@@ -43,7 +43,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         this.item_type = item_type;
         this.globalData = GlobalData.getInstance(context);
         this.db_listener = db_listener;
-        this.backup_list = new ArrayList<>();
     }
 
     @NonNull
@@ -169,11 +168,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         });
 
         dialog.show();
-    }
-
-    public void back_up_list(List<GenericItem> backup_list) {
-        this.backup_list.clear();
-        this.backup_list.addAll(backup_list);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
