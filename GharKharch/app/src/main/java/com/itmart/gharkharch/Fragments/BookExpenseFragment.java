@@ -212,6 +212,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 add_expense(expense_name, under_sub_category_id, amount, selected_mode_of_payment.getValue());
 
             fetch_expenses();
+            clearInputBars();
             simple_adapter.notifyDataSetChanged();
             rcv_sub_category_search.setVisibility(View.GONE);
         });
@@ -297,6 +298,13 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         //This layout is used to display the dropdown list that appears when you click the spinner.
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         modes_of_payment.setAdapter(adapter);
+    }
+
+    public void clearInputBars() {
+        input_expense_amount.setText("");
+        input_expense_name.setText("");
+        modes_of_payment.setSelection(0);
+        date_picker.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.primaryTextColorVariant));
     }
 
     private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment) {

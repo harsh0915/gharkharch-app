@@ -9,7 +9,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
 
-public class DialogInflater {
+public class Utility_DialogInflater {
 
     public interface DialogSetupCallback {
         void setupView(View dialog_layout);

@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_large"
+        android:padding="@dimen/padding_medium"
         android:text="Name"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/text_size_large"
@@ -33,7 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_small"
-        android:padding="@dimen/padding_large"
+        android:padding="@dimen/padding_medium"
         android:text="Under"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/text_size_large"

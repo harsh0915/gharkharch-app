@@ -10,7 +10,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="@dimen/padding_large"
+        android:padding="@dimen/padding_medium"
         android:text="Category"
         android:textColor="@color/primaryTextColor"
         android:textSize="@dimen/text_size_large"

@@ -94,7 +94,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
             gdata.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
-            if (new_category.isBlank())
+            if (new_category.trim().isEmpty())
                 gdata.generateSnackBar(v, "A category name can't be empty!");
             else {
                 addCategory(new_category);
