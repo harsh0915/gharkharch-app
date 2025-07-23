@@ -59,7 +59,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_large"
-        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginStart="@dimen/margin_small"
         android:backgroundTint="@color/buttonColor"
         android:text="Save"
         android:textColor="@color/primaryTextColor"
