@@ -34,7 +34,7 @@ import java.util.List;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.Utilities.GlobalData;
 
-public class AddCategoryFragment extends Fragment implements SimpleListAdapter.DB_Interface {
+public class AddCategoryFragment extends Fragment implements SimpleListAdapter.SimpleList_Interface {
     private EditText inputCategory;
     private Button addBtn;
     private List<GenericItem> category_list;
@@ -87,7 +87,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
 
         close_button.setOnClickListener(v -> {
             toggle_search_view();
-            search_view.setQuery("",false);
+            search_view.setQuery("", false);
         });
 
         addBtn.setOnClickListener(v -> {
@@ -127,8 +127,21 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.D
     }
 
     @Override
-    public void database_updated(int itemId, int value) {
-        gdata.delete_item(itemId, item_type.getValue(), rcv_category_list);
+    public void delete_item(int item_id) {
+        gdata.delete_item(item_id, item_type.getValue(), rcv_category_list);
+    }
+
+    @Override
+    public void edit_item(GenericItem item, String editedText) {
+        if (editedText.isEmpty()) {
+            gdata.generateSnackBar(addBtn, "An expense category can't be blank.");
+            return;
+        }
+        gdata.edit_category(item.get_item_id(), editedText);
+    }
+
+    @Override
+    public void database_updated() {
         fetch_category_list();
     }
 

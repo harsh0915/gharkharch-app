@@ -38,7 +38,7 @@ public class GlobalData {
     }
 
     public void generateSnackBar(View view, String msg) {
-        new Handler(Looper.getMainLooper()).post(() -> Snackbar.make(view, msg, 500).show());
+        new Handler(Looper.getMainLooper()).post(() -> Snackbar.make(view, msg, 700).show());
     }
 
     public void generateToast(String msg) {
@@ -95,13 +95,18 @@ public class GlobalData {
         }
     }
 
-    public void edit_expense(int id, int edited_amount) {
+    public void edit_expense(int id, String expense_name, int under_sub_cat, int edited_amount, long date, int mode_of_payment, String expense_remarks) {
         try {
             SQLiteDatabase db = DatabaseHelper.getInstance(context).getWritableDatabase();
             String where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
             String[] where_args = new String[]{String.valueOf(id)};
             ContentValues values = new ContentValues();
+            values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
+            values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_cat);
             values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, edited_amount);
+            values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, date);
+            values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
+            values.put(DatabaseHelper.COLUMN_EXPENSE_REMARKS, expense_remarks);
 
             int rows = db.update(DatabaseHelper.TABLE_EXPENSES, values, where_clause, where_args);
             if (rows == 0)

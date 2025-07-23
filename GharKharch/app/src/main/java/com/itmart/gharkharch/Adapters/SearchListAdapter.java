@@ -21,6 +21,9 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
     private final List<GenericItem> search_item_list;
     private final ItemClicked interface_ItemClicked;
 
+    /*this interface is responsible to fetch the item's name and its id
+    where the exposed id (via the interface to the frag) will help set a
+    foreign key for different tables*/
     public interface ItemClicked {
         void on_item_clicked(GenericItem clicked_item);
     }

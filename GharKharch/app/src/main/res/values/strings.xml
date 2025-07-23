@@ -3,8 +3,11 @@
     <string name="hint_category">e.g. Household, Education</string>
     <string name="hint_sub_category">e.g. Vegetables, Books, etc.</string>
     <string name="hint_amount">e.g. 5000 rs</string>
+    <string name="hint_expense_remark">Expense Remarks</string>
 
     <string name="hint_search_categories">Search categories...</string>
+    <string name="hint_search_sub_categories">Search categories...</string>
+    <string name="hint_search_expense">Search categories...</string>
 
     <string-array name="modesOfPayment">
         <item>CASH</item>

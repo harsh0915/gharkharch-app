@@ -29,19 +29,24 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     private final Context context;
     private final List<GenericItem> simple_item_list;
     private final GenericItemType item_type;
-    private final GlobalData globalData;
-    private final DB_Interface db_listener;
+    private final SimpleList_Interface simpleList_clickListener;
 
-    public interface DB_Interface {
-        void database_updated(int itemId, int value);
+    /*this interface allows us to send data to specific fragments when
+    clicking on specific item its also responsible for re-fetching the
+    local list of data after the db has some changes */
+    public interface SimpleList_Interface {
+        void delete_item(int item_id);
+
+        void edit_item(GenericItem item, String editedText);
+
+        void database_updated();
     }
 
-    public SimpleListAdapter(Context context, List<GenericItem> simple_item_list, GenericItemType item_type, DB_Interface db_listener) {
+    public SimpleListAdapter(Context context, List<GenericItem> simple_item_list, GenericItemType item_type, SimpleList_Interface simpleList_clickListener) {
         this.context = context;
         this.simple_item_list = simple_item_list;
         this.item_type = item_type;
-        this.globalData = GlobalData.getInstance(context);
-        this.db_listener = db_listener;
+        this.simpleList_clickListener = simpleList_clickListener;
     }
 
     @NonNull
@@ -68,7 +73,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         });
 
         holder.edit_item.setOnClickListener(v -> {
-            fun_edit_item(item.get_item_id(), item.get_item_name(), item.get_item_amount(), position);
+            fun_edit_item(item, position);
         });
     }
 
@@ -107,9 +112,10 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         positive_btn.setText("Delete");
 
         positive_btn.setOnClickListener(v -> {
-            dialog.dismiss();
-            db_listener.database_updated(itemId,item_type.getValue());
+            simpleList_clickListener.delete_item(itemId);
+            simpleList_clickListener.database_updated();
             notifyDataSetChanged();
+            dialog.dismiss();
         });
 
         negative_btn.setOnClickListener(v -> {
@@ -119,7 +125,14 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         dialog.show();
     }
 
-    private void fun_edit_item(int item_id, String item_name, int item_amount, int position) {
+    private void fun_edit_item(GenericItem item, int position) {
+
+        //for expense type we edit many fields so this line
+        if (item_type == GenericItemType.Expenses) {
+            simpleList_clickListener.edit_item(item, "");
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_text_editor, null);
         builder.setView(dialog_layout);
@@ -138,27 +151,17 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         negative_btn = dialog_layout.findViewById(R.id.negative_btn);
 
         if (item_type == GenericItemType.Expenses)
-            text_editor.setText(String.valueOf(item_amount));
+            text_editor.setText(String.valueOf(item.get_item_amount()));
         else
-            text_editor.setText(item_name);
+            text_editor.setText(item.get_item_name());
 
         positive_btn.setText("Ok");
 
         positive_btn.setOnClickListener(v -> {
-            switch (item_type) {
-                case Category:
-                    globalData.edit_category(item_id, text_editor.getText().toString().trim());
-                    break;
-                case Sub_Category:
-                    globalData.edit_sub_category(item_id, text_editor.getText().toString().trim());
-                    break;
-                case Expenses:
-                    globalData.edit_expense(item_id, Integer.parseInt(text_editor.getText().toString().trim()));
-                    break;
-            }
-            dialog.dismiss();
-            db_listener.database_updated(-1, item_type.getValue());
+            simpleList_clickListener.edit_item(item, text_editor.getText().toString().trim());
+            simpleList_clickListener.database_updated();
             notifyItemChanged(position);
+            dialog.dismiss();
         });
 
         negative_btn.setOnClickListener(v -> {

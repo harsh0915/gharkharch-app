@@ -42,7 +42,7 @@ import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.Utilities.GlobalData;
 
 
-public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
+public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
     private Button addBtn;
     private EditText inputSubCategory, inputCategory;
     private List<GenericItem> category_search_list, sub_category_list;
@@ -200,10 +200,23 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         }
     }
 
-    //starting of callbacks
     @Override
-    public void database_updated(int itemId, int value) {
-        gdata.delete_item(itemId, item_type.getValue(), rcv_category_search);
+    public void delete_item(int item_id) {
+        gdata.delete_item(item_id, item_type.getValue(), rcv_sub_category_list);
+    }
+
+    //beginning of callbacks
+    @Override
+    public void edit_item(GenericItem item, String editedText) {
+        if (editedText.isEmpty()) {
+            gdata.generateSnackBar(addBtn, "An expense head can't be blank.");
+            return;
+        }
+        gdata.edit_sub_category(item.get_item_id(), editedText);
+    }
+
+    @Override
+    public void database_updated() {
         fetch_sub_category_list();
     }
 

@@ -10,7 +10,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.WindowDecorActionBar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,23 +43,21 @@ import com.itmart.gharkharch.R;
 
 import com.itmart.gharkharch.Utilities.GlobalData;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
-public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.DB_Interface {
+public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
 
     private TextView date_picker;
-    private EditText input_expense_name, input_expense_amount;
+    private EditText input_expense_name, input_expense_amount, input_expense_remarks;
     private List<GenericItem> expense_list, sub_category_search_list;
     private HashSet<String> sub_category_fast_lookup;
     private RecyclerView rcv_expense_list, rcv_sub_category_search;
     private SimpleListAdapter simple_adapter;
     private SearchListAdapter search_adapter;
-    private Button addBtn;
+    private Button addBtn, cancelBtn;
     private GlobalData gdata;
     private long selected_date;
     private Spinner modes_of_payment;
@@ -73,6 +71,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private Calendar startTime, endTime;
     private List<GenericItem> filtered_search_list, filtered_expenses;
     private TextView page_title;
+    private boolean isEditingMode;
+    private PaymentMode selected_mode_of_payment;
+    private int id_toEdit;
+    private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
         Search,
@@ -93,6 +95,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         selected_date = System.currentTimeMillis();
         startTime = Calendar.getInstance();
         endTime = Calendar.getInstance();
+        selected_mode_of_payment = PaymentMode.CASH;
+        isEditingMode = false;
 
         Calendar startTime = Calendar.getInstance();
         startTime.set(Calendar.HOUR_OF_DAY, 0);
@@ -113,9 +117,11 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         View view = inflater.inflate(R.layout.fragment_book_expense, container, false);
         input_expense_name = view.findViewById(R.id.input_expense_name);
         input_expense_amount = view.findViewById(R.id.input_expense_amount);
+        input_expense_remarks = view.findViewById(R.id.input_expense_remarks);
         date_picker = view.findViewById(R.id.date_picker);
         modes_of_payment = view.findViewById(R.id.modes_of_payment);
         addBtn = view.findViewById(R.id.addBtn);
+        cancelBtn = view.findViewById(R.id.cancelBtn);
         rcv_expense_list = view.findViewById(R.id.rcv_expense_list);
         rcv_sub_category_search = view.findViewById(R.id.rcv_sub_category_search_list);
         search_button = view.findViewById(R.id.search_button);
@@ -177,14 +183,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         date_picker.setOnClickListener(v -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setTheme(R.style.custom_date_picker).build();
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select a date")
+                    .setSelection(selected_date)
+                    .setTheme(R.style.custom_date_picker)
+                    .build();
 
             datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
 
             datePicker.addOnPositiveButtonClickListener(selection -> {
                 selected_date = selection;
                 date_picker.setText(gdata.convertLongToDate(selection));
-                date_picker.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.white));
             });
         });
 
@@ -199,22 +208,56 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             gdata.close_keyboard(v);
 
             String expense_name = input_expense_name.getText().toString();
-            int amount = Integer.parseInt(input_expense_amount.getText().toString());
-            PaymentMode selected_mode_of_payment = (PaymentMode) modes_of_payment.getSelectedItem();
+            String amountString = input_expense_amount.getText().toString();
+            String expense_remark = input_expense_remarks.getText().toString().trim();
+            selected_mode_of_payment = (PaymentMode) modes_of_payment.getSelectedItem();
 
+            //empty expense name
             if (expense_name.isEmpty()) {
                 gdata.generateSnackBar(addBtn, "An expense name can't be empty!");
                 return;
-            } else if (!sub_category_fast_lookup.contains(expense_name)) {
+            }
+            //trying to use a category without defining it first
+            if (!sub_category_fast_lookup.contains(expense_name)) {
                 gdata.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ");
                 return;
-            } else
-                add_expense(expense_name, under_sub_category_id, amount, selected_mode_of_payment.getValue());
+            }
+            //amount can't be empty
+            if (amountString.isEmpty()) {
+                gdata.generateSnackBar(addBtn, "Amount cannot be empty");
+                return;
+            }
+
+            if (isEditingMode) {
+                if (id_toEdit == INVALID_EXPENSE_ID) {
+                    gdata.generateSnackBar(rcv_expense_list, "Invalid expense.");
+                    resetExpenseForm();
+                    return;
+                }
+                gdata.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark);
+            } else {
+                add_expense(expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_mode_of_payment.getValue(), expense_remark);
+            }
 
             fetch_expenses();
-            clearInputBars();
+            resetExpenseForm();
             simple_adapter.notifyDataSetChanged();
-            rcv_sub_category_search.setVisibility(View.GONE);
+        });
+
+        cancelBtn.setOnClickListener(v -> {
+            resetExpenseForm();
+        });
+
+        modes_of_payment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                selected_mode_of_payment = (PaymentMode) adapterView.getItemAtPosition(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
         });
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -243,13 +286,36 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             search_adapter.notifyDataSetChanged();
             simple_adapter.notifyDataSetChanged();
             page_title.setText("Book Expenses");
+        } else {
+            resetExpenseForm();
         }
+    }
+
+    @Override
+    public void delete_item(int item_id) {
+        gdata.delete_item(item_id, item_type.getValue(), rcv_expense_list);
     }
 
     //beginning of callbacks
     @Override
-    public void database_updated(int itemId, int value) {
-        gdata.delete_item(itemId, item_type.getValue(), rcv_expense_list);
+    public void edit_item(GenericItem item, String emptyString) {
+        gdata.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.");
+        isEditingMode = true;
+        cancelBtn.setVisibility(View.VISIBLE);
+        addBtn.setText("Update");
+        date_picker.setText(gdata.convertLongToDate(item.get_date()));
+        input_expense_name.setText(String.valueOf(item.get_item_name()));
+        input_expense_amount.setText(String.valueOf(item.get_item_amount()));
+        input_expense_remarks.setText(item.get_remarks() == null ? "" : item.get_remarks());
+        modes_of_payment.setSelection(item.get_mode_of_payment() - 1);
+        selected_date = item.get_date();
+        under_sub_category_id = item.get_fk_id();
+        id_toEdit = item.get_item_id();
+        rcv_sub_category_search.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void database_updated() {
         fetch_expenses();
     }
 
@@ -296,18 +362,22 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         //This layout is used to display the selected item when the spinner is not expanded.
         ArrayAdapter<PaymentMode> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, payment_modeArray);
         //This layout is used to display the dropdown list that appears when you click the spinner.
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter.setDropDownViewResource(android.R.layout.select_dialog_item);
         modes_of_payment.setAdapter(adapter);
     }
 
-    public void clearInputBars() {
+    public void resetExpenseForm() {
+        addBtn.setText("Save");
+        isEditingMode = false;
         input_expense_amount.setText("");
         input_expense_name.setText("");
+        input_expense_remarks.setText("");
         modes_of_payment.setSelection(0);
-        date_picker.setTextColor(ContextCompat.getColorStateList(requireContext(), R.color.primaryTextColorVariant));
+        rcv_sub_category_search.setVisibility(View.GONE);
+        cancelBtn.setVisibility(View.GONE);
     }
 
-    private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment) {
+    private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment, String expense_remarks) {
         try {
             SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
 
@@ -317,6 +387,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, amount);
             values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, selected_date);
             values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
+            values.put(DatabaseHelper.COLUMN_EXPENSE_REMARKS, expense_remarks);
 
             writeable_db.insert(DatabaseHelper.TABLE_EXPENSES, null, values);
 
@@ -382,8 +453,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                         int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
                         long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
                         int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
+                        String expense_remarks = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_REMARKS));
 
-                        Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode);
+                        Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode, expense_remarks);
                         expense_list.add(expense);
                         filtered_expenses.add(expense);
                     } while (cursor.moveToNext());

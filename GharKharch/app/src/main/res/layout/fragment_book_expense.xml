@@ -27,7 +27,7 @@
         android:background="@drawable/rounded_border"
         android:padding="@dimen/padding_medium"
         android:text="15/02/2006"
-        android:textColor="@color/primaryTextColorVariant"
+        android:textColor="@color/primaryTextColor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -110,6 +110,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_expense_amount" />
 
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="Remarks"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/input_expense_remarks"
+        app:layout_constraintEnd_toStartOf="@id/input_expense_remarks"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/input_expense_remarks" />
+
+    <EditText
+        android:id="@+id/input_expense_remarks"
+        style="@style/custom_edit_text"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_small"
+        android:hint="@string/hint_expense_remark"
+        android:textSize="@dimen/text_size_large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/modes_of_payment" />
+
     <Button
         android:id="@+id/addBtn"
         android:layout_width="wrap_content"
@@ -119,7 +142,19 @@
         android:backgroundTint="@color/buttonColor"
         android:text="Save"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/modes_of_payment" />
+        app:layout_constraintTop_toBottomOf="@id/input_expense_remarks" />
+
+    <Button
+        android:id="@+id/cancelBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_large"
+        android:backgroundTint="@color/red"
+        android:text="Cancel"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/addBtn"
+        app:layout_constraintTop_toBottomOf="@id/input_expense_remarks" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rcv_sub_category_search_list"

@@ -9,8 +9,8 @@ import com.itmart.gharkharch.Adapters.SearchListAdapter;
 
 public class Category implements Parcelable, GenericItem {
 
-    private int category_id;
-    private String category_name;
+    private final int category_id;
+    private final String category_name;
 
     public Category(int category_id, String category_name) {
         this.category_id = category_id;
@@ -65,7 +65,27 @@ public class Category implements Parcelable, GenericItem {
     }
 
     @Override
+    public int get_fk_id() {
+        return -1;
+    }
+
+    @Override
     public int get_item_amount() {
         return -1;
+    }
+
+    @Override
+    public int get_mode_of_payment() {
+        return -1;
+    }
+
+    @Override
+    public long get_date() {
+        return -1;
+    }
+
+    @Override
+    public String get_remarks() {
+        return "";
     }
 }
