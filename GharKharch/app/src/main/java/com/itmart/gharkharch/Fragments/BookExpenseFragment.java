@@ -303,13 +303,13 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         isEditingMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");
-        date_picker.setText(gdata.convertLongToDate(item.get_date()));
         input_expense_name.setText(String.valueOf(item.get_item_name()));
         input_expense_amount.setText(String.valueOf(item.get_item_amount()));
         input_expense_remarks.setText(item.get_remarks() == null ? "" : item.get_remarks());
         modes_of_payment.setSelection(item.get_mode_of_payment() - 1);
-        selected_date = item.get_date();
         under_sub_category_id = item.get_fk_id();
+        selected_date = item.get_date();
+        date_picker.setText(gdata.convertLongToDate(selected_date));
         id_toEdit = item.get_item_id();
         rcv_sub_category_search.setVisibility(View.GONE);
     }
@@ -373,8 +373,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         input_expense_name.setText("");
         input_expense_remarks.setText("");
         modes_of_payment.setSelection(0);
-        rcv_sub_category_search.setVisibility(View.GONE);
         cancelBtn.setVisibility(View.GONE);
+        rcv_sub_category_search.setVisibility(View.GONE);
+        selected_date = System.currentTimeMillis();
+        date_picker.setText(gdata.convertLongToDate(selected_date));
     }
 
     private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment, String expense_remarks) {
