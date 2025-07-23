@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.WindowDecorActionBar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,6 +43,8 @@ import com.itmart.gharkharch.R;
 
 import com.itmart.gharkharch.Utilities.GlobalData;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -69,6 +72,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private ImageView close_button;
     private Calendar startTime, endTime;
     private List<GenericItem> filtered_search_list, filtered_expenses;
+    private TextView page_title;
 
     private enum ListType {
         Search,
@@ -118,6 +122,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         search_view = view.findViewById(R.id.search_view);
         list_title = view.findViewById(R.id.list_title);
         close_button = view.findViewById(R.id.close_button);
+        page_title = requireActivity().findViewById(R.id.page_title);
         return view;
     }
 
@@ -236,6 +241,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             fetch_sub_category_search_list();
             search_adapter.notifyDataSetChanged();
             simple_adapter.notifyDataSetChanged();
+            page_title.setText("Book Expenses");
         }
     }
 
