@@ -9,7 +9,7 @@ import android.util.Log;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "ghar_kharch_db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     //    tables
     public static String TABLE_CATEGORIES = "categories";
@@ -87,8 +87,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CATEGORIES);
-        onCreate(db);
+        db.beginTransaction();
+        try {
+            switch (oldVersion) {
+                case 1:
+                case 2:
+                    db.execSQL("alter table " + DatabaseHelper.TABLE_EXPENSES + " add " + DatabaseHelper.COLUMN_EXPENSE_REMARKS + " text default null");
+//                case 3:
+//                case 4:
+//                case 5:
+//                case 6:
+                default:
+                    break;
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
 }
