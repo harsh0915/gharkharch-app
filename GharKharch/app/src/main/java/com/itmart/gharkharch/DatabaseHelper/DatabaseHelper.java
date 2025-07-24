@@ -73,9 +73,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_CATEGORIES_TABLE);
             db.execSQL(CREATE_SUB_CATEGORY_TABLE);
             db.execSQL(CREATE_EXPENSE_TABLE);
-            Log.i("harshTag", "Successful table creation!");
+            Log.i("harshTagDBCreate", "Successful table creation!");
         } catch (SQLException e) {
-            Log.e("harshTag", "Sql table creation error!\nError : " + e.getMessage());
+            Log.e("harshTagDBCreate", "Sql table creation error!\nError : " + e.getMessage());
         }
     }
 
@@ -93,14 +93,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 case 1:
                 case 2:
                     db.execSQL("alter table " + DatabaseHelper.TABLE_EXPENSES + " add " + DatabaseHelper.COLUMN_EXPENSE_REMARKS + " text default null");
-//                case 3:
-//                case 4:
-//                case 5:
-//                case 6:
-                default:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
                     break;
+                default:
+                    Log.e("harshTagDBUpgrade", "Database Upgrade Failed : Unhandled Version.");
+                    throw new IllegalStateException("Database upgrade: Unhandled oldVersion " + oldVersion);
             }
             db.setTransactionSuccessful();
+        } catch (RuntimeException e) {
+            Log.e("harshTagDBUpgrade", "Database Updating Failed : Updating Disturbed Data Integrity.");
+            throw new RuntimeException("Database upgrade failed", e); // Crash on failure for data integrity
         } finally {
             db.endTransaction();
         }
