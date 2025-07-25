@@ -1,5 +1,9 @@
 package com.itmart.gharkharch.Fragments;
 
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -27,6 +31,7 @@ import android.widget.TextView;
 
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.Category;
+import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.DataModels.SubCategory;
@@ -57,7 +62,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private SimpleListAdapter simple_adapter;
     private RecyclerView rcv_sub_category_list;
     private GenericItemType item_type;
-    private Utility_UiAlerts utilityUiAlerts;
     private Utility_DBOperations utilityDbOperations;
     private ImageView search_button;
     private SearchView search_view;
@@ -75,7 +79,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         item_type = GenericItemType.Sub_Category;
-        utilityUiAlerts = Utility_UiAlerts.getInstance(requireContext());
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
@@ -163,13 +166,13 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
             if (sub_cat_name.isEmpty()) {
-                utilityUiAlerts.generateSnackBar(addBtn, "A sub-category name can't be empty!");
+                Utility_UiAlerts.generateSnackBar(addBtn, "An expense head name can't be empty!", WARNING);
                 return;
             } else if (cat_name.isEmpty()) {
-                utilityUiAlerts.generateSnackBar(addBtn, "A sub-category can't be added without a category!");
+                Utility_UiAlerts.generateSnackBar(addBtn, "An expense head can't be added without a category!", WARNING);
                 return;
             } else if (!category_fast_lookup.contains(cat_name)) {
-                utilityUiAlerts.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ");
+                Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", WARNING);
                 return;
             } else addSubCategory(sub_cat_name, under_category_id);
 
@@ -208,14 +211,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_sub_category_list);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_sub_category_list, deleteCallback);
     }
 
     //beginning of callbacks
     @Override
     public void edit_item(GenericItem item, String editedText) {
         if (editedText.isEmpty()) {
-            utilityUiAlerts.generateSnackBar(addBtn, "An expense head can't be blank.");
+            Utility_UiAlerts.generateSnackBar(addBtn, "An expense head can't be blank.", WARNING);
             return;
         }
         utilityDbOperations.edit_sub_category(item.get_item_id(), editedText);
@@ -277,10 +280,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
                 if (id == -1) {
                     Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
-                    utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category already exists!!");
+                    Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" expense head already exists!!", WARNING);
                 } else {
                     Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
-                    utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" sub-category added.");
+                    Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" expense head added.", SUCCESS);
                 }
             } catch (Exception e) {
                 Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
@@ -387,4 +390,31 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         else
             simple_adapter.notifyDataSetChanged();
     }
+
+    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense Head deleted successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting expense head", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head, its in use", WARNING);
+            }
+        }
+    };
 }

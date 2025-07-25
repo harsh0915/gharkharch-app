@@ -1,5 +1,9 @@
 package com.itmart.gharkharch.Fragments;
 
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -23,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.Category;
+import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
@@ -46,7 +51,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private DatabaseHelper databaseHelper;
     private TextView page_title;
     private GenericItemType item_type;
-    private Utility_UiAlerts utilityUiAlerts;
     private Utility_DBOperations utilityDbOperations;
     private ImageView search_button;
     private SearchView search_view;
@@ -58,7 +62,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        utilityUiAlerts = Utility_UiAlerts.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         item_type = GenericItemType.Category;
@@ -101,7 +104,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty())
-                utilityUiAlerts.generateSnackBar(v, "A category name can't be empty!");
+                Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
             else {
                 addCategory(new_category);
                 fetch_category_list();
@@ -134,13 +137,13 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_category_list);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_category_list, deleteCallback);
     }
 
     @Override
     public void edit_item(GenericItem item, String editedText) {
         if (editedText.isEmpty()) {
-            utilityUiAlerts.generateSnackBar(addBtn, "An expense category can't be blank.");
+            Utility_UiAlerts.generateSnackBar(addBtn, "An expense category can't be blank.", WARNING);
             return;
         }
         utilityDbOperations.edit_category(item.get_item_id(), editedText);
@@ -176,7 +179,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private void addCategory(String new_category) {
 
         if (category_fast_lookup.contains(new_category)) {
-            utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category already exists!");
+            Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category already exists!", WARNING);
             return;
         }
 
@@ -199,7 +202,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
-            utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category added!");
+            Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category added!", SUCCESS);
 
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
@@ -266,4 +269,31 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         }
         simple_adapter.notifyDataSetChanged();
     }
+
+    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Category deleted successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting category", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete category, its in use", WARNING);
+            }
+        }
+    };
 }

@@ -1,9 +1,11 @@
 package com.itmart.gharkharch.Fragments;
 
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.DEFAULT;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
+
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -32,11 +34,10 @@ import android.widget.TextView;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
-import com.itmart.gharkharch.DataModels.Expense;
+import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.DataModels.PaymentMode;
-import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.R;
 
@@ -60,7 +61,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SimpleListAdapter simple_adapter;
     private SearchListAdapter search_adapter;
     private Button addBtn, cancelBtn;
-    private Utility_UiAlerts utilityUiAlerts;
     private Utility_DBOperations utilityDbOperations;
     private long selected_date;
     private Spinner modes_of_payment;
@@ -89,7 +89,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         item_type = GenericItemType.Expenses;
-        utilityUiAlerts = Utility_UiAlerts.getInstance(requireContext());
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
@@ -220,32 +219,32 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
             //empty expense name
             if (expense_name.isEmpty()) {
-                utilityUiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!");
+                Utility_UiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!", WARNING);
                 return;
             }
             //trying to use a category without defining it first
             if (!sub_category_fast_lookup.contains(expense_name)) {
-                utilityUiAlerts.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ");
+                Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ", WARNING);
                 return;
             }
             //amount can't be empty
             if (amountString.isEmpty()) {
-                utilityUiAlerts.generateSnackBar(addBtn, "Amount cannot be empty");
+                Utility_UiAlerts.generateSnackBar(addBtn, "Amount cannot be empty", WARNING);
                 return;
             }
 
             if (isEditingMode) {
                 if (id_toEdit == INVALID_EXPENSE_ID) {
-                    utilityUiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense.");
+                    Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense.", WARNING);
                     resetExpenseForm();
                     return;
                 }
-                utilityDbOperations.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark);
+                utilityDbOperations.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
             } else {
-                add_expense(expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_mode_of_payment.getValue(), expense_remark);
+                utilityDbOperations.add_expense(expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
             }
 
-            fetch_expenses();
+            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
             resetExpenseForm();
             simple_adapter.notifyDataSetChanged();
         });
@@ -287,10 +286,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         super.onHiddenChanged(hidden);
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
-            fetch_expenses();
-            fetch_sub_category_search_list();
+            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+            utilityDbOperations.fetch_sub_category_search_list(fetchSubCatCallback);
             search_adapter.notifyDataSetChanged();
-            simple_adapter.notifyDataSetChanged();
             page_title.setText("Book Expenses");
         } else {
             resetExpenseForm();
@@ -299,13 +297,13 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_expense_list);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_expense_list, deleteCallback);
     }
 
     //beginning of callbacks
     @Override
     public void edit_item(GenericItem item, String emptyString) {
-        utilityUiAlerts.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.");
+        Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.", DEFAULT);
         isEditingMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");
@@ -322,7 +320,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void database_updated() {
-        fetch_expenses();
+        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
     }
 
     @Override
@@ -350,14 +348,14 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     private void inflate_expense_RCV() {
-        fetch_expenses();
+        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_expenses, item_type, this);
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_expense_list.setAdapter(simple_adapter);
     }
 
     private void inflate_sub_cat_RCV() {
-        fetch_sub_category_search_list();
+        utilityDbOperations.fetch_sub_category_search_list(fetchSubCatCallback);
         search_adapter = new SearchListAdapter(requireContext(), filtered_search_list, this);
         rcv_sub_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_search.setAdapter(search_adapter);
@@ -385,101 +383,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
     }
 
-    private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment, String expense_remarks) {
-        try {
-            SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
-
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
-            values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_category_id);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, amount);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, selected_date);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_REMARKS, expense_remarks);
-
-            writeable_db.insert(DatabaseHelper.TABLE_EXPENSES, null, values);
-
-        } catch (Exception e) {
-            Log.e("harshTag", "Sql error!\nError : " + e.getMessage());
-        }
-    }
-
-    public void fetch_sub_category_search_list() {
-        filtered_search_list.clear();
-        sub_category_search_list.clear();
-        sub_category_fast_lookup.clear();
-
-        try {
-            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-
-            String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES;
-            Cursor cursor = null;
-
-            try {
-                cursor = readable_db.rawQuery(query, null);
-
-                if (cursor.moveToFirst()) {
-                    do {
-                        int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_ID));
-                        String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
-                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_CATEGORY));
-
-                        SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
-                        sub_category_search_list.add(subCategory);
-                        sub_category_fast_lookup.add(sub_cat_name);
-                        filtered_search_list.add(subCategory);
-
-                    } while (cursor.moveToNext());
-                }
-
-            } catch (Exception e) {
-                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        } catch (Exception e) {
-            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
-        }
-    }
-
-    public void fetch_expenses() {
-        filtered_expenses.clear();
-        expense_list.clear();
-        try {
-            String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
-            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-            Cursor cursor = null;
-
-            try {
-                cursor = readable_db.rawQuery(query, null);
-
-                if (cursor.moveToFirst()) {
-                    do {
-                        int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
-                        String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_NAME));
-                        int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
-                        int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
-                        long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
-                        int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
-                        String expense_remarks = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_REMARKS));
-
-                        Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode, expense_remarks);
-                        expense_list.add(expense);
-                        filtered_expenses.add(expense);
-                    } while (cursor.moveToNext());
-                }
-
-                cursor.close();
-            } catch (Exception e) {
-                Log.e("harshTag", "Sql error!\nError : " + e.getMessage());
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        } catch (Exception e) {
-            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private void filterList(String query, List<GenericItem> list_toBeFiltered, List<GenericItem> filterFrom, ListType list_type) {
         list_toBeFiltered.clear();
@@ -504,4 +407,157 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         else
             simple_adapter.notifyDataSetChanged();
     }
+
+    private final Utility_DBOperations.Callback_DBOperations fetchSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSuccess(DatabaseCallbackObject searchListCallbackObject) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_search_list.clear();
+                        sub_category_search_list.clear();
+                        sub_category_fast_lookup.clear();
+                        filtered_search_list.addAll(searchListCallbackObject.getFilter_list());
+                        sub_category_search_list.addAll(searchListCallbackObject.getOriginal_list());
+                        sub_category_fast_lookup.addAll(searchListCallbackObject.getOriginal_fast_lookup());
+                        search_adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    View fragmentView = getView();
+                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                        Log.e("harshTagFetchSubCat", "Error : " + e.getMessage());
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Something went wrong while fetching the search list.", ERROR);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations fetchExpensesCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSuccess(DatabaseCallbackObject searchListCallbackObject) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_expenses.clear();
+                        expense_list.clear();
+                        filtered_expenses.addAll(searchListCallbackObject.getFilter_list());
+                        expense_list.addAll(searchListCallbackObject.getOriginal_list());
+                        simple_adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    View fragmentView = getView();
+                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                        Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Something went wrong while fetching the search list.", ERROR);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations bookExpenseCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense booked successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagBookExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't book expense", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations editExpenseCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense deleted successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting expense", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense, its in use", ERROR);
+            }
+        }
+    };
 }
