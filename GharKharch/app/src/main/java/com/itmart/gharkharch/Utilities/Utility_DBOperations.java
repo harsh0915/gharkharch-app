@@ -1,8 +1,5 @@
 package com.itmart.gharkharch.Utilities;
 
-import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
-import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -11,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.view.View;
 
+import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.Expense;
 import com.itmart.gharkharch.DataModels.GenericItem;
@@ -38,6 +36,7 @@ public class Utility_DBOperations {
         this.databaseHelper = DatabaseHelper.getInstance(this.context);
         this.writeable_db = databaseHelper.getWritableDatabase();
         this.readable_db = databaseHelper.getReadableDatabase();
+        this.writeable_db.setForeignKeyConstraintsEnabled(true);
     }
 
     public static synchronized Utility_DBOperations getInstance(Context context) {
@@ -51,6 +50,7 @@ public class Utility_DBOperations {
         void onSuccess(DatabaseCallbackObject databaseObjectsList);
 
         void onFailure(Exception e);
+
         void onWarning();
     }
 
@@ -68,20 +68,55 @@ public class Utility_DBOperations {
 
                 writeable_db.insert(DatabaseHelper.TABLE_EXPENSES, null, values);
                 callbackDbOperations.onSuccess(new DatabaseCallbackObject());
-
             } catch (Exception e) {
-                Log.e("harshTag", "Sql error!\nError : " + e.getMessage());
+                callbackDbOperations.onFailure(e);
+
+            }
+        });
+    }
+
+    public void addSubCategory(String new_sub_category, int under_cat_id, Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            try {
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
+                values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_cat_id);
+                try {
+                    writeable_db.insertOrThrow(DatabaseHelper.TABLE_SUB_CATEGORIES, null, values);
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+                } catch (SQLiteConstraintException e) {
+                    callbackDbOperations.onWarning();
+                }
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
+            }
+        });
+    }
+
+    public void addCategory(String new_category, Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            try {
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
+                try {
+                    writeable_db.insertOrThrow(DatabaseHelper.TABLE_CATEGORIES, null, values);
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+                } catch (SQLiteConstraintException e) {
+                    callbackDbOperations.onWarning();
+                }
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
             }
         });
     }
 
     //data list fetch
-    public void fetch_expenses(Callback_DBOperations callbackDBOperations) {
+    public void fetch_expenses(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> filtered_expenses = new ArrayList<>();
             List<GenericItem> expense_list = new ArrayList<>();
             try {
-                String query = "select * from " + DatabaseHelper.TABLE_EXPENSES;
+                String query = "select * from " + DatabaseHelper.TABLE_EXPENSES + " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
                 Cursor cursor = null;
 
                 try {
@@ -103,26 +138,25 @@ public class Utility_DBOperations {
                         } while (cursor.moveToNext());
                     }
 
-                    callbackDBOperations.onSuccess(new DatabaseCallbackObject(filtered_expenses, expense_list));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filtered_expenses, expense_list));
                 } catch (Exception e) {
-                    callbackDBOperations.onFailure(e);
+                    callbackDbOperations.onFailure(e);
                 } finally {
                     if (cursor != null) cursor.close();
                 }
             } catch (Exception e) {
-                Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
+                callbackDbOperations.onFailure(e);
             }
         });
     }
 
-    //search list fetch
-    public void fetch_sub_category_search_list(Callback_DBOperations callbackDBOperations) {
+    public void fetch_sub_category_list(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> filter_list = new ArrayList<>();
             List<GenericItem> original_list = new ArrayList<>();
             HashSet<String> original_fast_lookup = new HashSet<>();
             try {
-                String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES;
+                String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " order by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME + " asc";
                 Cursor cursor = null;
 
                 try {
@@ -141,141 +175,182 @@ public class Utility_DBOperations {
 
                         } while (cursor.moveToNext());
                     }
-                    callbackDBOperations.onSuccess(new DatabaseCallbackObject(filter_list, original_list, original_fast_lookup));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filter_list, original_list, original_fast_lookup));
                 } catch (Exception e) {
-                    callbackDBOperations.onFailure(e);
+                    callbackDbOperations.onFailure(e);
                 } finally {
                     if (cursor != null) cursor.close();
                 }
             } catch (Exception e) {
-                Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
+                callbackDbOperations.onFailure(e);
+            }
+        });
+    }
+
+    public void fetch_category_list(Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            List<GenericItem> filtered_list = new ArrayList<>();
+            List<GenericItem> category_list = new ArrayList<>();
+            HashSet<String> category_fast_lookup = new HashSet<>();
+            try {
+                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
+
+                String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES + " order by " + DatabaseHelper.COLUMN_CATEGORY_NAME + " asc";
+                Cursor cursor = null;
+
+                try {
+                    cursor = readable_db.rawQuery(query, null);
+
+                    if (cursor.moveToFirst()) {
+                        do {
+                            int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                            String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+                            Category category = new Category(cat_id, cat_name);
+                            filtered_list.add(category);
+                            category_list.add(category);
+                            category_fast_lookup.add(cat_name);
+                        } while (cursor.moveToNext());
+                    }
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filtered_list, category_list, category_fast_lookup));
+                } catch (Exception e) {
+                    callbackDbOperations.onFailure(e);
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
             }
         });
     }
 
     //edit functions
-    public void edit_category(int id, String edited_cat_name) {
-        try {
-            String where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
-            String[] where_args = new String[]{String.valueOf(id)};
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, edited_cat_name);
+    public void edit_category(int id, String edited_cat_name, Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            try {
+                String where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
+                String[] where_args = new String[]{String.valueOf(id)};
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, edited_cat_name);
 
-            int rows = writeable_db.update(DatabaseHelper.TABLE_CATEGORIES, values, where_clause, where_args);
-            if (rows == 0)
-                Log.d("harshTagSqlQuery", "Something went wrong while updating the cat table. Rows updated : " + id);
-            else
-                Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
-
-        } catch (Exception e) {
-            Log.i("harshTagSqlQuery", "Something went wrong!\nError : " + e.getMessage());
-        }
+                try {
+                    writeable_db.update(DatabaseHelper.TABLE_CATEGORIES, values, where_clause, where_args);
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+                } catch (SQLiteConstraintException e) {
+                    callbackDbOperations.onWarning();
+                }
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
+            }
+        });
     }
 
-    public void edit_sub_category(int id, String edited_sub_cat_name) {
-        try {
-            String where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
-            String[] where_args = new String[]{String.valueOf(id)};
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, edited_sub_cat_name);
-
-            int rows = writeable_db.update(DatabaseHelper.TABLE_SUB_CATEGORIES, values, where_clause, where_args);
-            if (rows == 0)
-                Log.d("harshTagSqlQuery", "Something went wrong while updating the sub-cat table. Rows updated : " + id);
-            else
-                Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
-
-        } catch (Exception e) {
-            Log.i("harshTagSqlQuery", "Something went wrong!\nError : " + e.getMessage());
-        }
+    public void edit_sub_category(int id, String edited_sub_cat_name, Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            try {
+                String where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
+                String[] where_args = new String[]{String.valueOf(id)};
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, edited_sub_cat_name);
+                try {
+                    writeable_db.update(DatabaseHelper.TABLE_SUB_CATEGORIES, values, where_clause, where_args);
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+                } catch (SQLiteConstraintException e) {
+                    callbackDbOperations.onWarning();
+                }
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
+            }
+        });
     }
 
     public void edit_expense(int id, String expense_name, int under_sub_cat, int edited_amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
-        try {
-            String where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
-            String[] where_args = new String[]{String.valueOf(id)};
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
-            values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_cat);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, edited_amount);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, date);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
-            values.put(DatabaseHelper.COLUMN_EXPENSE_REMARKS, expense_remarks);
+        dbExecutor.execute(() -> {
+            try {
+                String where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
+                String[] where_args = new String[]{String.valueOf(id)};
+                ContentValues values = new ContentValues();
+                values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
+                values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_cat);
+                values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, edited_amount);
+                values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, date);
+                values.put(DatabaseHelper.COLUMN_EXPENSE_MODE, mode_of_payment);
+                values.put(DatabaseHelper.COLUMN_EXPENSE_REMARKS, expense_remarks);
 
-            int rows = writeable_db.update(DatabaseHelper.TABLE_EXPENSES, values, where_clause, where_args);
-            if (rows == 1) {
+                writeable_db.update(DatabaseHelper.TABLE_EXPENSES, values, where_clause, where_args);
                 callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+            } catch (Exception e) {
+                callbackDbOperations.onFailure(e);
             }
-        } catch (Exception e) {
-            callbackDbOperations.onFailure(e);
-        }
+        });
     }
 
     //single delete function
-    public void delete_item(int id, int item_type, View view, Callback_DBOperations callbackDbOperations) {
-        try {
-            writeable_db.setForeignKeyConstraintsEnabled(true);
-            String where_clause;
-            String[] where_args;
-            int rows;
-            switch (item_type) {
+    public void delete_item(int id, int item_type, Callback_DBOperations callbackDbOperations) {
+        dbExecutor.execute(() -> {
+            try {
+                String where_clause;
+                String[] where_args;
+                int rows;
+                switch (item_type) {
 
-                case 1:
-                    try {
-                        where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
-                        where_args = new String[]{String.valueOf(id)};
-                        rows = writeable_db.delete(DatabaseHelper.TABLE_CATEGORIES, where_clause, where_args);
-                        if (rows == 0)
-                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from category table.");
-                        else
-                            Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
-                    } catch (SQLiteConstraintException e) {
-                        if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            callbackDbOperations.onWarning();
-                            return;
-                        } else {
-                            Log.e("harshTagEdit", "Constraint Error : " + e.getMessage());
+                    case 1:
+                        try {
+                            where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
+                            where_args = new String[]{String.valueOf(id)};
+                            rows = writeable_db.delete(DatabaseHelper.TABLE_CATEGORIES, where_clause, where_args);
+                            if (rows == 0)
+                                Log.i("harshTagSqlQuery", "Something went wrong while deleting the rows from category table.");
+                            else
+                                Log.i("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
+                        } catch (SQLiteConstraintException e) {
+                            if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                                callbackDbOperations.onWarning();
+                                return;
+                            } else {
+                                Log.e("harshTagDelete", "Constraint Error : " + e.getMessage());
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case 2:
-                    try {
-                        where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
-                        where_args = new String[]{String.valueOf(id)};
-                        rows = writeable_db.delete(DatabaseHelper.TABLE_SUB_CATEGORIES, where_clause, where_args);
-                        if (rows == 0)
-                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from sub-category table.");
-                        else
-                            Log.d("harshTagSqlQuery", "Rows delete successfully.");
-                    } catch (SQLiteConstraintException e) {
-                        if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
-                            callbackDbOperations.onWarning();
-                            return;
-                        } else {
-                            Log.e("harshTagEdit", "Constraint Error : " + e.getMessage());
+                    case 2:
+                        try {
+                            where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
+                            where_args = new String[]{String.valueOf(id)};
+                            rows = writeable_db.delete(DatabaseHelper.TABLE_SUB_CATEGORIES, where_clause, where_args);
+                            if (rows == 0)
+                                Log.w("harshTagSqlQuery", "Something went wrong while deleting the rows from sub-category table.");
+                            else
+                                Log.i("harshTagSqlQuery", "Rows delete successfully.");
+                        } catch (SQLiteConstraintException e) {
+                            if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                                callbackDbOperations.onWarning();
+                                return;
+                            } else {
+                                Log.e("harshTagDelete", "Constraint Error : " + e.getMessage());
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case 3:
-                    try {
-                        where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
-                        where_args = new String[]{String.valueOf(id)};
-                        rows = writeable_db.delete(DatabaseHelper.TABLE_EXPENSES, where_clause, where_args);
-                        if (rows == 0)
-                            Log.d("harshTagSqlQuery", "Something went wrong while deleting the rows from expense table.");
-                        else
-                            Log.d("harshTagSqlQuery", "Row delete successfully.");
-                    } catch (SQLiteConstraintException e) {
-                        Log.e("harshTagEdit", "Constraint Error : " + e.getMessage());
-                    }
-                    break;
+                    case 3:
+                        try {
+                            where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
+                            where_args = new String[]{String.valueOf(id)};
+                            rows = writeable_db.delete(DatabaseHelper.TABLE_EXPENSES, where_clause, where_args);
+                            if (rows == 0)
+                                Log.i("harshTagSqlQuery", "Something went wrong while deleting the rows from expense table.");
+                            else
+                                Log.i("harshTagSqlQuery", "Row delete successfully.");
+                        } catch (Exception e) {
+                            callbackDbOperations.onFailure(e);
+                        }
+                        break;
+                }
+
+                callbackDbOperations.onSuccess(new DatabaseCallbackObject());
+            } catch (Exception e) {
+                Log.e("harshTagDelete", "Constraint Error : " + e.getMessage());
+                callbackDbOperations.onFailure(e);
             }
-
-            callbackDbOperations.onSuccess(new DatabaseCallbackObject());
-        } catch (Exception e) {
-           callbackDbOperations.onFailure(e);
-        }
+        });
     }
 }

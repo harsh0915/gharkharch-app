@@ -33,11 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private FrameLayout fragmentContainer;
-    private Utility_UiAlerts utilityUiAlerts;
     private HashMap<Integer, Fragment> fragmentMap;
     private Fragment currentFragment;
-    private SQLiteDatabase readableDb;
-    private List<Category> categoryList;
     private ImageView menu_button;
     private DrawerLayout landing_page;
     private FrameLayout drawer_panel;
@@ -50,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        readableDb = DatabaseHelper.getInstance(this).getReadableDatabase();
         initializeUiElements();
         setupClickListeners();
 
@@ -75,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeUiElements() {
-
-        utilityUiAlerts = Utility_UiAlerts.getInstance(this);
         fragmentMap = new HashMap<>();
         //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

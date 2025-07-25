@@ -54,10 +54,14 @@ import java.util.List;
 public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
 
     private TextView date_picker;
-    private EditText input_expense_name, input_expense_amount, input_expense_remarks;
-    private List<GenericItem> expense_list, sub_category_search_list;
+    private EditText input_expense_name;
+    private EditText input_expense_amount;
+    private EditText input_expense_remarks;
+    private List<GenericItem> expense_list;
+    private List<GenericItem> sub_category_search_list;
     private HashSet<String> sub_category_fast_lookup;
-    private RecyclerView rcv_expense_list, rcv_sub_category_search;
+    private RecyclerView rcv_expense_list;
+    private RecyclerView rcv_sub_category_search;
     private SimpleListAdapter simple_adapter;
     private SearchListAdapter search_adapter;
     private Button addBtn, cancelBtn;
@@ -72,7 +76,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private TextView list_title;
     private ImageView close_button;
     private Calendar startTime, endTime;
-    private List<GenericItem> filtered_search_list, filtered_expenses;
+    private List<GenericItem> filtered_sub_cat_search_list;
+    private List<GenericItem> filtered_expenses;
     private TextView page_title;
     private boolean isEditingMode;
     private PaymentMode selected_mode_of_payment;
@@ -94,7 +99,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         databaseHelper = DatabaseHelper.getInstance(requireContext());
         expense_list = new ArrayList<>();
         filtered_expenses = new ArrayList<>();
-        filtered_search_list = new ArrayList<>();
+        filtered_sub_cat_search_list = new ArrayList<>();
         sub_category_fast_lookup = new HashSet<>();
         sub_category_search_list = new ArrayList<>();
         selected_date = System.currentTimeMillis();
@@ -170,7 +175,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 rcv_sub_category_search.setVisibility(View.VISIBLE);
                 String query = s.toString().toLowerCase();
-                filterList(query, filtered_search_list, sub_category_search_list, ListType.Search);
+                filterList(query, filtered_sub_cat_search_list, sub_category_search_list, ListType.Search);
             }
 
             @Override
@@ -246,7 +251,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
             utilityDbOperations.fetch_expenses(fetchExpensesCallback);
             resetExpenseForm();
-            simple_adapter.notifyDataSetChanged();
         });
 
         cancelBtn.setOnClickListener(v -> {
@@ -286,8 +290,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         super.onHiddenChanged(hidden);
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
-            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
-            utilityDbOperations.fetch_sub_category_search_list(fetchSubCatCallback);
+            utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
             search_adapter.notifyDataSetChanged();
             page_title.setText("Book Expenses");
         } else {
@@ -297,7 +300,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_expense_list, deleteCallback);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), deleteCallback);
     }
 
     //beginning of callbacks
@@ -355,8 +358,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     private void inflate_sub_cat_RCV() {
-        utilityDbOperations.fetch_sub_category_search_list(fetchSubCatCallback);
-        search_adapter = new SearchListAdapter(requireContext(), filtered_search_list, this);
+        utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_sub_cat_search_list, this);
         rcv_sub_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_search.setAdapter(search_adapter);
     }
@@ -411,17 +414,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private final Utility_DBOperations.Callback_DBOperations fetchSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
         @SuppressLint("NotifyDataSetChanged")
         @Override
-        public void onSuccess(DatabaseCallbackObject searchListCallbackObject) {
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
             View view = getView();
             if (view != null) {
                 view.post(() -> {
                     if (isAdded() && !isHidden() && view.getWindowToken() != null) {
-                        filtered_search_list.clear();
+                        filtered_sub_cat_search_list.clear();
                         sub_category_search_list.clear();
                         sub_category_fast_lookup.clear();
-                        filtered_search_list.addAll(searchListCallbackObject.getFilter_list());
-                        sub_category_search_list.addAll(searchListCallbackObject.getOriginal_list());
-                        sub_category_fast_lookup.addAll(searchListCallbackObject.getOriginal_fast_lookup());
+                        filtered_sub_cat_search_list.addAll(databaseCallbackObject.getFilter_list());
+                        sub_category_search_list.addAll(databaseCallbackObject.getOriginal_list());
+                        sub_category_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
                         search_adapter.notifyDataSetChanged();
                     }
                 });
@@ -436,7 +439,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                     View fragmentView = getView();
                     if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
                         Log.e("harshTagFetchSubCat", "Error : " + e.getMessage());
-                        Utility_UiAlerts.generateSnackBar(fragmentView, "Something went wrong while fetching the search list.", ERROR);
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expense heads", ERROR);
                     }
                 });
             }
@@ -451,15 +454,15 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private final Utility_DBOperations.Callback_DBOperations fetchExpensesCallback = new Utility_DBOperations.Callback_DBOperations() {
         @SuppressLint("NotifyDataSetChanged")
         @Override
-        public void onSuccess(DatabaseCallbackObject searchListCallbackObject) {
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
             View view = getView();
             if (view != null) {
                 view.post(() -> {
                     if (isAdded() && !isHidden() && view.getWindowToken() != null) {
                         filtered_expenses.clear();
                         expense_list.clear();
-                        filtered_expenses.addAll(searchListCallbackObject.getFilter_list());
-                        expense_list.addAll(searchListCallbackObject.getOriginal_list());
+                        filtered_expenses.addAll(databaseCallbackObject.getFilter_list());
+                        expense_list.addAll(databaseCallbackObject.getOriginal_list());
                         simple_adapter.notifyDataSetChanged();
                     }
                 });
@@ -474,7 +477,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                     View fragmentView = getView();
                     if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
                         Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
-                        Utility_UiAlerts.generateSnackBar(fragmentView, "Something went wrong while fetching the search list.", ERROR);
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expenses", ERROR);
                     }
                 });
             }
@@ -493,6 +496,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             if (view != null) {
                 Utility_UiAlerts.generateSnackBar(view, "Expense booked successfully", SUCCESS);
             }
+            rcv_sub_category_search.setVisibility(View.GONE);
         }
 
         @Override
@@ -502,11 +506,12 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 Log.e("harshTagBookExpense", "Error : " + e.getMessage());
                 Utility_UiAlerts.generateSnackBar(view, "Couldn't book expense", ERROR);
             }
+            rcv_sub_category_search.setVisibility(View.GONE);
         }
 
         @Override
         public void onWarning() {
-
+            rcv_sub_category_search.setVisibility(View.GONE);
         }
     };
 
@@ -548,7 +553,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             View view = getView();
             if (view != null) {
                 Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting expense", ERROR);
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense", ERROR);
             }
         }
 

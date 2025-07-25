@@ -40,7 +40,7 @@ public class Utility_UiAlerts {
 
     public static void generateSnackBar(View view, String msg, String type) {
         new Handler(Looper.getMainLooper()).post(() -> {
-            Snackbar snackbar = Snackbar.make(view, " ", 2000);
+            Snackbar snackbar = Snackbar.make(view, " ", 800);
 
             int iconRes;
             int bgColor;
@@ -87,8 +87,10 @@ public class Utility_UiAlerts {
             } else {
                 textView.setText(msg);
             }
-
             snackbar.setBackgroundTint(bgColor);
+//            snackbar.setAction("Dismiss", (v) -> {
+//                snackbar.dismiss();
+//            });
             snackbar.show();
         });
     }

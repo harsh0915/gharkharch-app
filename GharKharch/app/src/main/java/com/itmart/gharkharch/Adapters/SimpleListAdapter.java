@@ -112,7 +112,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         positive_btn.setOnClickListener(v -> {
             simpleList_clickListener.delete_item(itemId);
             simpleList_clickListener.database_updated();
-            notifyDataSetChanged();
             dialog.dismiss();
         });
 
@@ -147,18 +146,13 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         text_editor = dialog_layout.findViewById(R.id.text_editor);
         positive_btn = dialog_layout.findViewById(R.id.positive_btn);
         negative_btn = dialog_layout.findViewById(R.id.negative_btn);
-
-        if (item_type == GenericItemType.Expenses)
-            text_editor.setText(String.valueOf(item.get_item_amount()));
-        else
-            text_editor.setText(item.get_item_name());
+        text_editor.setText(item.get_item_name());
 
         positive_btn.setText("Ok");
 
         positive_btn.setOnClickListener(v -> {
             simpleList_clickListener.edit_item(item, text_editor.getText().toString().trim());
             simpleList_clickListener.database_updated();
-            notifyItemChanged(position);
             dialog.dismiss();
         });
 

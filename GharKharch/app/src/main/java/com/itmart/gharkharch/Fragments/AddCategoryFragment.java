@@ -5,9 +5,6 @@ import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +23,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
-import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
@@ -45,7 +41,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private EditText inputCategory;
     private Button addBtn;
     private List<GenericItem> category_list;
-    private HashSet<String> category_fast_lookup;
     private RecyclerView rcv_category_list;
     private SimpleListAdapter simple_adapter;
     private DatabaseHelper databaseHelper;
@@ -56,6 +51,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
+    private HashSet<String> cat_fast_lookup;
     private Utility_Keyboard utilityKeyboard;
     private List<GenericItem> filtered_categories_list;
 
@@ -66,8 +62,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         item_type = GenericItemType.Category;
         category_list = new ArrayList<>();
-        category_fast_lookup = new HashSet<>();
         filtered_categories_list = new ArrayList<>();
+        cat_fast_lookup = new HashSet<>();
     }
 
     @Nullable
@@ -103,12 +99,12 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             utilityKeyboard.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
-            if (new_category.trim().isEmpty())
+            if (new_category.trim().isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
-            else {
-                addCategory(new_category);
-                fetch_category_list();
-                simple_adapter.notifyDataSetChanged();
+            } else {
+                utilityDbOperations.addCategory(new_category, addCatCallback);
+                utilityDbOperations.fetch_category_list(fetchCatCallback);
+                resetForm();
             }
         });
 
@@ -137,7 +133,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_category_list, deleteCallback);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), deleteCallback);
     }
 
     @Override
@@ -146,12 +142,12 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             Utility_UiAlerts.generateSnackBar(addBtn, "An expense category can't be blank.", WARNING);
             return;
         }
-        utilityDbOperations.edit_category(item.get_item_id(), editedText);
+        utilityDbOperations.edit_category(item.get_item_id(), editedText, editedCatCallback);
     }
 
     @Override
     public void database_updated() {
-        fetch_category_list();
+        utilityDbOperations.fetch_category_list(fetchCatCallback);
     }
 
     public void toggle_search_view() {
@@ -170,82 +166,15 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     }
 
     private void inflate_category_RCV() {
-        fetch_category_list();
+        utilityDbOperations.fetch_category_list(fetchCatCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_categories_list, item_type, this);
         rcv_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_category_list.setAdapter(simple_adapter);
     }
 
-    private void addCategory(String new_category) {
-
-        if (category_fast_lookup.contains(new_category)) {
-            Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category already exists!", WARNING);
-            return;
-        }
-
-        try {
-            databaseHelper = DatabaseHelper.getInstance(requireContext());
-            SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
-
-            try {
-                long id = writeable_db.insert(DatabaseHelper.TABLE_CATEGORIES, null, values);
-
-                if (id == -1)
-                    Log.d("harshTagSqlQuery", "Something went wrong while updating the table. Rows updated : " + id);
-                else Log.d("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
-
-            } catch (Exception e) {
-                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            }
-
-            inputCategory.setText(null);
-            inputCategory.setHint(R.string.hint_category);
-            Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category added!", SUCCESS);
-
-        } catch (Exception e) {
-            Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
-        } finally {
-            fetch_category_list();
-        }
-    }
-
-    public void fetch_category_list() {
-        filtered_categories_list.clear();
-        category_list.clear();
-        category_fast_lookup.clear();
-        try {
-            databaseHelper = DatabaseHelper.getInstance(requireContext());
-            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-
-            String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES;
-            Cursor cursor = null;
-
-            try {
-                cursor = readable_db.rawQuery(query, null);
-
-                if (cursor.moveToFirst()) {
-                    do {
-                        String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                        Category category = new Category(cat_id, cat_name);
-                        category_list.add(category);
-                        category_fast_lookup.add(cat_name);
-                        filtered_categories_list.add(category);
-                    } while (cursor.moveToNext());
-                }
-                Log.i("harshTagSqlQuery", "Data retrieved successfully");
-
-            } catch (Exception e) {
-                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-
-        } catch (Exception e) {
-            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
-        }
+    public void resetForm() {
+        inputCategory.setText("");
+        inputCategory.setHint(R.string.hint_category);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -270,6 +199,101 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         simple_adapter.notifyDataSetChanged();
     }
 
+    private final Utility_DBOperations.Callback_DBOperations fetchCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_categories_list.clear();
+                        category_list.clear();
+                        cat_fast_lookup.clear();
+                        filtered_categories_list.addAll(databaseCallbackObject.getFilter_list());
+                        category_list.addAll(databaseCallbackObject.getOriginal_list());
+                        cat_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
+                        simple_adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't fetch categories", ERROR);
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations addCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(addBtn, "Category added successfully", SUCCESS);
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't add category", ERROR);
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(addBtn, "Category already exists!!", WARNING);
+                });
+            }
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations editedCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Category edited successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Category already exists", ERROR);
+            }
+        }
+    };
+
     private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
         @Override
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
@@ -284,7 +308,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             View view = getView();
             if (view != null) {
                 Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting category", ERROR);
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
             }
         }
 

@@ -5,9 +5,6 @@ import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
 
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -30,11 +27,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
-import com.itmart.gharkharch.DataModels.Category;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
-import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
@@ -51,8 +46,10 @@ import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
     private Button addBtn;
-    private EditText inputSubCategory, inputCategory;
-    private List<GenericItem> category_search_list, sub_category_list;
+    private EditText inputSubCategory;
+    private EditText inputCategory;
+    private List<GenericItem> category_search_list;
+    private List<GenericItem> sub_category_list;
     private HashSet<String> category_fast_lookup;
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
@@ -68,7 +65,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private TextView list_title;
     private ImageView close_button;
     private Utility_Keyboard utilityKeyboard;
-    private List<GenericItem> filtered_search_list, filtered_sub_categories;
+    private List<GenericItem> filtered_cat_search_list;
+    private List<GenericItem> filtered_sub_categories;
 
     private enum ListType {
         Search,
@@ -82,7 +80,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
-        filtered_search_list = new ArrayList<>();
+        filtered_cat_search_list = new ArrayList<>();
         sub_category_list = new ArrayList<>();
         category_search_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
@@ -137,7 +135,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 rcv_category_search.setVisibility(View.VISIBLE);
                 String query = s.toString().toLowerCase();
-                filterList(query, filtered_search_list, category_search_list, ListType.Search);
+                filterList(query, filtered_cat_search_list, category_search_list, ListType.Search);
             }
 
             @Override
@@ -174,11 +172,12 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             } else if (!category_fast_lookup.contains(cat_name)) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", WARNING);
                 return;
-            } else addSubCategory(sub_cat_name, under_category_id);
+            } else {
+                utilityDbOperations.addSubCategory(sub_cat_name, under_category_id, addSubCatCallback);
+            }
 
-            fetch_sub_category_list();
-            simple_adapter.notifyDataSetChanged();
-            rcv_category_search.setVisibility(View.GONE);
+            utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
+            resetForm();
         });
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -203,15 +202,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         super.onHiddenChanged(hidden);
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
-            fetch_category_search_list();
-            search_adapter.notifyDataSetChanged();
+            utilityDbOperations.fetch_category_list(fetchCatCallback);
             page_title.setText("Expense Heads");
         }
     }
 
     @Override
     public void delete_item(int item_id) {
-        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_sub_category_list, deleteCallback);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), deleteCallback);
     }
 
     //beginning of callbacks
@@ -221,12 +219,12 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             Utility_UiAlerts.generateSnackBar(addBtn, "An expense head can't be blank.", WARNING);
             return;
         }
-        utilityDbOperations.edit_sub_category(item.get_item_id(), editedText);
+        utilityDbOperations.edit_sub_category(item.get_item_id(), editedText, editedSubCatCallback);
     }
 
     @Override
     public void database_updated() {
-        fetch_sub_category_list();
+        utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
     }
 
     @Override
@@ -254,116 +252,25 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     private void inflate_category_RCV() {
-        fetch_category_search_list();
-        search_adapter = new SearchListAdapter(requireContext(), filtered_search_list, this);
+        utilityDbOperations.fetch_category_list(fetchCatCallback);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_cat_search_list, this);
         rcv_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_category_search.setAdapter(search_adapter);
     }
 
     private void inflate_sub_category_RCV() {
-        fetch_sub_category_list();
+        utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_sub_categories, item_type, this);
         rcv_sub_category_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_sub_category_list.setAdapter(simple_adapter);
     }
 
-    private void addSubCategory(String new_sub_category, int under_cat_id) {
-
-        try {
-            SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
-            values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_cat_id);
-
-            try {
-                long id = writeable_db.insert(DatabaseHelper.TABLE_SUB_CATEGORIES, null, values);
-
-                if (id == -1) {
-                    Log.d("harshTagSqlQuery", "Something went wrong while updating the sub category table. Rows updated : " + id);
-                    Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" expense head already exists!!", WARNING);
-                } else {
-                    Log.d("harshTagSqlQuery", "Sub-category table rows updated successfully. Rows updated : " + id);
-                    Utility_UiAlerts.generateSnackBar(addBtn, "\"" + new_sub_category + "\" expense head added.", SUCCESS);
-                }
-            } catch (Exception e) {
-                Log.i("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            }
-            Log.i("harshTagFK", "Under cat id when adding :" + under_cat_id);
-            inputCategory.setText("");
-            inputSubCategory.setText("");
-            inputCategory.setHint(R.string.hint_category);
-            inputSubCategory.setHint(R.string.hint_sub_category);
-        } catch (Exception e) {
-            Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
-        }
-    }
-
-    public void fetch_category_search_list() {
-        filtered_search_list.clear();
-        category_search_list.clear();
-        category_fast_lookup.clear();
-        try {
-            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-
-            String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES;
-            Cursor cursor = null;
-
-            try {
-                cursor = readable_db.rawQuery(query, null);
-
-                if (cursor.moveToFirst()) {
-                    do {
-                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                        String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-                        Category category = new Category(cat_id, cat_name);
-                        category_search_list.add(category);
-                        category_fast_lookup.add(cat_name);
-                        filtered_search_list.add(category);
-                    } while (cursor.moveToNext());
-                }
-
-            } catch (Exception e) {
-                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        } catch (Exception e) {
-            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());
-        }
-    }
-
-    public void fetch_sub_category_list() {
-        filtered_sub_categories.clear();
-        sub_category_list.clear();
-        try {
-            SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-
-            String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES;
-            Cursor cursor = null;
-
-            try {
-                cursor = readable_db.rawQuery(query, null);
-
-                if (cursor.moveToFirst()) {
-                    do {
-                        int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_ID));
-                        String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
-                        int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_CATEGORY));
-
-                        SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
-                        sub_category_list.add(subCategory);
-                        filtered_sub_categories.add(subCategory);
-                    } while (cursor.moveToNext());
-                }
-
-            } catch (Exception e) {
-                Log.e("harshTagSqlQuery", " Something went wrong when querying the database. Error : " + e.getMessage());
-            } finally {
-                if (cursor != null) cursor.close();
-            }
-        } catch (Exception e) {
-            Log.e("harshTagDatabaseHelper", " Something went wrong when acquiring database instance." + e.getMessage());
-        }
+    public void resetForm() {
+        inputCategory.setText("");
+        inputSubCategory.setText("");
+        rcv_category_search.setVisibility(View.GONE);
+        inputCategory.setHint(R.string.hint_category);
+        inputSubCategory.setHint(R.string.hint_sub_category);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -391,12 +298,23 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             simple_adapter.notifyDataSetChanged();
     }
 
-    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+    private final Utility_DBOperations.Callback_DBOperations fetchCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
         @Override
-        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense Head deleted successfully", SUCCESS);
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_cat_search_list.clear();
+                        category_search_list.clear();
+                        category_fast_lookup.clear();
+                        filtered_cat_search_list.addAll(databaseCallbackObject.getFilter_list());
+                        category_search_list.addAll(databaseCallbackObject.getOriginal_list());
+                        category_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
+                        search_adapter.notifyDataSetChanged();
+                    }
+                });
             }
         }
 
@@ -404,8 +322,129 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
+                view.post(() -> {
+                    Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't fetch expense", ERROR);
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations fetchSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_sub_categories.clear();
+                        sub_category_list.clear();
+                        filtered_sub_categories.addAll(databaseCallbackObject.getFilter_list());
+                        sub_category_list.addAll(databaseCallbackObject.getOriginal_list());
+                        simple_adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    View fragmentView = getView();
+                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                        Log.e("harshTagFetchSubCat", "Error : " + e.getMessage());
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expense heads", ERROR);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations addSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(addBtn, "Expense head added successfully", SUCCESS);
+            }
+            rcv_category_search.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagBookExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't add expense head", ERROR);
+            }
+            rcv_category_search.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense head already exists!!", WARNING);
+            }
+            rcv_category_search.setVisibility(View.GONE);
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations editedSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense head edited successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR);
+            }
+        }
+
+        @Override
+        public void onWarning() {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense head already exists", ERROR);
+            }
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense Head deleted successfully", SUCCESS);
+            }
+            rcv_category_search.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
                 Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Something went wrong while deleting expense head", ERROR);
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
             }
         }
 

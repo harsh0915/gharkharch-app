@@ -36,16 +36,31 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static String COLUMN_EXPENSE_MODE = "expense_mode";
     public static String COLUMN_EXPENSE_REMARKS = "expense_remarks";
 
-    //    create tables
-    public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_CATEGORY_NAME + " TEXT UNIQUE );";
-    public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_SUB_CATEGORY_NAME + " TEXT UNIQUE, " + COLUMN_UNDER_CATEGORY + " INTEGER NOT NULL, " + " FOREIGN KEY (" + COLUMN_UNDER_CATEGORY + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + ") ON DELETE RESTRICT )";
-    public String CREATE_EXPENSE_TABLE = "create table " + TABLE_EXPENSES + "(" + COLUMN_EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + COLUMN_EXPENSE_NAME + " TEXT, " + COLUMN_UNDER_SUB_CATEGORY + " INTEGER NOT NULL, " + COLUMN_EXPENSE_AMOUNT + " INTEGER NOT NULL, " + COLUMN_EXPENSE_DATE + " INTEGER NOT NULL, " + COLUMN_EXPENSE_MODE + " INTEGER DEFAULT 0, " + COLUMN_EXPENSE_REMARKS + " TEXT DEFAULT NULL, " + " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") ON DELETE RESTRICT ," + "FOREIGN KEY (" + COLUMN_EXPENSE_NAME + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_NAME + ") ON UPDATE CASCADE " + ")";
+    //create tables
+    public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" +
+            COLUMN_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_CATEGORY_NAME + " TEXT UNIQUE );";
+    public String CREATE_SUB_CATEGORY_TABLE = "create table " + TABLE_SUB_CATEGORIES + "(" +
+            COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_SUB_CATEGORY_NAME + " TEXT UNIQUE, " +
+            COLUMN_UNDER_CATEGORY + " INTEGER NOT NULL, " +
+            " FOREIGN KEY (" + COLUMN_UNDER_CATEGORY + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + ") ON DELETE RESTRICT )";
+    public String CREATE_EXPENSE_TABLE = "create table " + TABLE_EXPENSES + "(" +
+            COLUMN_EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+            COLUMN_EXPENSE_NAME + " TEXT, " +
+            COLUMN_UNDER_SUB_CATEGORY + " INTEGER NOT NULL, " +
+            COLUMN_EXPENSE_AMOUNT + " INTEGER NOT NULL, " +
+            COLUMN_EXPENSE_DATE + " INTEGER NOT NULL, " +
+            COLUMN_EXPENSE_MODE + " INTEGER DEFAULT 0, " +
+            COLUMN_EXPENSE_REMARKS + " TEXT DEFAULT NULL, " +
+            " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") ON DELETE RESTRICT ," +
+            "FOREIGN KEY (" + COLUMN_EXPENSE_NAME + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_NAME + ") ON UPDATE CASCADE " + ")";
 
     private DatabaseHelper(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }
 
-    // Public method to get the single instance of the database helper
+    //public method to get the single instance of the database helper
     public static synchronized DatabaseHelper getInstance(Context context) {
         if (instance == null) {
             instance = new DatabaseHelper(context);
