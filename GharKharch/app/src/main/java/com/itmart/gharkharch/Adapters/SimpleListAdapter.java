@@ -22,8 +22,6 @@ import com.itmart.gharkharch.R;
 
 import java.util.List;
 
-import com.itmart.gharkharch.Utilities.GlobalData;
-
 public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.ViewHolder> {
 
     private final Context context;

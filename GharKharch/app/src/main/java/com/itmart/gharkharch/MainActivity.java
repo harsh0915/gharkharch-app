@@ -27,13 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
-import com.itmart.gharkharch.Utilities.GlobalData;
+import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private FrameLayout fragmentContainer;
-    private GlobalData globalData;
+    private Utility_UiAlerts utilityUiAlerts;
     private HashMap<Integer, Fragment> fragmentMap;
     private Fragment currentFragment;
     private SQLiteDatabase readableDb;
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeUiElements() {
 
-        globalData = GlobalData.getInstance(this);
+        utilityUiAlerts = Utility_UiAlerts.getInstance(this);
         fragmentMap = new HashMap<>();
         //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

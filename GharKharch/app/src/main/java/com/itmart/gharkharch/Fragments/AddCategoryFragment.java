@@ -32,7 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
-import com.itmart.gharkharch.Utilities.GlobalData;
+import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
+import com.itmart.gharkharch.Utilities.Utility_DBOperations;
+import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 public class AddCategoryFragment extends Fragment implements SimpleListAdapter.SimpleList_Interface {
     private EditText inputCategory;
@@ -44,17 +46,21 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private DatabaseHelper databaseHelper;
     private TextView page_title;
     private GenericItemType item_type;
-    private GlobalData gdata;
+    private Utility_UiAlerts utilityUiAlerts;
+    private Utility_DBOperations utilityDbOperations;
     private ImageView search_button;
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
+    private Utility_Keyboard utilityKeyboard;
     private List<GenericItem> filtered_categories_list;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gdata = GlobalData.getInstance(requireContext());
+        utilityUiAlerts = Utility_UiAlerts.getInstance(requireContext());
+        utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
+        utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         item_type = GenericItemType.Category;
         category_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
@@ -91,11 +97,11 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         });
 
         addBtn.setOnClickListener(v -> {
-            gdata.close_keyboard(v);
+            utilityKeyboard.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty())
-                gdata.generateSnackBar(v, "A category name can't be empty!");
+                utilityUiAlerts.generateSnackBar(v, "A category name can't be empty!");
             else {
                 addCategory(new_category);
                 fetch_category_list();
@@ -128,16 +134,16 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
     @Override
     public void delete_item(int item_id) {
-        gdata.delete_item(item_id, item_type.getValue(), rcv_category_list);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_category_list);
     }
 
     @Override
     public void edit_item(GenericItem item, String editedText) {
         if (editedText.isEmpty()) {
-            gdata.generateSnackBar(addBtn, "An expense category can't be blank.");
+            utilityUiAlerts.generateSnackBar(addBtn, "An expense category can't be blank.");
             return;
         }
-        gdata.edit_category(item.get_item_id(), editedText);
+        utilityDbOperations.edit_category(item.get_item_id(), editedText);
     }
 
     @Override
@@ -170,7 +176,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private void addCategory(String new_category) {
 
         if (category_fast_lookup.contains(new_category)) {
-            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category already exists!");
+            utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category already exists!");
             return;
         }
 
@@ -193,7 +199,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
             inputCategory.setText(null);
             inputCategory.setHint(R.string.hint_category);
-            gdata.generateSnackBar(addBtn, "\"" + new_category + "\" category added!");
+            utilityUiAlerts.generateSnackBar(addBtn, "\"" + new_category + "\" category added!");
 
         } catch (Exception e) {
             Log.d("harshTagDatabaseHelper", " Something went wrong when acquiring database instance. " + e.getMessage());

@@ -10,7 +10,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +40,10 @@ import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.R;
 
-import com.itmart.gharkharch.Utilities.GlobalData;
+import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
+import com.itmart.gharkharch.Utilities.Utility_DBOperations;
+import com.itmart.gharkharch.Utilities.Utility_DateFormats;
+import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,7 +60,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SimpleListAdapter simple_adapter;
     private SearchListAdapter search_adapter;
     private Button addBtn, cancelBtn;
-    private GlobalData gdata;
+    private Utility_UiAlerts utilityUiAlerts;
+    private Utility_DBOperations utilityDbOperations;
     private long selected_date;
     private Spinner modes_of_payment;
     private GenericItemType item_type;
@@ -74,6 +77,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private boolean isEditingMode;
     private PaymentMode selected_mode_of_payment;
     private int id_toEdit;
+    private Utility_Keyboard utilityKeyboard;
     private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
@@ -85,7 +89,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         item_type = GenericItemType.Expenses;
-        gdata = GlobalData.getInstance(requireContext());
+        utilityUiAlerts = Utility_UiAlerts.getInstance(requireContext());
+        utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
+        utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
         databaseHelper = DatabaseHelper.getInstance(requireContext());
         expense_list = new ArrayList<>();
         filtered_expenses = new ArrayList<>();
@@ -141,7 +147,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         inflate_expense_RCV();
         inflate_sub_cat_RCV();
 
-        date_picker.setText(gdata.convertLongToDate(selected_date));
+        date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
 
         requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -193,7 +199,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
             datePicker.addOnPositiveButtonClickListener(selection -> {
                 selected_date = selection;
-                date_picker.setText(gdata.convertLongToDate(selection));
+                date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selection));
             });
         });
 
@@ -205,7 +211,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         addBtn.setOnClickListener(v -> {
-            gdata.close_keyboard(v);
+            utilityKeyboard.close_keyboard(v);
 
             String expense_name = input_expense_name.getText().toString();
             String amountString = input_expense_amount.getText().toString();
@@ -214,27 +220,27 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
             //empty expense name
             if (expense_name.isEmpty()) {
-                gdata.generateSnackBar(addBtn, "An expense name can't be empty!");
+                utilityUiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!");
                 return;
             }
             //trying to use a category without defining it first
             if (!sub_category_fast_lookup.contains(expense_name)) {
-                gdata.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ");
+                utilityUiAlerts.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ");
                 return;
             }
             //amount can't be empty
             if (amountString.isEmpty()) {
-                gdata.generateSnackBar(addBtn, "Amount cannot be empty");
+                utilityUiAlerts.generateSnackBar(addBtn, "Amount cannot be empty");
                 return;
             }
 
             if (isEditingMode) {
                 if (id_toEdit == INVALID_EXPENSE_ID) {
-                    gdata.generateSnackBar(rcv_expense_list, "Invalid expense.");
+                    utilityUiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense.");
                     resetExpenseForm();
                     return;
                 }
-                gdata.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark);
+                utilityDbOperations.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark);
             } else {
                 add_expense(expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_mode_of_payment.getValue(), expense_remark);
             }
@@ -293,13 +299,13 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void delete_item(int item_id) {
-        gdata.delete_item(item_id, item_type.getValue(), rcv_expense_list);
+        utilityDbOperations.delete_item(item_id, item_type.getValue(), rcv_expense_list);
     }
 
     //beginning of callbacks
     @Override
     public void edit_item(GenericItem item, String emptyString) {
-        gdata.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.");
+        utilityUiAlerts.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.");
         isEditingMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");
@@ -309,7 +315,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         modes_of_payment.setSelection(item.get_mode_of_payment() - 1);
         under_sub_category_id = item.get_fk_id();
         selected_date = item.get_date();
-        date_picker.setText(gdata.convertLongToDate(selected_date));
+        date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
         id_toEdit = item.get_item_id();
         rcv_sub_category_search.setVisibility(View.GONE);
     }
@@ -376,7 +382,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
         selected_date = System.currentTimeMillis();
-        date_picker.setText(gdata.convertLongToDate(selected_date));
+        date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
     }
 
     private void add_expense(String expense_name, int under_sub_category_id, int amount, int mode_of_payment, String expense_remarks) {
