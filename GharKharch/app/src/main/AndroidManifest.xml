@@ -6,13 +6,24 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/app_icon"
+        android:icon="@mipmap/app_icon_round"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/app_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.GharKharch"
         tools:targetApi="31">
+        <!--activities for drawer elements-->
+        <activity
+            android:name=".Activities.ManageExpensesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.AnalyseExpensesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.BackupDataActivity"
+            android:exported="false" />
 
+        <!--main activity-->
         <activity
             android:name=".MainActivity"
             android:exported="true"

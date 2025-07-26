@@ -44,19 +44,6 @@
             android:textSize="@dimen/text_size_large"
             app:drawableStartCompat="@drawable/edit_profile_icon" />
 
-        <TextView
-            android:id="@+id/change_themes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_small"
-            android:layout_marginVertical="@dimen/margin_small"
-            android:drawablePadding="@dimen/padding_large"
-            android:padding="@dimen/padding_large"
-            android:text="Themes"
-            android:textColor="@color/primaryTextColor"
-            android:textSize="@dimen/text_size_large"
-            android:visibility="gone"
-            app:drawableStartCompat="@drawable/themes_icon" />
 
         <TextView
             android:id="@+id/manage_expenses"
@@ -68,7 +55,7 @@
             android:padding="@dimen/padding_large"
             android:text="Manage Expenses"
             android:textSize="@dimen/text_size_large"
-            app:drawableStartCompat="@drawable/expenses_icon" />
+            app:drawableStartCompat="@drawable/manage_expenses_icon" />
 
         <TextView
             android:id="@+id/analyse_expenses"
@@ -82,6 +69,32 @@
             android:textColor="@color/primaryTextColor"
             android:textSize="@dimen/text_size_large"
             app:drawableStartCompat="@drawable/analytics_icon" />
+
+        <TextView
+            android:id="@+id/backup_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Backup Your Data"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/backup_icon" />
+
+        <TextView
+            android:id="@+id/restore_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:layout_marginVertical="@dimen/margin_small"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Restore Your Data"
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/text_size_large"
+            app:drawableStartCompat="@drawable/restore_icon" />
 
     </LinearLayout>
 

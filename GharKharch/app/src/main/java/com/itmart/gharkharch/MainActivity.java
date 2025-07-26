@@ -1,6 +1,6 @@
 package com.itmart.gharkharch;
 
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -18,16 +18,14 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.itmart.gharkharch.DataModels.Category;
+import com.itmart.gharkharch.Activities.AnalyseExpensesActivity;
+import com.itmart.gharkharch.Activities.ManageExpensesActivity;
+import com.itmart.gharkharch.Activities.BackupDataActivity;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.BookExpenseFragment;
 
 import java.util.HashMap;
-import java.util.List;
-
-import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
-import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
     //drawer elements
-    private TextView edit_profile, change_themes, manage_expenses, analyse_expenses;
+    private TextView backup_data, manage_expenses, analyse_expenses;
 
 
     @Override
@@ -52,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
 //        loads the initial fragment
         if (savedInstanceState == null) {
-            bottomNavigationView.setSelectedItemId(R.id.nav_add_category);
+            bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
             currentFragment = new AddCategoryFragment();
             getSupportFragmentManager()
                     .beginTransaction()
@@ -60,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     .hide(currentFragment)
                     .commit();
         }
-        bottomNavigationView.setSelectedItemId(R.id.nav_add_category);
+        bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -80,8 +78,7 @@ public class MainActivity extends AppCompatActivity {
         drawer_panel = findViewById(R.id.drawer_panel);
         content_panel = findViewById(R.id.content_panel);
         //drawer elements
-        edit_profile = findViewById(R.id.edit_profile);
-        change_themes = findViewById(R.id.change_themes);
+        backup_data = findViewById(R.id.backup_data);
         manage_expenses = findViewById(R.id.manage_expenses);
         analyse_expenses = findViewById(R.id.analyse_expenses);
     }
@@ -94,9 +91,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (fragmentMap.containsKey(id)) selectedFragment = fragmentMap.get(id);
             else {
-                if (id == R.id.nav_add_category) {
+                if (id == R.id.nav_addCategory) {
                     selectedFragment = new AddCategoryFragment();
-                } else if (item.getItemId() == R.id.nav_add_sub_category) {
+                } else if (item.getItemId() == R.id.nav_addSubCategory) {
                     selectedFragment = new AddSubCategoryFragment();
                 } else {
                     selectedFragment = new BookExpenseFragment();
@@ -163,9 +160,21 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        manage_expenses.setOnClickListener(v->{
-
+        manage_expenses.setOnClickListener(v -> {
+            Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
+            startActivity(manage_expenses);
         });
+
+        analyse_expenses.setOnClickListener(v->{
+            Intent analyse_expenses = new Intent(MainActivity.this, AnalyseExpensesActivity.class);
+            startActivity(analyse_expenses);
+        });
+
+        backup_data.setOnClickListener(v->{
+            Intent settings = new Intent(MainActivity.this, BackupDataActivity.class);
+            startActivity(settings);
+        });
+
     }
 
     private void show_quit_confirmation_dialog() {
