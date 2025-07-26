@@ -12,7 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GharKharch"
         tools:targetApi="31">
-        <!--activities for drawer elements-->
+        <activity
+            android:name=".Activities.RestoreDataActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activities.EditProfileActivity"
+            android:exported="false" />
         <activity
             android:name=".Activities.ManageExpensesActivity"
             android:exported="false" />
@@ -21,19 +26,17 @@
             android:exported="false" />
         <activity
             android:name=".Activities.BackupDataActivity"
-            android:exported="false" />
-
-        <!--main activity-->
+            android:exported="false" /> <!-- main activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

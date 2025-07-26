@@ -19,8 +19,10 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.itmart.gharkharch.Activities.AnalyseExpensesActivity;
+import com.itmart.gharkharch.Activities.EditProfileActivity;
 import com.itmart.gharkharch.Activities.ManageExpensesActivity;
 import com.itmart.gharkharch.Activities.BackupDataActivity;
+import com.itmart.gharkharch.Activities.RestoreDataActivity;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.BookExpenseFragment;
@@ -38,8 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
     //drawer elements
-    private TextView backup_data, manage_expenses, analyse_expenses;
-
+    private TextView edit_profile;
+    private TextView manage_expenses;
+    private TextView analyse_expenses;
+    private TextView backup_data;
+    private TextView restore_data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +83,11 @@ public class MainActivity extends AppCompatActivity {
         drawer_panel = findViewById(R.id.drawer_panel);
         content_panel = findViewById(R.id.content_panel);
         //drawer elements
-        backup_data = findViewById(R.id.backup_data);
+        edit_profile = findViewById(R.id.edit_profile);
         manage_expenses = findViewById(R.id.manage_expenses);
         analyse_expenses = findViewById(R.id.analyse_expenses);
+        backup_data = findViewById(R.id.backup_data);
+        restore_data = findViewById(R.id.restore_data);
     }
 
     private void setupClickListeners() {
@@ -160,19 +167,29 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+        edit_profile.setOnClickListener(v->{
+            Intent edit_profile =  new Intent(MainActivity.this, EditProfileActivity.class);
+            startActivity(edit_profile);
+        });
+
         manage_expenses.setOnClickListener(v -> {
             Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
             startActivity(manage_expenses);
         });
 
-        analyse_expenses.setOnClickListener(v->{
+        analyse_expenses.setOnClickListener(v -> {
             Intent analyse_expenses = new Intent(MainActivity.this, AnalyseExpensesActivity.class);
             startActivity(analyse_expenses);
         });
 
-        backup_data.setOnClickListener(v->{
+        backup_data.setOnClickListener(v -> {
             Intent settings = new Intent(MainActivity.this, BackupDataActivity.class);
             startActivity(settings);
+        });
+
+        restore_data.setOnClickListener(v->{
+            Intent edit_profile =  new Intent(MainActivity.this, RestoreDataActivity.class);
+            startActivity(edit_profile);
         });
 
     }
