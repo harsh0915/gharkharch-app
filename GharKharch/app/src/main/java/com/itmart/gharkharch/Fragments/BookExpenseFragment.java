@@ -291,7 +291,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
             utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
-            search_adapter.notifyDataSetChanged();
+            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
             page_title.setText("Book Expenses");
         } else {
             resetExpenseForm();
