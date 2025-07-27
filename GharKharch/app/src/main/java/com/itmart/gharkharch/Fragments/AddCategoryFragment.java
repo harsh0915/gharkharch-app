@@ -316,7 +316,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete category, its in use", WARNING);
+                Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING);
             }
         }
     };

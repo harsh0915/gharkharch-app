@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/margin_medium"
@@ -12,7 +13,7 @@
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/padding_large"
+        android:paddingHorizontal="@dimen/padding_medium"
         android:paddingVertical="@dimen/padding_small"
         android:text="dialog title"
         android:textSize="@dimen/text_size_large" />
@@ -21,9 +22,10 @@
         android:id="@+id/dialog_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/padding_large"
+        android:paddingHorizontal="@dimen/padding_medium"
         android:paddingVertical="@dimen/padding_small"
         android:text="dialog msg"
+        android:textColor="@color/primaryTextColorVariant"
         android:textSize="@dimen/text_size_medium" />
 
     <LinearLayout

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.DataModels.GenericItem;
@@ -98,17 +100,14 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         dialog_msg = dialog_layout.findViewById(R.id.dialog_msg);
         positive_btn = dialog_layout.findViewById(R.id.positive_btn);
         negative_btn = dialog_layout.findViewById(R.id.negative_btn);
-        dialog_msg.setVisibility(View.GONE);
 
-        String titleText = "Are you sure you want to delete \"" + item.get_item_name() + "\"";
-
-        if (item_type.getValue() == 1) {
-            titleText += " category?";
-        } else if (item_type.getValue() == 2) {
-            titleText += " expense head?";
+        String titleText = "Delete ?";
+        if (item_type.getValue() == 1 || item_type.getValue() == 2) {
+            dialog_msg.setText(item.get_item_name());
         } else {
-            titleText += " expense of \u20B9" + item.get_item_amount() + "?";
+            dialog_msg.setText(item.get_item_name() + " : \u20B9" + item.get_item_amount());
         }
+
         dialog_title.setText(titleText);
         positive_btn.setText("Delete");
 

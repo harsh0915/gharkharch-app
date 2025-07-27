@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
     //drawer elements
-    private TextView edit_profile;
+    private TextView profile;
     private TextView manage_expenses;
     private TextView analyse_expenses;
     private TextView backup_data;
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         drawer_panel = findViewById(R.id.drawer_panel);
         content_panel = findViewById(R.id.content_panel);
         //drawer elements
-        edit_profile = findViewById(R.id.edit_profile);
+        profile = findViewById(R.id.profile);
         manage_expenses = findViewById(R.id.manage_expenses);
         analyse_expenses = findViewById(R.id.analyse_expenses);
         backup_data = findViewById(R.id.backup_data);
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        edit_profile.setOnClickListener(v->{
+        profile.setOnClickListener(v->{
             Intent edit_profile =  new Intent(MainActivity.this, EditProfileActivity.class);
             startActivity(edit_profile);
         });

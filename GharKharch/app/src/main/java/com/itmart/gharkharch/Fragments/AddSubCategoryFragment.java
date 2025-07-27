@@ -452,7 +452,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head, its in use", WARNING);
+                Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING);
             }
         }
     };

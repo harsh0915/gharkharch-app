@@ -24,8 +24,6 @@
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_medium">15sp</dimen>
     <dimen name="text_size_large">17sp</dimen>
-    <dimen name="text_size_heading">20sp</dimen>
-    <dimen name="text_size_title">30sp</dimen>
 
     <!--icon size-->
 

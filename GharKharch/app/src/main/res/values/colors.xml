@@ -9,6 +9,7 @@
     <color name="confirmation_green">#0EA220</color>
     <color name="warning_yellow">#FFEB3B</color>
     <color name="error_red">#D70707</color>
+    <color name="transparent">#00FFFFFF</color>
 
     <!--dual mode colors-->
     <color name="backgroundColor">#F2F6FA</color>
@@ -24,5 +25,6 @@
 
     <!--color for custom views-->
     <color name="searchBarBg">#5A6B7D</color>
+    <color name="highlightedBars">#FFFFFF</color>
 
 </resources>

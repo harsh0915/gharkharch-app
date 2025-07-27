@@ -27,7 +27,7 @@
                 android:padding="@dimen/padding_xlarge"
                 android:text="@string/app_name"
                 android:textColor="@color/primaryTextColor"
-                android:textSize="@dimen/text_size_heading"
+                android:textSize="@dimen/text_size_large"
                 android:textStyle="bold" />
 
             <ImageView

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/margin_small"
     android:gravity="center"
     android:orientation="horizontal">
 
@@ -10,31 +11,36 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:id="@+id/item_amount"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:padding="@dimen/padding_large"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:visibility="gone" />
 
     <ImageView
         android:id="@+id/edit_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_small"
+        android:background="@drawable/circular_border"
+        android:backgroundTint="@color/backgroundColorVariant"
         android:importantForAccessibility="no"
-        android:padding="@dimen/padding_large"
+        android:padding="@dimen/padding_medium"
         android:src="@drawable/edit_icon" />
 
     <ImageView
         android:id="@+id/delete_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_small"
+        android:background="@drawable/circular_border"
+        android:backgroundTint="@color/backgroundColorVariant"
         android:importantForAccessibility="no"
-        android:padding="@dimen/padding_large"
+        android:padding="@dimen/padding_medium"
         android:src="@drawable/delete_icon" />
 
 </LinearLayout>

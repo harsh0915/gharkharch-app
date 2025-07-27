@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:padding="@dimen/padding_large">
+    android:paddingHorizontal="@dimen/padding_large">
 
     <TextView
         android:layout_width="0dp"
@@ -12,7 +12,7 @@
         android:layout_marginVertical="@dimen/margin_medium"
         android:padding="@dimen/padding_medium"
         android:text="Date"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/date_picker"
         app:layout_constraintEnd_toStartOf="@id/date_picker"
@@ -23,11 +23,12 @@
         android:id="@+id/date_picker"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_medium"
         android:background="@drawable/rounded_border"
         android:padding="@dimen/padding_medium"
+        android:layout_marginTop="@dimen/margin_medium"
         android:text="15/02/2006"
         android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,7 +38,7 @@
         android:layout_marginVertical="@dimen/margin_small"
         android:padding="@dimen/padding_medium"
         android:text="Head"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/input_expense_name"
         app:layout_constraintEnd_toStartOf="@id/input_expense_name"
@@ -49,9 +50,10 @@
         style="@style/custom_edit_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
         android:hint="@string/hint_sub_category"
-        android:textSize="@dimen/text_size_large"
+        android:importantForAutofill="no"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/date_picker" />
 
@@ -60,7 +62,7 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_medium"
         android:text="Amount "
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/input_expense_amount"
         app:layout_constraintEnd_toStartOf="@id/input_expense_amount"
@@ -71,8 +73,7 @@
         android:id="@+id/input_expense_amount"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_small"
-        android:layout_marginBottom="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
         android:background="@drawable/rounded_border"
         android:hint="@string/hint_amount"
         android:importantForAutofill="no"
@@ -80,7 +81,7 @@
         android:maxLength="15"
         android:padding="@dimen/padding_medium"
         android:textColorHint="@color/primaryTextColorVariant"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_expense_name" />
 
@@ -89,33 +90,47 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_medium"
         android:text="Mode"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/modes_of_payment"
         app:layout_constraintEnd_toStartOf="@id/modes_of_payment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/modes_of_payment" />
 
-    <Spinner
+<!--    <Spinner-->
+<!--        android:id="@+id/modes_of_payment"-->
+<!--        android:layout_width="200dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginVertical="@dimen/margin_small"-->
+<!--        android:background="@drawable/rounded_border"-->
+<!--        android:entries="@array/modesOfPayment"-->
+<!--        android:padding="@dimen/padding_medium"-->
+<!--        android:spinnerMode="dialog"-->
+<!--        android:textColor="@color/primaryTextColorVariant"-->
+<!--        android:textStyle="bold"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/input_expense_amount" />-->
+
+    <TextView
         android:id="@+id/modes_of_payment"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
         android:background="@drawable/rounded_border"
-        android:entries="@array/modesOfPayment"
         android:padding="@dimen/padding_medium"
-        android:spinnerMode="dialog"
-        android:textColor="@color/primaryTextColorVariant"
-        android:textStyle="bold"
+        android:text="CASH"
+        android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_expense_amount" />
+        app:layout_constraintTop_toBottomOf="@id/input_expense_amount"/>
+
 
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_medium"
         android:text="Remarks"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/input_expense_remarks"
         app:layout_constraintEnd_toStartOf="@id/input_expense_remarks"
@@ -127,9 +142,10 @@
         style="@style/custom_edit_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
         android:hint="@string/hint_expense_remark"
-        android:textSize="@dimen/text_size_large"
+        android:importantForAutofill="no"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/modes_of_payment" />
 
@@ -137,10 +153,11 @@
         android:id="@+id/addBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_medium"
         android:layout_marginStart="@dimen/margin_small"
         android:backgroundTint="@color/buttonColor"
         android:text="Save"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_expense_remarks" />
 
@@ -149,9 +166,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/margin_large"
-        android:layout_marginVertical="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_medium"
         android:backgroundTint="@color/red"
         android:text="Cancel"
+        android:textSize="@dimen/text_size_medium"
         android:visibility="gone"
         app:layout_constraintStart_toEndOf="@id/addBtn"
         app:layout_constraintTop_toBottomOf="@id/input_expense_remarks" />
@@ -178,6 +196,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintTop_toBottomOf="@id/addBtn">
 
         <TextView
@@ -187,7 +206,7 @@
             android:layout_weight="1"
             android:paddingVertical="@dimen/padding_large"
             android:text="Ledger"
-            android:textSize="@dimen/text_size_large" />
+            android:textSize="@dimen/text_size_medium" />
 
         <SearchView
             android:id="@+id/search_view"
@@ -222,7 +241,7 @@
         android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/secondaryColor"
+        android:background="@color/white_A_black"
         app:layout_constraintTop_toBottomOf="@id/list_container" />
 
     <androidx.recyclerview.widget.RecyclerView

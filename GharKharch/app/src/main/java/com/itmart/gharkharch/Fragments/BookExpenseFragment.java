@@ -6,11 +6,15 @@ import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -53,6 +57,9 @@ import java.util.List;
 
 public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
 
+    private final String CASH = "CASH";
+    private final String UPI = "UPI";
+    private final String CARD = "CARD";
     private TextView date_picker;
     private EditText input_expense_name;
     private EditText input_expense_amount;
@@ -67,7 +74,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private Button addBtn, cancelBtn;
     private Utility_DBOperations utilityDbOperations;
     private long selected_date;
-    private Spinner modes_of_payment;
+    private TextView modes_of_payment;
     private GenericItemType item_type;
     private DatabaseHelper databaseHelper;
     private int under_sub_category_id;
@@ -86,8 +93,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
-        Search,
-        Simple
+        Search, Simple
     }
 
     @Override
@@ -147,7 +153,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        inflate_spinner();
         inflate_expense_RCV();
         inflate_sub_cat_RCV();
 
@@ -193,11 +198,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         date_picker.setOnClickListener(v -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
-                    .setTitleText("Select a date")
-                    .setSelection(selected_date)
-                    .setTheme(R.style.custom_date_picker)
-                    .build();
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selected_date).setTheme(R.style.custom_date_picker).build();
 
             datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
 
@@ -220,7 +221,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             String expense_name = input_expense_name.getText().toString();
             String amountString = input_expense_amount.getText().toString();
             String expense_remark = input_expense_remarks.getText().toString().trim();
-            selected_mode_of_payment = (PaymentMode) modes_of_payment.getSelectedItem();
 
             //empty expense name
             if (expense_name.isEmpty()) {
@@ -257,16 +257,43 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             resetExpenseForm();
         });
 
-        modes_of_payment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                selected_mode_of_payment = (PaymentMode) adapterView.getItemAtPosition(i);
+        modes_of_payment.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            View dialog_layout = LayoutInflater.from(requireContext()).inflate(R.layout.dilaog_modes_of_payment, null);
+            builder.setView(dialog_layout);
+
+            Dialog dialog = builder.create();
+
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            TextView cash, upi, card;
 
-            }
+            cash = dialog_layout.findViewById(R.id.modeCash);
+            upi = dialog_layout.findViewById(R.id.modeUpi);
+            card = dialog_layout.findViewById(R.id.modeCard);
+
+            cash.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.CASH;
+                modes_of_payment.setText(CASH);
+                dialog.dismiss();
+            });
+
+            upi.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.UPI;
+                modes_of_payment.setText(UPI);
+                dialog.dismiss();
+            });
+
+            card.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.CARD;
+                modes_of_payment.setText(CARD);
+                dialog.dismiss();
+            });
+
+            dialog.show();
+
         });
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -313,7 +340,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         input_expense_name.setText(String.valueOf(item.get_item_name()));
         input_expense_amount.setText(String.valueOf(item.get_item_amount()));
         input_expense_remarks.setText(item.get_remarks() == null ? "" : item.get_remarks());
-        modes_of_payment.setSelection(item.get_mode_of_payment() - 1);
+        selected_mode_of_payment = PaymentMode.fromValue(item.get_mode_of_payment());
+        setModeOfPayment();
         under_sub_category_id = item.get_fk_id();
         selected_date = item.get_date();
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
@@ -364,13 +392,20 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         rcv_sub_category_search.setAdapter(search_adapter);
     }
 
-    public void inflate_spinner() {
-        PaymentMode[] payment_modeArray = PaymentMode.values();
-        //This layout is used to display the selected item when the spinner is not expanded.
-        ArrayAdapter<PaymentMode> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, payment_modeArray);
-        //This layout is used to display the dropdown list that appears when you click the spinner.
-        adapter.setDropDownViewResource(android.R.layout.select_dialog_item);
-        modes_of_payment.setAdapter(adapter);
+    public void setModeOfPayment() {
+        switch (selected_mode_of_payment.getValue()) {
+            case 1:
+                modes_of_payment.setText(CASH);
+                break;
+            case 2:
+                modes_of_payment.setText(UPI);
+                break;
+            case 3:
+                modes_of_payment.setText(CARD);
+                break;
+            default:
+                break;
+        }
     }
 
     public void resetExpenseForm() {
@@ -379,7 +414,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         input_expense_amount.setText("");
         input_expense_name.setText("");
         input_expense_remarks.setText("");
-        modes_of_payment.setSelection(0);
+        modes_of_payment.setText(CASH);
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
         selected_date = System.currentTimeMillis();
@@ -405,10 +440,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 // However, for typical prefix matching, it's often simpler to just iterate.
             }
         }
-        if (list_type == ListType.Search)
-            search_adapter.notifyDataSetChanged();
-        else
-            simple_adapter.notifyDataSetChanged();
+        if (list_type == ListType.Search) search_adapter.notifyDataSetChanged();
+        else simple_adapter.notifyDataSetChanged();
     }
 
     private final Utility_DBOperations.Callback_DBOperations fetchSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
@@ -559,10 +592,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
         @Override
         public void onWarning() {
-            View view = getView();
-            if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense, its in use", ERROR);
-            }
         }
     };
 }

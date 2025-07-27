@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_panel"
+    android:backgroundTint="@color/backgroundColor"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/modeCash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="CASH"
+        android:textSize="@dimen/text_size_medium" />
+
+    <TextView
+        android:id="@+id/modeUpi"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="UPI"
+        android:textSize="@dimen/text_size_medium" />
+
+    <TextView
+        android:id="@+id/modeCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_medium"
+        android:text="CARD"
+        android:textSize="@dimen/text_size_medium" />
+
+</LinearLayout>

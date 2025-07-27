@@ -8,7 +8,7 @@
     <path
         android:fillColor="#00000000"
         android:pathData="m41.68,13h-16.91c-2,-0.1 -5.93,-4.23 -8.19,-4.23H6.68c-1.204,-0 -2.18,0.975 -2.181,2.179 0,0.017 0,0.034 0.001,0.051h0v7.29h39v-3.42c0.022,-1.01 -0.779,-1.847 -1.789,-1.87 -0.01,-0 -0.02,-0 -0.031,-0Z"
-        android:strokeWidth="1.9200000000000004"
+        android:strokeWidth="1.6799999999999997"
         android:strokeColor="#000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
@@ -16,7 +16,7 @@
     <path
         android:fillColor="#00000000"
         android:pathData="m4.5,18.28v18.72c-0.011,1.204 0.956,2.189 2.16,2.2 0.003,0 0.007,0 0.01,0h34.65c1.204,0 2.18,-0.976 2.18,-2.18 0,-0.007 0,-0.013 0,-0.02h0v-18.72"
-        android:strokeWidth="1.9200000000000004"
+        android:strokeWidth="1.6799999999999997"
         android:strokeColor="#000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
@@ -24,7 +24,7 @@
     <path
         android:fillColor="#00000000"
         android:pathData="m31.274,22.754h2.429c2.221,0 4.022,1.805 4.022,4.031s-1.801,4.031 -4.022,4.031l4.022,3.938"
-        android:strokeWidth="1.9200000000000004"
+        android:strokeWidth="1.6799999999999997"
         android:strokeColor="#000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
@@ -32,7 +32,7 @@
     <path
         android:fillColor="#00000000"
         android:pathData="M33.703,22.754L39.226,22.754"
-        android:strokeWidth="1.9200000000000004"
+        android:strokeWidth="1.6799999999999997"
         android:strokeColor="#000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
@@ -40,7 +40,7 @@
     <path
         android:fillColor="#00000000"
         android:pathData="M31.274,26.805L39.226,26.805"
-        android:strokeWidth="1.9200000000000004"
+        android:strokeWidth="1.6799999999999997"
         android:strokeColor="#000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />

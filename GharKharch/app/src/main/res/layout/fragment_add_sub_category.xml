@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:padding="@dimen/padding_large">
+    android:paddingHorizontal="@dimen/padding_large">
 
     <TextView
         android:layout_width="0dp"
@@ -12,7 +12,7 @@
         android:padding="@dimen/padding_medium"
         android:text="Name"
         android:textColor="@color/primaryTextColor"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/input_sub_category"
         app:layout_constraintEnd_toStartOf="@id/input_sub_category"
@@ -24,8 +24,9 @@
         style="@style/custom_edit_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_medium"
         android:hint="@string/hint_sub_category"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -36,7 +37,7 @@
         android:padding="@dimen/padding_medium"
         android:text="Under"
         android:textColor="@color/primaryTextColor"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/input_category"
         app:layout_constraintEnd_toStartOf="@id/input_category"
@@ -48,9 +49,9 @@
         style="@style/custom_edit_text"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_small"
+        android:layout_marginTop="@dimen/margin_small"
         android:hint="@string/hint_category"
-        android:textSize="@dimen/text_size_large"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_sub_category" />
 
@@ -58,12 +59,26 @@
         android:id="@+id/addBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_small"
         android:layout_marginStart="@dimen/margin_small"
         android:backgroundTint="@color/buttonColor"
         android:text="Save"
         android:textColor="@color/primaryTextColor"
+        android:textSize="@dimen/text_size_medium"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_category" />
+
+    <Button
+        android:id="@+id/cancelBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_marginVertical="@dimen/margin_medium"
+        android:backgroundTint="@color/red"
+        android:text="Cancel"
+        android:textSize="@dimen/text_size_medium"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/addBtn"
         app:layout_constraintTop_toBottomOf="@id/input_category" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -96,7 +111,7 @@
             android:layout_weight="1"
             android:paddingVertical="@dimen/padding_large"
             android:text="Expense Head List"
-            android:textSize="@dimen/text_size_large" />
+            android:textSize="@dimen/text_size_medium" />
 
         <SearchView
             android:id="@+id/search_view"
@@ -131,7 +146,7 @@
         android:id="@+id/separator"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/secondaryColor"
+        android:background="@color/white_A_black"
         app:layout_constraintTop_toBottomOf="@id/list_container" />
 
     <androidx.recyclerview.widget.RecyclerView
