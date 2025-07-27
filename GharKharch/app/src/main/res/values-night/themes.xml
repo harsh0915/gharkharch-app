@@ -14,6 +14,10 @@
         <item name="android:textColor">@color/primaryTextColor</item>
         <item name="android:textColorPrimary">@color/primaryTextColor</item>
         <item name="android:textColorSecondary">@color/primaryTextColorVariant</item>
+        <!--system level elements-->
+        <item name="android:statusBarColor">@color/backgroundColorVariant</item>
+        <item name="android:navigationBarColor">@color/backgroundColorVariant</item>
+
     </style>
 
 </resources>
