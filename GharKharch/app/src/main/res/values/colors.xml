@@ -10,14 +10,16 @@
     <color name="warning_yellow">#FFEB3B</color>
     <color name="error_red">#D70707</color>
 
-    <!--colors for special views-->
-    <color name="backgroundColor">#293F5F</color>
-    <color name="backgroundColorVariant">#20385B</color>
-    <color name="primaryTextColor">#FFFFFF</color>
-    <color name="primaryTextColorVariant">#7C7B7B</color>
-    <color name="secondaryColor">#111B28</color>
-    <color name="buttonColor">#4662B8</color>
-    <color name="top_bar_bg">#0C1C31</color>
-    <color name="dialog_bg">#4662B8</color>
+    <!--dual mode colors-->
+    <color name="backgroundColor">#F2F6FA</color>
+    <color name="backgroundColorVariant">#E1EAF1</color>
+    <color name="primaryTextColor">#1E2A36</color>
+    <color name="primaryTextColorVariant">#5A6B7D</color>
+    <color name="secondaryColor">#8CA6C1</color>
+    <color name="buttonColor">#6F97D0</color>
+    <color name="iconColor">#3B4A5E</color>
+    <color name="dialog_bg">#FFFFFF</color>
+
+    <color name="white_A_black">#011B37</color>
 
 </resources>

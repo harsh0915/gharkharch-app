@@ -68,7 +68,7 @@
             android:text="Analyse Expenses"
             android:textColor="@color/primaryTextColor"
             android:textSize="@dimen/text_size_large"
-            app:drawableStartCompat="@drawable/analytics_icon" />
+            app:drawableStartCompat="@drawable/analyse_icon" />
 
         <TextView
             android:id="@+id/backup_data"

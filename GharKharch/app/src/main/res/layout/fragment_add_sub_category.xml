@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingVertical="@dimen/padding_large"
-            android:text="Expense Heads List"
+            android:text="Expense Head List"
             android:textSize="@dimen/text_size_large" />
 
         <SearchView

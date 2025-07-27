@@ -3,12 +3,12 @@
 
     <!--    bottom navigation view-->
     <style name="bottomNavigationView" parent="Widget.Material3.BottomNavigationView">
-        <item name="itemIconTint">@color/white</item>
+        <item name="itemIconTint">@color/iconColor</item>
     </style>
 
     <!--    bottom navigation indicator-->
     <style name="bottomNavigationViewIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
-        <item name="android:color">@color/backgroundColor</item>
+        <item name="android:color">@color/secondaryColor</item>
     </style>
 
     <style name="custom_edit_text" parent="Widget.AppCompat.EditText">
@@ -23,12 +23,16 @@
     </style>
 
     <style name="custom_date_picker" parent="@style/ThemeOverlay.Material3.MaterialCalendar">
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorOnPrimary">@color/buttonColor</item>
+        <!--bg of focused element and buttons-->
+        <item name="colorPrimary">@color/secondaryColor</item>
+        <!--text color on focused element-->
+        <item name="colorOnPrimary">@color/white</item>
+        <!--bg color on the whole pop up surface-->
         <item name="colorSecondary">@color/white</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorOnSurface">@color/white</item>
-        <item name="colorOnSurfaceVariant">@color/white</item>
+        <!--text color on the whole pop up surface-->
+        <item name="colorOnSurface">@color/primaryTextColor</item>
+        <!--usually heading on the containers -->
+        <item name="colorOnSurfaceVariant">@color/primaryTextColorVariant</item>
         <item name="android:background">@color/backgroundColor</item>
         <item name="shapeCornerFamily">rounded</item>
     </style>

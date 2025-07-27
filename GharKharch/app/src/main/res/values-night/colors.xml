@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--colors for special views-->
-    <color name="backgroundColor">#19345D</color>
-    <color name="backgroundColorVariant">#0E2240</color>
+    <color name="backgroundColor">#324A5E</color>
+    <color name="backgroundColorVariant">#2B3B4E</color>
     <color name="primaryTextColor">#FFFFFF</color>
-    <color name="primaryTextColorVariant">#7C7B7B</color>
+    <color name="primaryTextColorVariant">#B0BEC5</color>
+    <color name="secondaryColor">#6C8CBF</color>
+    <color name="buttonColor">#5C8FD6</color>
+    <color name="iconColor">#CDDEED</color>
+    <color name="dialog_bg">#3E5C76</color>
+
+    <color name="white_A_black">#768897</color>
 
 </resources>
