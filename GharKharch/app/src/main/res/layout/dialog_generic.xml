@@ -15,7 +15,7 @@
         android:paddingHorizontal="@dimen/padding_large"
         android:paddingVertical="@dimen/padding_small"
         android:text="dialog title"
-        android:textSize="@dimen/text_size_heading" />
+        android:textSize="@dimen/text_size_large" />
 
     <TextView
         android:id="@+id/dialog_msg"
@@ -24,7 +24,7 @@
         android:paddingHorizontal="@dimen/padding_large"
         android:paddingVertical="@dimen/padding_small"
         android:text="dialog msg"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_medium" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
             android:layout_marginHorizontal="@dimen/margin_medium"
             android:padding="@dimen/padding_large"
             android:text="Cancel"
-            android:textSize="@dimen/text_size_large" />
+            android:textSize="@dimen/text_size_medium" />
 
         <TextView
             android:id="@+id/positive_btn"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_large"
             android:text="+ve btn"
-            android:textSize="@dimen/text_size_large" />
+            android:textSize="@dimen/text_size_medium" />
 
     </LinearLayout>
 

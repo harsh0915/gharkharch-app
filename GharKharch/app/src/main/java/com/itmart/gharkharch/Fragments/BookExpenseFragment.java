@@ -422,9 +422,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                         filtered_sub_cat_search_list.clear();
                         sub_category_search_list.clear();
                         sub_category_fast_lookup.clear();
-                        filtered_sub_cat_search_list.addAll(databaseCallbackObject.getFilter_list());
-                        sub_category_search_list.addAll(databaseCallbackObject.getOriginal_list());
-                        sub_category_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
+                        filtered_sub_cat_search_list.addAll(databaseCallbackObject.getDataList());
+                        sub_category_search_list.addAll(databaseCallbackObject.getDataList());
+                        sub_category_fast_lookup.addAll(databaseCallbackObject.getDataFastLookup());
                         search_adapter.notifyDataSetChanged();
                     }
                 });
@@ -461,8 +461,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                     if (isAdded() && !isHidden() && view.getWindowToken() != null) {
                         filtered_expenses.clear();
                         expense_list.clear();
-                        filtered_expenses.addAll(databaseCallbackObject.getFilter_list());
-                        expense_list.addAll(databaseCallbackObject.getOriginal_list());
+                        filtered_expenses.addAll(databaseCallbackObject.getDataList());
+                        expense_list.addAll(databaseCallbackObject.getDataList());
                         simple_adapter.notifyDataSetChanged();
                     }
                 });

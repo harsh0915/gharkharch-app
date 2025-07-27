@@ -210,9 +210,9 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
                         filtered_categories_list.clear();
                         category_list.clear();
                         cat_fast_lookup.clear();
-                        filtered_categories_list.addAll(databaseCallbackObject.getFilter_list());
-                        category_list.addAll(databaseCallbackObject.getOriginal_list());
-                        cat_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
+                        filtered_categories_list.addAll(databaseCallbackObject.getDataList());
+                        category_list.addAll(databaseCallbackObject.getDataList());
+                        cat_fast_lookup.addAll(databaseCallbackObject.getDataFastLookup());
                         simple_adapter.notifyDataSetChanged();
                     }
                 });

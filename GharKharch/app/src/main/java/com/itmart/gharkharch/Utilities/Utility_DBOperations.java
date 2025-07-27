@@ -113,8 +113,7 @@ public class Utility_DBOperations {
     //data list fetch
     public void fetch_expenses(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
-            List<GenericItem> filtered_expenses = new ArrayList<>();
-            List<GenericItem> expense_list = new ArrayList<>();
+            List<GenericItem> data_list = new ArrayList<>();
             try {
                 String query = "select * from " + DatabaseHelper.TABLE_EXPENSES + " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
                 Cursor cursor = null;
@@ -133,12 +132,11 @@ public class Utility_DBOperations {
                             String expense_remarks = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_REMARKS));
 
                             Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode, expense_remarks);
-                            expense_list.add(expense);
-                            filtered_expenses.add(expense);
+                            data_list.add(expense);
                         } while (cursor.moveToNext());
                     }
 
-                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filtered_expenses, expense_list));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list));
                 } catch (Exception e) {
                     callbackDbOperations.onFailure(e);
                 } finally {
@@ -152,9 +150,8 @@ public class Utility_DBOperations {
 
     public void fetch_sub_category_list(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
-            List<GenericItem> filter_list = new ArrayList<>();
-            List<GenericItem> original_list = new ArrayList<>();
-            HashSet<String> original_fast_lookup = new HashSet<>();
+            List<GenericItem> data_list = new ArrayList<>();
+            HashSet<String> data_fast_lookup = new HashSet<>();
             try {
                 String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " order by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME + " asc";
                 Cursor cursor = null;
@@ -169,13 +166,12 @@ public class Utility_DBOperations {
                             int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_CATEGORY));
 
                             SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
-                            filter_list.add(subCategory);
-                            original_list.add(subCategory);
-                            original_fast_lookup.add(sub_cat_name);
+                            data_list.add(subCategory);
+                            data_fast_lookup.add(sub_cat_name);
 
                         } while (cursor.moveToNext());
                     }
-                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filter_list, original_list, original_fast_lookup));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
                 } catch (Exception e) {
                     callbackDbOperations.onFailure(e);
                 } finally {
@@ -189,9 +185,8 @@ public class Utility_DBOperations {
 
     public void fetch_category_list(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
-            List<GenericItem> filtered_list = new ArrayList<>();
-            List<GenericItem> category_list = new ArrayList<>();
-            HashSet<String> category_fast_lookup = new HashSet<>();
+            List<GenericItem> data_list = new ArrayList<>();
+            HashSet<String> data_fast_lookup = new HashSet<>();
             try {
                 SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
 
@@ -206,12 +201,11 @@ public class Utility_DBOperations {
                             int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
                             String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
                             Category category = new Category(cat_id, cat_name);
-                            filtered_list.add(category);
-                            category_list.add(category);
-                            category_fast_lookup.add(cat_name);
+                            data_list.add(category);
+                            data_fast_lookup.add(cat_name);
                         } while (cursor.moveToNext());
                     }
-                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(filtered_list, category_list, category_fast_lookup));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
                 } catch (Exception e) {
                     callbackDbOperations.onFailure(e);
                 } finally {

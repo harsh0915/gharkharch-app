@@ -67,7 +67,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
             holder.item_amount.setVisibility(View.GONE);
 
         holder.delete_item.setOnClickListener(v -> {
-            fun_delete_item(item.get_item_id(), item.get_item_name(), position);
+            fun_delete_item(item, position);
         });
 
         holder.edit_item.setOnClickListener(v -> {
@@ -81,7 +81,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void fun_delete_item(int itemId, String itemName, int position) {
+    private void fun_delete_item(GenericItem item, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_generic, null);
         builder.setView(dialog_layout);
@@ -98,19 +98,22 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         dialog_msg = dialog_layout.findViewById(R.id.dialog_msg);
         positive_btn = dialog_layout.findViewById(R.id.positive_btn);
         negative_btn = dialog_layout.findViewById(R.id.negative_btn);
+        dialog_msg.setVisibility(View.GONE);
 
-        dialog_title.setText("Are you sure you want to delete \"" + itemName + "\" ?");
+        String titleText = "Are you sure you want to delete \"" + item.get_item_name() + "\"";
+
         if (item_type.getValue() == 1) {
-            dialog_msg.setText("You won't be able to delete it until you have no expense heads under it! ");
+            titleText += " category?";
         } else if (item_type.getValue() == 2) {
-            dialog_msg.setText("You won't be able to delete it until you have no expense under it! ");
+            titleText += " expense head?";
         } else {
-            dialog_msg.setVisibility(View.GONE);
+            titleText += " expense of \u20B9" + item.get_item_amount() + "?";
         }
+        dialog_title.setText(titleText);
         positive_btn.setText("Delete");
 
         positive_btn.setOnClickListener(v -> {
-            simpleList_clickListener.delete_item(itemId);
+            simpleList_clickListener.delete_item(item.get_item_id());
             simpleList_clickListener.database_updated();
             dialog.dismiss();
         });

@@ -309,9 +309,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                         filtered_cat_search_list.clear();
                         category_search_list.clear();
                         category_fast_lookup.clear();
-                        filtered_cat_search_list.addAll(databaseCallbackObject.getFilter_list());
-                        category_search_list.addAll(databaseCallbackObject.getOriginal_list());
-                        category_fast_lookup.addAll(databaseCallbackObject.getOriginal_fast_lookup());
+                        filtered_cat_search_list.addAll(databaseCallbackObject.getDataList());
+                        category_search_list.addAll(databaseCallbackObject.getDataList());
+                        category_fast_lookup.addAll(databaseCallbackObject.getDataFastLookup());
                         search_adapter.notifyDataSetChanged();
                     }
                 });
@@ -345,8 +345,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                     if (isAdded() && !isHidden() && view.getWindowToken() != null) {
                         filtered_sub_categories.clear();
                         sub_category_list.clear();
-                        filtered_sub_categories.addAll(databaseCallbackObject.getFilter_list());
-                        sub_category_list.addAll(databaseCallbackObject.getOriginal_list());
+                        filtered_sub_categories.addAll(databaseCallbackObject.getDataList());
+                        sub_category_list.addAll(databaseCallbackObject.getDataList());
                         simple_adapter.notifyDataSetChanged();
                     }
                 });

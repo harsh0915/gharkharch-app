@@ -71,6 +71,16 @@ public class MainActivity extends AppCompatActivity {
                 show_quit_confirmation_dialog();
             }
         });
+
+        //take back the screen to where user was and notify the bottom nav to update the selected item
+        if(savedInstanceState!=null){
+
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     private void initializeUiElements() {
