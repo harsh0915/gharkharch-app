@@ -11,13 +11,14 @@
         android:id="@+id/content_panel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/backgroundColorVariant"
+        android:fitsSystemWindows="true"
         android:orientation="vertical">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/backgroundColorVariant"
-            android:fitsSystemWindows="true">
+            android:background="@color/backgroundColorVariant">
 
             <TextView
                 android:id="@+id/page_title"
