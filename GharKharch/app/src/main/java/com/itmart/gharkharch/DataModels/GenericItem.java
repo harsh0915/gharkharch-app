@@ -7,16 +7,9 @@ different data models using a single generic item list i.e. List<GenericItem>*/
 public interface GenericItem {
     int get_item_id();
 
+    int get_under_id();
+
     String get_item_name();
 
-    int get_fk_id();
-
-    int get_item_amount();
-
-    int get_mode_of_payment();
-
-    long get_date();
-
-    String get_remarks();
 }
 

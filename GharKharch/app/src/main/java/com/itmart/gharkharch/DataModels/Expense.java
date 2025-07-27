@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
-public class Expense implements Parcelable, GenericItem {
+public class Expense implements Parcelable, ExpenseItem {
 
     private final int expense_id;
     private final String expense_name;
@@ -98,7 +98,7 @@ public class Expense implements Parcelable, GenericItem {
     }
 
     @Override
-    public int get_fk_id() {
+    public int get_under_id() {
         return this.under_sub_cat_id;
     }
 

@@ -39,6 +39,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
+import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.DataModels.PaymentMode;
@@ -333,19 +334,20 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     //beginning of callbacks
     @Override
     public void edit_item(GenericItem item, String emptyString) {
-        Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Editing the \"" + item.get_item_name() + "\" expense.", DEFAULT);
+        ExpenseItem expense = (ExpenseItem) item;
+        Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Editing the expense", DEFAULT);
         isEditingMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");
-        input_expense_name.setText(String.valueOf(item.get_item_name()));
-        input_expense_amount.setText(String.valueOf(item.get_item_amount()));
-        input_expense_remarks.setText(item.get_remarks() == null ? "" : item.get_remarks());
-        selected_mode_of_payment = PaymentMode.fromValue(item.get_mode_of_payment());
+        input_expense_name.setText(String.valueOf(expense.get_item_name()));
+        input_expense_amount.setText(String.valueOf(expense.get_item_amount()));
+        input_expense_remarks.setText(expense.get_remarks() == null ? "" : expense.get_remarks());
+        selected_mode_of_payment = PaymentMode.fromValue(expense.get_mode_of_payment());
         setModeOfPayment();
-        under_sub_category_id = item.get_fk_id();
-        selected_date = item.get_date();
+        under_sub_category_id = expense.get_under_id();
+        selected_date = expense.get_date();
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
-        id_toEdit = item.get_item_id();
+        id_toEdit = expense.get_item_id();
         rcv_sub_category_search.setVisibility(View.GONE);
     }
 

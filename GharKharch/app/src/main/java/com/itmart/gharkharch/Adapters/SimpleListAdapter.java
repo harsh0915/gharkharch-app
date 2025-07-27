@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
@@ -62,14 +63,14 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
         holder.item_name.setText(item.get_item_name());
 
-        if (item_type == GenericItemType.Expenses) {
+        if (item_type == GenericItemType.Expenses && item instanceof ExpenseItem) {
             holder.item_amount.setVisibility(View.VISIBLE);
-            holder.item_amount.setText("\u20B9" + item.get_item_amount());
+            holder.item_amount.setText("\u20B9" + ((ExpenseItem)item).get_item_amount());
         } else
             holder.item_amount.setVisibility(View.GONE);
 
         holder.delete_item.setOnClickListener(v -> {
-            fun_delete_item(item, position);
+            fun_delete_item(item);
         });
 
         holder.edit_item.setOnClickListener(v -> {
@@ -83,7 +84,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void fun_delete_item(GenericItem item, int position) {
+    private void fun_delete_item(GenericItem item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_generic, null);
         builder.setView(dialog_layout);
@@ -105,7 +106,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         if (item_type.getValue() == 1 || item_type.getValue() == 2) {
             dialog_msg.setText(item.get_item_name());
         } else {
-            dialog_msg.setText(item.get_item_name() + " : \u20B9" + item.get_item_amount());
+            dialog_msg.setText(item.get_item_name() + " : \u20B9" + ((ExpenseItem)item).get_item_amount());
         }
 
         dialog_title.setText(titleText);
@@ -125,7 +126,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     }
 
     private void fun_edit_item(GenericItem item, int position) {
-
         //for expense type we edit many fields so this line
         if (item_type == GenericItemType.Expenses) {
             simpleList_clickListener.edit_item(item, "");

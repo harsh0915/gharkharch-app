@@ -34,15 +34,6 @@ public class Category implements Parcelable, GenericItem {
         }
     };
 
-    public int getCategory_id() {
-        return category_id;
-    }
-
-    public String getCategory_name() {
-        return category_name;
-    }
-
-
     @Override
     public int describeContents() {
         return 0;
@@ -65,27 +56,8 @@ public class Category implements Parcelable, GenericItem {
     }
 
     @Override
-    public int get_fk_id() {
+    public int get_under_id() {
         return -1;
     }
 
-    @Override
-    public int get_item_amount() {
-        return -1;
-    }
-
-    @Override
-    public int get_mode_of_payment() {
-        return -1;
-    }
-
-    @Override
-    public long get_date() {
-        return -1;
-    }
-
-    @Override
-    public String get_remarks() {
-        return "";
-    }
 }
