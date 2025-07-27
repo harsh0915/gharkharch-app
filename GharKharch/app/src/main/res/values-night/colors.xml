@@ -12,4 +12,7 @@
 
     <color name="white_A_black">#768897</color>
 
+    <!--color for custom views-->
+    <color name="searchBarBg">#B0BEC5</color>
+
 </resources>

@@ -22,4 +22,7 @@
 
     <color name="white_A_black">#011B37</color>
 
+    <!--color for custom views-->
+    <color name="searchBarBg">#5A6B7D</color>
+
 </resources>
