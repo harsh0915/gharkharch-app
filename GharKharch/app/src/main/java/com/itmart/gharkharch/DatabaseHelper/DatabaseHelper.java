@@ -10,7 +10,7 @@ import android.util.Log;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "ghar_kharch_db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 1;
 
     //    tables
     public static String TABLE_CATEGORIES = "categories";
@@ -20,16 +20,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //    fields for categories
     public static String COLUMN_CATEGORY_ID = "cat_id";
     public static String COLUMN_CATEGORY_NAME = "cat_name";
-    public static String COLUMN_USER_ID = "user_id";
 
     //    fields for sub categories
     public static String COLUMN_SUB_CATEGORY_ID = "sub_cat_id";
-    public static String COLUMN_SUB_CATEGORY_NAME = "cat_name";
+    public static String COLUMN_SUB_CATEGORY_NAME = "sub_cat_name";
     public static String COLUMN_UNDER_CATEGORY = "under_category";
 
     //    fields for expense table
     public static String COLUMN_EXPENSE_ID = "expense_id";
-    public static String COLUMN_EXPENSE_NAME = "expense_name";
     public static String COLUMN_UNDER_SUB_CATEGORY = "under_sub_category";
     public static String COLUMN_EXPENSE_AMOUNT = "expense_amount";
     public static String COLUMN_EXPENSE_DATE = "expense_date";
@@ -47,15 +45,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             " FOREIGN KEY (" + COLUMN_UNDER_CATEGORY + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + ") ON DELETE RESTRICT )";
     public String CREATE_EXPENSE_TABLE = "create table " + TABLE_EXPENSES + "(" +
             COLUMN_EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-            COLUMN_EXPENSE_NAME + " TEXT, " +
             COLUMN_UNDER_SUB_CATEGORY + " INTEGER NOT NULL, " +
             COLUMN_EXPENSE_AMOUNT + " INTEGER NOT NULL, " +
             COLUMN_EXPENSE_DATE + " INTEGER NOT NULL, " +
             COLUMN_EXPENSE_MODE + " INTEGER DEFAULT 0, " +
             COLUMN_EXPENSE_REMARKS + " TEXT DEFAULT NULL, " +
-            " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") ON DELETE RESTRICT ," +
-            "FOREIGN KEY (" + COLUMN_EXPENSE_NAME + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_NAME + ") ON UPDATE CASCADE " + ")";
-
+            " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") ON DELETE RESTRICT )";
     private DatabaseHelper(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -90,21 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            switch (oldVersion) {
-                case 1:
-                case 2:
-                    if (!doesColumnExist(db, TABLE_EXPENSES, COLUMN_EXPENSE_REMARKS)) {
-                        db.execSQL("alter table " + DatabaseHelper.TABLE_EXPENSES + " add " + DatabaseHelper.COLUMN_EXPENSE_REMARKS + " text default null");
-                    }
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    break;
-                default:
-                    Log.e("harshTagDBUpgrade", "Database Upgrade Failed : Unhandled Version.");
-                    throw new IllegalStateException("Database upgrade: Unhandled oldVersion " + oldVersion);
-            }
+            if(oldVersion<2){}
             db.setTransactionSuccessful();
         } catch (RuntimeException e) {
             Log.e("harshTagDBUpgrade", "Database Updating Failed : Updating Disturbed Data Integrity.");

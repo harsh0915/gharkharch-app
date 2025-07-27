@@ -55,11 +55,10 @@ public class Utility_DBOperations {
     }
 
     //add operations
-    public void add_expense(String expense_name, int under_sub_category_id, int amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
+    public void add_expense(int under_sub_category_id, int amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
                 ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
                 values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_category_id);
                 values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, amount);
                 values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, date);
@@ -115,7 +114,18 @@ public class Utility_DBOperations {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
             try {
-                String query = "select * from " + DatabaseHelper.TABLE_EXPENSES + " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
+                String query = "select " +
+                        "exp." + DatabaseHelper.COLUMN_EXPENSE_ID +
+                        ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                        ", exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_MODE +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_REMARKS +
+                        " from " + DatabaseHelper.TABLE_EXPENSES + " as exp " +
+                        " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as sub " +
+                        " on (exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY + " = sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + ") " +
+                        " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
                 Cursor cursor = null;
 
                 try {
@@ -123,8 +133,9 @@ public class Utility_DBOperations {
 
                     if (cursor.moveToFirst()) {
                         do {
+
                             int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
-                            String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_NAME));
+                            String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
                             int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
                             int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
                             long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
@@ -257,13 +268,12 @@ public class Utility_DBOperations {
         });
     }
 
-    public void edit_expense(int id, String expense_name, int under_sub_cat, int edited_amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
+    public void edit_expense(int id, int under_sub_cat, int edited_amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
                 String where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_EXPENSE_NAME, expense_name);
                 values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_cat);
                 values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, edited_amount);
                 values.put(DatabaseHelper.COLUMN_EXPENSE_DATE, date);

@@ -244,9 +244,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                     resetExpenseForm();
                     return;
                 }
-                utilityDbOperations.edit_expense(id_toEdit, expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
+                utilityDbOperations.edit_expense(id_toEdit, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
             } else {
-                utilityDbOperations.add_expense(expense_name, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
+                utilityDbOperations.add_expense(under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
             }
 
             utilityDbOperations.fetch_expenses(fetchExpensesCallback);
