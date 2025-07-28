@@ -240,7 +240,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     @Override
     public void edit_item(GenericItem item) {
         SubCatItem subCatItem = (SubCatItem) item;
-        Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Editing the expense", DEFAULT);
+        Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Editing the expense head", DEFAULT);
         isEditMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");

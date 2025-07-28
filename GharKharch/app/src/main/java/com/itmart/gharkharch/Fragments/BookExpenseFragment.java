@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +44,7 @@ import com.itmart.gharkharch.DataModels.PaymentMode;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.R;
 
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_DateFormats;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TimeZone;
 
 public class BookExpenseFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
 
@@ -90,6 +93,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private Utility_Keyboard utilityKeyboard;
     private int expenseId;
     private static final int INVALID_EXPENSE_ID = -1;
+    private ImageView showCalendar;
 
     private enum ListType {
         Search, Simple
@@ -113,18 +117,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         selected_mode_of_payment = PaymentMode.CASH;
         expenseId = -1;
         isEditingMode = false;
-
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 0);
-        startTime.set(Calendar.MINUTE, 0);
-        startTime.set(Calendar.SECOND, 0);
-        startTime.set(Calendar.MILLISECOND, 0);
-
-        Calendar endTime = Calendar.getInstance();
-        endTime.set(Calendar.HOUR_OF_DAY, 23);
-        endTime.set(Calendar.MINUTE, 59);
-        endTime.set(Calendar.SECOND, 59);
-        endTime.set(Calendar.MILLISECOND, 999);
     }
 
     @Override
@@ -144,6 +136,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         search_view = view.findViewById(R.id.search_view);
         list_title = view.findViewById(R.id.list_title);
         close_button = view.findViewById(R.id.close_button);
+        showCalendar = view.findViewById(R.id.show_calendar);
         page_title = requireActivity().findViewById(R.id.page_title);
         return view;
     }
@@ -308,6 +301,21 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 filterList(query, filtered_expenses, expense_list, ListType.Simple);
                 return true;
             }
+        });
+
+        showCalendar.setOnClickListener(v -> {
+            Calendar startOfMonth = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
+            Calendar endOfMonth = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
+            MaterialDatePicker<Pair<Long,Long>> datePicker = MaterialDatePicker.Builder.dateRangePicker()
+                    .setTitleText("Select a date range")
+                    .setSelection(new Pair<>(startOfMonth.getTimeInMillis(),endOfMonth.getTimeInMillis()))
+                    .setTheme(R.style.custom_date_picker)
+                    .build();
+
+            datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_RANGE_PICKER");
+
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+            });
         });
     }
 

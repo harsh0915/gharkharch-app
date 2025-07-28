@@ -42,7 +42,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_SUB_CATEGORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             COLUMN_SUB_CATEGORY_NAME + " TEXT UNIQUE, " +
             COLUMN_UNDER_CATEGORY + " INTEGER NOT NULL, " +
-            " FOREIGN KEY (" + COLUMN_UNDER_CATEGORY + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + ") ON DELETE RESTRICT )";
+            " FOREIGN KEY (" + COLUMN_UNDER_CATEGORY + ") REFERENCES " + TABLE_CATEGORIES + "(" + COLUMN_CATEGORY_ID + ") " +
+            "ON DELETE RESTRICT )";
     public String CREATE_EXPENSE_TABLE = "create table " + TABLE_EXPENSES + "(" +
             COLUMN_EXPENSE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             COLUMN_UNDER_SUB_CATEGORY + " INTEGER NOT NULL, " +
@@ -50,7 +51,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_EXPENSE_DATE + " INTEGER NOT NULL, " +
             COLUMN_EXPENSE_MODE + " INTEGER DEFAULT 0, " +
             COLUMN_EXPENSE_REMARKS + " TEXT DEFAULT NULL, " +
-            " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") ON DELETE RESTRICT )";
+            " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") " +
+            "ON DELETE RESTRICT )";
     private DatabaseHelper(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }

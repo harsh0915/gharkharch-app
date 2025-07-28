@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -25,7 +24,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.Utilities.Utility_CalendarLabels;
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,7 +155,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         xAxis.setGranularityEnabled(true);
 //        xAxis.setLabelRotationAngle(90f);
         xAxis.setTextColor(getColor(R.color.primaryTextColor));
-        String[] xAxisLabels = Utility_CalendarLabels.getMonths();
+        String[] xAxisLabels = Utility_Calendar.getMonths();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabels));
         //left y axis of bar chart
         YAxis leftAxis = barChart.getAxisLeft();
