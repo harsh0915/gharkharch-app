@@ -41,6 +41,7 @@ import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 public class AddCategoryFragment extends Fragment implements SimpleListAdapter.SimpleList_Interface {
     private EditText inputCategory;
     private Button addBtn;
+    private Button cancelBtn;
     private List<GenericItem> category_list;
     private RecyclerView rcv_category_list;
     private SimpleListAdapter simple_adapter;
@@ -80,6 +81,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         inputCategory = view.findViewById(R.id.input_category);
         rcv_category_list = view.findViewById(R.id.rcv_category_list);
         addBtn = view.findViewById(R.id.addBtn);
+        cancelBtn = view.findViewById(R.id.cancelBtn);
         search_button = view.findViewById(R.id.search_button);
         search_view = view.findViewById(R.id.search_view);
         list_title = view.findViewById(R.id.list_title);
@@ -122,6 +124,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             resetForm();
         });
 
+        cancelBtn.setOnClickListener(v -> {
+            resetForm();
+        });
+
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -155,6 +161,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     public void edit_item(GenericItem item) {
         Utility_UiAlerts.generateSnackBar(rcv_category_list, "Editing the category", DEFAULT);
         catId = item.get_item_id();
+        addBtn.setText("Update");
+        cancelBtn.setVisibility(View.VISIBLE);
         inputCategory.setText(item.get_item_name());
         isEditMode = true;
     }
@@ -188,6 +196,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
     public void resetForm() {
         isEditMode = false;
+        addBtn.setText("Save");
+        cancelBtn.setVisibility(View.GONE);
         inputCategory.setText("");
         inputCategory.setHint(R.string.hint_category);
     }
