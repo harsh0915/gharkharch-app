@@ -164,7 +164,14 @@ public class Utility_DBOperations {
             List<GenericItem> data_list = new ArrayList<>();
             HashSet<String> data_fast_lookup = new HashSet<>();
             try {
-                String query = "select * from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " order by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME + " asc";
+                String query = "select " +
+                        " sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID +
+                        ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                        ", sub." + DatabaseHelper.COLUMN_UNDER_CATEGORY +
+                        ", cat." + DatabaseHelper.COLUMN_CATEGORY_NAME +
+                        " from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as sub join " + DatabaseHelper.TABLE_CATEGORIES + " as cat " +
+                        "on (sub." + DatabaseHelper.COLUMN_UNDER_CATEGORY + " = cat." + DatabaseHelper.COLUMN_CATEGORY_ID + ") " +
+                        " order by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME + " asc";
                 Cursor cursor = null;
 
                 try {
@@ -175,8 +182,9 @@ public class Utility_DBOperations {
                             int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_ID));
                             String sub_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
                             int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_CATEGORY));
+                            String under_cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
 
-                            SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id);
+                            SubCategory subCategory = new SubCategory(sub_cat_id, sub_cat_name, cat_id, under_cat_name);
                             data_list.add(subCategory);
                             data_fast_lookup.add(sub_cat_name);
 
@@ -236,7 +244,7 @@ public class Utility_DBOperations {
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, edited_cat_name);
-
+                values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, edited_cat_name);
                 try {
                     writeable_db.update(DatabaseHelper.TABLE_CATEGORIES, values, where_clause, where_args);
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject());
@@ -249,13 +257,14 @@ public class Utility_DBOperations {
         });
     }
 
-    public void edit_sub_category(int id, String edited_sub_cat_name, Callback_DBOperations callbackDbOperations) {
+    public void edit_sub_category(int id, int under_catId, String edited_sub_cat_name, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
                 String where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, edited_sub_cat_name);
+                values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_catId);
                 try {
                     writeable_db.update(DatabaseHelper.TABLE_SUB_CATEGORIES, values, where_clause, where_args);
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject());

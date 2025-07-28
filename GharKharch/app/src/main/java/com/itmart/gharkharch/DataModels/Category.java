@@ -54,10 +54,4 @@ public class Category implements Parcelable, GenericItem {
     public String get_item_name() {
         return category_name;
     }
-
-    @Override
-    public int get_under_id() {
-        return -1;
-    }
-
 }

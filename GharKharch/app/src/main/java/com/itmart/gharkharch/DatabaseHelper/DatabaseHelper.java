@@ -85,7 +85,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.beginTransaction();
         try {
-            if(oldVersion<2){}
+//            if(oldVersion<2){}
             db.setTransactionSuccessful();
         } catch (RuntimeException e) {
             Log.e("harshTagDBUpgrade", "Database Updating Failed : Updating Disturbed Data Integrity.");

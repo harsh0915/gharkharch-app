@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.DEFAULT;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
@@ -30,6 +31,7 @@ import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
+import com.itmart.gharkharch.DataModels.SubCatItem;
 import com.itmart.gharkharch.R;
 
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
     private Button addBtn;
+    private Button cancelBtn;
+
     private EditText inputSubCategory;
     private EditText inputCategory;
     private List<GenericItem> category_search_list;
@@ -54,7 +58,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
     private DatabaseHelper databaseHelper;
-    private int under_category_id;
+    private int under_catId;
     private TextView page_title;
     private SimpleListAdapter simple_adapter;
     private RecyclerView rcv_sub_category_list;
@@ -67,6 +71,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private Utility_Keyboard utilityKeyboard;
     private List<GenericItem> filtered_cat_search_list;
     private List<GenericItem> filtered_sub_categories;
+    private int subCatId;
+    private boolean isEditMode;
+    private static final int INVALID_SUB_CAT_ID = -1;
 
     private enum ListType {
         Search,
@@ -85,6 +92,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         category_search_list = new ArrayList<>();
         category_fast_lookup = new HashSet<>();
         filtered_sub_categories = new ArrayList<>();
+        under_catId = -1;
+        subCatId = -1;
+        isEditMode = false;
     }
 
     @Nullable
@@ -95,6 +105,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputSubCategory = view.findViewById(R.id.input_sub_category);
         inputCategory = view.findViewById(R.id.input_category);
         addBtn = view.findViewById(R.id.addBtn);
+        cancelBtn = view.findViewById(R.id.cancelBtn);
         rcv_category_search = view.findViewById(R.id.category_search_list);
         rcv_sub_category_list = view.findViewById(R.id.rcv_sub_category_list);
         search_button = view.findViewById(R.id.search_button);
@@ -172,11 +183,23 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             } else if (!category_fast_lookup.contains(cat_name)) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", WARNING);
                 return;
+            }
+            if (isEditMode) {
+                if (subCatId == INVALID_SUB_CAT_ID) {
+                    Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Invalid expense", ERROR);
+                    resetForm();
+                    return;
+                }
+                utilityDbOperations.edit_sub_category(subCatId, under_catId, sub_cat_name, editedSubCatCallback);
             } else {
-                utilityDbOperations.addSubCategory(sub_cat_name, under_category_id, addSubCatCallback);
+                utilityDbOperations.addSubCategory(sub_cat_name, under_catId, addSubCatCallback);
             }
 
             utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
+            resetForm();
+        });
+
+        cancelBtn.setOnClickListener(v -> {
             resetForm();
         });
 
@@ -202,6 +225,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         super.onHiddenChanged(hidden);
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
+            resetForm();
             utilityDbOperations.fetch_category_list(fetchCatCallback);
             page_title.setText("Expense Heads");
         }
@@ -214,12 +238,17 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
     //beginning of callbacks
     @Override
-    public void edit_item(GenericItem item, String editedText) {
-        if (editedText.isEmpty()) {
-            Utility_UiAlerts.generateSnackBar(addBtn, "An expense head can't be blank.", WARNING);
-            return;
-        }
-        utilityDbOperations.edit_sub_category(item.get_item_id(), editedText, editedSubCatCallback);
+    public void edit_item(GenericItem item) {
+        SubCatItem subCatItem = (SubCatItem) item;
+        Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Editing the expense", DEFAULT);
+        isEditMode = true;
+        cancelBtn.setVisibility(View.VISIBLE);
+        addBtn.setText("Update");
+        subCatId = subCatItem.get_item_id();
+        under_catId = subCatItem.get_under_id();
+        inputSubCategory.setText(subCatItem.get_item_name());
+        inputCategory.setText(subCatItem.get_under_cat_name());
+        rcv_category_search.setVisibility(View.GONE);
     }
 
     @Override
@@ -230,7 +259,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     @Override
     public void on_item_clicked(GenericItem clicked_item) {
         inputCategory.setText(clicked_item.get_item_name());
-        under_category_id = clicked_item.get_item_id();
+        under_catId = clicked_item.get_item_id();
         //this line moves the cursor to the end of the text inside the edi text
         inputCategory.setSelection(inputCategory.getText().length());
         rcv_category_search.setVisibility(View.GONE);
@@ -266,7 +295,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     public void resetForm() {
+        isEditMode = false;
         inputCategory.setText("");
+        addBtn.setText("Save");
+        cancelBtn.setVisibility(View.GONE);
         inputSubCategory.setText("");
         rcv_category_search.setVisibility(View.GONE);
         inputCategory.setHint(R.string.hint_category);

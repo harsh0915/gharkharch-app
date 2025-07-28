@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Fragments;
 
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.DEFAULT;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
@@ -54,6 +55,9 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private HashSet<String> cat_fast_lookup;
     private Utility_Keyboard utilityKeyboard;
     private List<GenericItem> filtered_categories_list;
+    private int catId;
+    private boolean isEditMode;
+    private static final int INVALID_CAT_ID = -1;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +68,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         category_list = new ArrayList<>();
         filtered_categories_list = new ArrayList<>();
         cat_fast_lookup = new HashSet<>();
+        catId = -1;
+        isEditMode = false;
     }
 
     @Nullable
@@ -101,11 +107,19 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
+            }
+            if (isEditMode) {
+                if (catId == INVALID_CAT_ID) {
+                    Utility_UiAlerts.generateSnackBar(rcv_category_list, "Invalid expense", ERROR);
+                    resetForm();
+                    return;
+                }
+                utilityDbOperations.edit_category(catId, new_category, editedCatCallback);
             } else {
                 utilityDbOperations.addCategory(new_category, addCatCallback);
-                utilityDbOperations.fetch_category_list(fetchCatCallback);
-                resetForm();
             }
+            utilityDbOperations.fetch_category_list(fetchCatCallback);
+            resetForm();
         });
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -127,6 +141,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
+            resetForm();
             page_title.setText("Expense Category");
         }
     }
@@ -137,12 +152,11 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     }
 
     @Override
-    public void edit_item(GenericItem item, String editedText) {
-        if (editedText.isEmpty()) {
-            Utility_UiAlerts.generateSnackBar(addBtn, "An expense category can't be blank.", WARNING);
-            return;
-        }
-        utilityDbOperations.edit_category(item.get_item_id(), editedText, editedCatCallback);
+    public void edit_item(GenericItem item) {
+        Utility_UiAlerts.generateSnackBar(rcv_category_list, "Editing the category", DEFAULT);
+        catId = item.get_item_id();
+        inputCategory.setText(item.get_item_name());
+        isEditMode = true;
     }
 
     @Override
@@ -173,6 +187,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     }
 
     public void resetForm() {
+        isEditMode = false;
         inputCategory.setText("");
         inputCategory.setHint(R.string.hint_category);
     }

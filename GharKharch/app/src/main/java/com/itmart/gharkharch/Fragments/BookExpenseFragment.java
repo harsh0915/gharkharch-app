@@ -26,13 +26,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SearchView;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -72,7 +69,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private RecyclerView rcv_sub_category_search;
     private SimpleListAdapter simple_adapter;
     private SearchListAdapter search_adapter;
-    private Button addBtn, cancelBtn;
+    private Button addBtn;
+    private Button cancelBtn;
     private Utility_DBOperations utilityDbOperations;
     private long selected_date;
     private TextView modes_of_payment;
@@ -89,8 +87,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private TextView page_title;
     private boolean isEditingMode;
     private PaymentMode selected_mode_of_payment;
-    private int id_toEdit;
     private Utility_Keyboard utilityKeyboard;
+    private int expenseId;
     private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
@@ -113,6 +111,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         startTime = Calendar.getInstance();
         endTime = Calendar.getInstance();
         selected_mode_of_payment = PaymentMode.CASH;
+        expenseId = -1;
         isEditingMode = false;
 
         Calendar startTime = Calendar.getInstance();
@@ -240,22 +239,22 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             }
 
             if (isEditingMode) {
-                if (id_toEdit == INVALID_EXPENSE_ID) {
-                    Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense.", WARNING);
-                    resetExpenseForm();
+                if (expenseId == INVALID_EXPENSE_ID) {
+                    Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense", ERROR);
+                    resetForm();
                     return;
                 }
-                utilityDbOperations.edit_expense(id_toEdit, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
+                utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
             } else {
                 utilityDbOperations.add_expense(under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
             }
 
             utilityDbOperations.fetch_expenses(fetchExpensesCallback);
-            resetExpenseForm();
+            resetForm();
         });
 
         cancelBtn.setOnClickListener(v -> {
-            resetExpenseForm();
+            resetForm();
         });
 
         modes_of_payment.setOnClickListener(v -> {
@@ -322,7 +321,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             utilityDbOperations.fetch_expenses(fetchExpensesCallback);
             page_title.setText("Book Expenses");
         } else {
-            resetExpenseForm();
+            resetForm();
         }
     }
 
@@ -333,7 +332,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     //beginning of callbacks
     @Override
-    public void edit_item(GenericItem item, String emptyString) {
+    public void edit_item(GenericItem item) {
         ExpenseItem expense = (ExpenseItem) item;
         Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Editing the expense", DEFAULT);
         isEditingMode = true;
@@ -347,7 +346,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         under_sub_category_id = expense.get_under_id();
         selected_date = expense.get_date();
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
-        id_toEdit = expense.get_item_id();
+        expenseId = expense.get_item_id();
         rcv_sub_category_search.setVisibility(View.GONE);
     }
 
@@ -410,7 +409,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         }
     }
 
-    public void resetExpenseForm() {
+    public void resetForm() {
         addBtn.setText("Save");
         isEditingMode = false;
         input_expense_amount.setText("");

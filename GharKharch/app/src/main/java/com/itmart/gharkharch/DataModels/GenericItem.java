@@ -7,7 +7,6 @@ different data models using a single generic item list i.e. List<GenericItem>*/
 public interface GenericItem {
     int get_item_id();
 
-    int get_under_id();
 
     String get_item_name();
 

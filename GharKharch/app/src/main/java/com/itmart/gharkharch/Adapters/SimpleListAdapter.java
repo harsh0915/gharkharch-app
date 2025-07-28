@@ -38,7 +38,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     public interface SimpleList_Interface {
         void delete_item(int item_id);
 
-        void edit_item(GenericItem item, String editedText);
+        void edit_item(GenericItem item);
 
         void database_updated();
     }
@@ -65,7 +65,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
         if (item_type == GenericItemType.Expenses && item instanceof ExpenseItem) {
             holder.item_amount.setVisibility(View.VISIBLE);
-            holder.item_amount.setText("\u20B9" + ((ExpenseItem)item).get_item_amount());
+            holder.item_amount.setText("\u20B9" + ((ExpenseItem) item).get_item_amount());
         } else
             holder.item_amount.setVisibility(View.GONE);
 
@@ -106,7 +106,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         if (item_type.getValue() == 1 || item_type.getValue() == 2) {
             dialog_msg.setText(item.get_item_name());
         } else {
-            dialog_msg.setText(item.get_item_name() + " : \u20B9" + ((ExpenseItem)item).get_item_amount());
+            dialog_msg.setText(item.get_item_name() + " : \u20B9" + ((ExpenseItem) item).get_item_amount());
         }
 
         dialog_title.setText(titleText);
@@ -126,43 +126,7 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
     }
 
     private void fun_edit_item(GenericItem item, int position) {
-        //for expense type we edit many fields so this line
-        if (item_type == GenericItemType.Expenses) {
-            simpleList_clickListener.edit_item(item, "");
-            return;
-        }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_text_editor, null);
-        builder.setView(dialog_layout);
-
-        Dialog dialog = builder.create();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        EditText text_editor;
-        TextView positive_btn, negative_btn;
-
-        text_editor = dialog_layout.findViewById(R.id.text_editor);
-        positive_btn = dialog_layout.findViewById(R.id.positive_btn);
-        negative_btn = dialog_layout.findViewById(R.id.negative_btn);
-        text_editor.setText(item.get_item_name());
-
-        positive_btn.setText("Ok");
-
-        positive_btn.setOnClickListener(v -> {
-            simpleList_clickListener.edit_item(item, text_editor.getText().toString().trim());
-            simpleList_clickListener.database_updated();
-            dialog.dismiss();
-        });
-
-        negative_btn.setOnClickListener(v -> {
-            dialog.dismiss();
-        });
-
-        dialog.show();
+        simpleList_clickListener.edit_item(item);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
