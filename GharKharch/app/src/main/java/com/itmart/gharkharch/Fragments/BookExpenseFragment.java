@@ -83,16 +83,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private SearchView search_view;
     private TextView list_title;
     private ImageView close_button;
-    private Calendar startTime, endTime;
     private List<GenericItem> filtered_sub_cat_search_list;
     private List<GenericItem> filtered_expenses;
     private TextView page_title;
-    private boolean isEditingMode;
+    private boolean isEditMode;
     private PaymentMode selected_mode_of_payment;
     private Utility_Keyboard utilityKeyboard;
     private int expenseId;
     private static final int INVALID_EXPENSE_ID = -1;
     private ImageView showCalendar;
+    private Calendar startDate;
+    private Calendar endDate;
 
     private enum ListType {
         Search, Simple
@@ -111,11 +112,11 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         sub_category_fast_lookup = new HashSet<>();
         sub_category_search_list = new ArrayList<>();
         selected_date = System.currentTimeMillis();
-        startTime = Calendar.getInstance();
-        endTime = Calendar.getInstance();
         selected_mode_of_payment = PaymentMode.CASH;
+        startDate = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
+        endDate = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
         expenseId = -1;
-        isEditingMode = false;
+        isEditMode = false;
     }
 
     @Override
@@ -230,7 +231,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 return;
             }
 
-            if (isEditingMode) {
+            if (isEditMode) {
                 if (expenseId == INVALID_EXPENSE_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense", ERROR);
                     resetForm();
@@ -303,17 +304,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         showCalendar.setOnClickListener(v -> {
-            Calendar startOfMonth = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
-            Calendar endOfMonth = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
-            MaterialDatePicker<Pair<Long,Long>> datePicker = MaterialDatePicker.Builder.dateRangePicker()
+            MaterialDatePicker<Pair<Long, Long>> datePicker = MaterialDatePicker.Builder.dateRangePicker()
                     .setTitleText("Select a date range")
-                    .setSelection(new Pair<>(startOfMonth.getTimeInMillis(),endOfMonth.getTimeInMillis()))
+                    .setSelection(new Pair<>(startDate.getTimeInMillis(), endDate.getTimeInMillis()))
                     .setTheme(R.style.custom_date_picker)
                     .build();
 
             datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_RANGE_PICKER");
 
             datePicker.addOnPositiveButtonClickListener(selection -> {
+                startDate.setTimeInMillis(selection.first);
+                endDate.setTimeInMillis(selection.second);
             });
         });
     }
@@ -342,7 +343,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void edit_item(GenericItem item) {
         ExpenseItem expense = (ExpenseItem) item;
         Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Editing the expense", DEFAULT);
-        isEditingMode = true;
+        isEditMode = true;
         cancelBtn.setVisibility(View.VISIBLE);
         addBtn.setText("Update");
         input_expense_name.setText(String.valueOf(expense.get_item_name()));
@@ -418,15 +419,17 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     public void resetForm() {
         addBtn.setText("Save");
-        isEditingMode = false;
         input_expense_amount.setText("");
         input_expense_name.setText("");
         input_expense_remarks.setText("");
         modes_of_payment.setText(CASH);
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
-        selected_date = System.currentTimeMillis();
-        date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
+        if(isEditMode) {
+            selected_date = System.currentTimeMillis();
+            date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
+        }
+        isEditMode = false;
     }
 
     @SuppressLint("NotifyDataSetChanged")
