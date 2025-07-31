@@ -1,7 +1,6 @@
 package com.itmart.gharkharch.Activities;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -27,6 +26,7 @@ import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
 import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.R;
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 
 import java.util.ArrayList;
@@ -55,14 +55,14 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private RadioButton yearlyRB;
     private RadioButton quarterlyRB;
     private RadioButton monthlyRB;
-    private List<ItemForAnalysis> coordinatesList;
+    private RadioButton dateRB;
+    private List<ItemForAnalysis> ListOfItemsForAnalysis;
     private List<ItemForAnalysis> categoriesList;
     private List<ItemForAnalysis> subCategoriesList;
     private List<ItemForAnalysis> expenseList;
     private Utility_DBOperations utilityDbOperations;
     private GenericItemType chartFilter;
     private SortBy sortBy;
-    private int selectedQuarter;
     private long selectedTimeInMillis;
 
 
@@ -77,11 +77,10 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     }
 
     private void initializeDataAContainers() {
-        coordinatesList = new ArrayList<>();
+        ListOfItemsForAnalysis = new ArrayList<>();
         categoriesList = new ArrayList<>();
         subCategoriesList = new ArrayList<>();
         expenseList = new ArrayList<>();
-        selectedQuarter = -1;
         sortBy = SortBy.Month;
         chartFilter = GenericItemType.Category;
         currentChartType = BAR_CHART;
@@ -111,18 +110,21 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         yearlyRB = findViewById(R.id.yearly);
         quarterlyRB = findViewById(R.id.quarterly);
         monthlyRB = findViewById(R.id.monthly);
+        dateRB = findViewById(R.id.dateWise);
         confirmSortFilter = findViewById(R.id.confirmSortFilter);
 
         //default view states
         categoriesRB.setChecked(true);
         monthlyRB.setChecked(true);
+        dateRB.setVisibility(View.GONE);
+        quarterlyRB.setVisibility(View.GONE);
     }
 
     private void fetchData() {
         utilityDbOperations = Utility_DBOperations.getInstance(this);
-        utilityDbOperations.fetchCategoriesForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchCategoriesCallback);
-        utilityDbOperations.fetchSubCategoriesForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchSubCategoriesCallback);
-        utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchExpenseCallback);
+        utilityDbOperations.fetchCategoriesForAnalysis(selectedTimeInMillis, sortBy, fetchCategoriesCallback);
+        utilityDbOperations.fetchSubCategoriesForAnalysis(selectedTimeInMillis, sortBy, fetchSubCategoriesCallback);
+        utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
 
     }
 
@@ -149,24 +151,27 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         confirmChartFilter.setOnClickListener(v -> {
             if (categoriesRB.getId() == chartFiltersRadioGroup.getCheckedRadioButtonId() && chartFilter != GenericItemType.Category) {
                 chartFilter = GenericItemType.Category;
-                coordinatesList.clear();
-                coordinatesList.addAll(categoriesList);
+                ListOfItemsForAnalysis.clear();
+                ListOfItemsForAnalysis.addAll(categoriesList);
+                dateRB.setVisibility(View.GONE);
+                quarterlyRB.setVisibility(View.GONE);
                 inflateBarChart();
             } else if (subCatRB.getId() == chartFiltersRadioGroup.getCheckedRadioButtonId() && chartFilter != GenericItemType.Sub_Category) {
                 chartFilter = GenericItemType.Sub_Category;
-                coordinatesList.clear();
-                coordinatesList.addAll(subCategoriesList);
+                dateRB.setVisibility(View.GONE);
+                quarterlyRB.setVisibility(View.GONE);
+                ListOfItemsForAnalysis.clear();
+                ListOfItemsForAnalysis.addAll(subCategoriesList);
                 inflateBarChart();
-            } else {
-                if (chartFilter != GenericItemType.Expenses) {
-                    chartFilter = GenericItemType.Expenses;
-                    coordinatesList.clear();
-                    coordinatesList.addAll(expenseList);
-                    inflateBarChart();
-                }
+            } else if (expenseRB.getId() == chartFiltersRadioGroup.getCheckedRadioButtonId() && chartFilter != GenericItemType.Expenses) {
+                chartFilter = GenericItemType.Expenses;
+                dateRB.setVisibility(View.VISIBLE);
+                quarterlyRB.setVisibility(View.VISIBLE);
+                ListOfItemsForAnalysis.clear();
+                ListOfItemsForAnalysis.addAll(expenseList);
+                inflateBarChart();
             }
             toggleChartFilterList();
-//            fetch the selected list type for xy coordinates than set the new xy coordinates for the chat to show and rcv
         });
 
         confirmSortFilter.setOnClickListener(v -> {
@@ -174,10 +179,10 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
                 sortBy = SortBy.Year;
             } else if (quarterlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Quarter) {
                 sortBy = SortBy.Quarter;
-            } else {
-                if (sortBy != SortBy.Month) {
-                    sortBy = SortBy.Month;
-                }
+            } else if (monthlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Month) {
+                sortBy = SortBy.Month;
+            } else if (dateRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Date) {
+                sortBy = SortBy.Date;
             }
             toggleSortFilterList();
 //            fetch the selected list type for xy coordinates than set the new xy coordinates for the chat to show and rcv
@@ -216,28 +221,29 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     private void inflateBarChart() {
         barChart.clear();
+        barChart.fitScreen();
+        barChart.setData(null);
         List<BarEntry> co_ordinates = new ArrayList<>();
-        for (int i = 0; i < coordinatesList.size(); i++) {
-            co_ordinates.add(new BarEntry(i, coordinatesList.get(i).getAmount()));
+        for (int i = 0; i < ListOfItemsForAnalysis.size(); i++) {
+            co_ordinates.add(new BarEntry(i, ListOfItemsForAnalysis.get(i).getAmount()));
         }
         //dataset represents one set{} of co_ordinates
-        BarDataSet barDataSet = new BarDataSet(co_ordinates, "Label");
+        BarDataSet barDataSet = new BarDataSet(co_ordinates, "BarDataSet");
         barDataSet.setHighlightEnabled(false);
         barDataSet.setLabel("Total Expense (\u20B9)");
         barDataSet.setColor(getColor(R.color.secondaryColor));
-        barDataSet.setHighLightColor(R.color.highlightedBars);
         //bar data is the datatype accepted by the bar chart
         BarData barData = new BarData(barDataSet);
         barData.setBarWidth(0.7f);
-        barData.setValueTextColor(getColor(R.color.primaryTextColorVariant));
+        barData.setValueTextColor(getColor(R.color.primaryTextColor));
         setupBarChartAttributes();
         barChart.setData(barData);
+        barChart.notifyDataSetChanged();
         barChart.invalidate();
+        barChart.animateY(500);
     }
 
     private void setupBarChartAttributes() {
-        Description desc = new Description();
-        desc.setEnabled(false);
         // -------------------- x axis of the bar chart --------------------
         XAxis xAxis = barChart.getXAxis();
         xAxis.setGranularity(1f);
@@ -245,7 +251,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         xAxis.setTextColor(getColor(R.color.primaryTextColor));
         String[] xAxisLabels = getXAxisLabelsFromDataList();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabels));
-        xAxis.setLabelCount(xAxisLabels.length, false);
+        xAxis.setLabelCount(5, false);
         // -------------------- left y axis of bar chart --------------------
         YAxis leftAxis = barChart.getAxisLeft();
         leftAxis.setGranularity(500f);
@@ -253,26 +259,50 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         leftAxis.setTextColor(getColor(R.color.primaryTextColor));
         // -------------------- right y axis of bar chart --------------------
         YAxis rightAxis = barChart.getAxisRight();
-        rightAxis.setGranularity(500f);
-        rightAxis.setTextColor(getColor(R.color.primaryTextColor));
+        rightAxis.setEnabled(false);
         // -------------------- legend color is the label's legend that should match with the bar color --------------------
         Legend legend = barChart.getLegend();
         legend.setTextColor(getColor(R.color.primaryTextColor));
         // -------------------- setting up some bar attributes --------------------
+        Description desc = new Description();
+        desc.setEnabled(false);
         barChart.setFitBars(true);
-        barChart.setPinchZoom(true);
-        barChart.setVisibleXRangeMaximum(20f);
         barChart.setDescription(desc);
         barChart.setDragEnabled(true);
-        barChart.setScaleEnabled(true);
+        barChart.setScaleEnabled(false);
         barChart.setHighlightPerTapEnabled(false);
+        barChart.setVisibleXRangeMaximum(5f);
+        barChart.zoom(1.2f, 1f, 0f, 0f);
         barChart.setBorderColor(getColor(R.color.secondaryColor));
     }
 
     private String[] getXAxisLabelsFromDataList() {
-        return coordinatesList.stream()
-                .map(item -> item != null ? item.getName() : "")
-                .toArray(String[]::new);
+        String[] xAxisLabels;
+        if (chartFilter == GenericItemType.Expenses) {
+            switch (sortBy) {
+
+                case Year:
+                case Date:
+                    xAxisLabels = ListOfItemsForAnalysis.stream()
+                            .map(item -> item != null ? item.getName() : "")
+                            .toArray(String[]::new);
+                    break;
+
+                case Quarter:
+                    xAxisLabels = Utility_Calendar.getQuarters();
+                    break;
+
+                case Month:
+                default:
+                    xAxisLabels = Utility_Calendar.getMonths();
+                    break;
+            }
+        } else {
+            xAxisLabels = ListOfItemsForAnalysis.stream()
+                    .map(item -> item != null ? item.getName() : "")
+                    .toArray(String[]::new);
+        }
+        return xAxisLabels;
     }
 
     private final Utility_DBOperations.Callback_DBOpsForAnalysis fetchCategoriesCallback = new Utility_DBOperations.Callback_DBOpsForAnalysis() {
@@ -281,8 +311,8 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         public void onSuccess(DBOpsForAnalysisCallbackObject callbackObject) {
             categoriesList.clear();
             categoriesList.addAll(callbackObject.getData());
-            coordinatesList.clear();
-            coordinatesList.addAll(categoriesList);
+            ListOfItemsForAnalysis.clear();
+            ListOfItemsForAnalysis.addAll(categoriesList);
             inflateBarChart();
         }
 

@@ -23,9 +23,8 @@
             android:layout_marginHorizontal="@dimen/margin_large"
             android:drawablePadding="@dimen/padding_large"
             android:padding="@dimen/padding_large"
-            android:text="Yearly"
-            android:textSize="@dimen/text_size_medium"
-            android:textStyle="bold" />
+            android:text="Sort By : Year"
+            android:textSize="@dimen/text_size_medium" />
 
         <RadioButton
             android:id="@+id/quarterly"
@@ -34,9 +33,8 @@
             android:layout_marginHorizontal="@dimen/margin_large"
             android:drawablePadding="@dimen/padding_large"
             android:padding="@dimen/padding_large"
-            android:text="Quarterly"
-            android:textSize="@dimen/text_size_medium"
-            android:textStyle="bold" />
+            android:text="Sort By : Quarter"
+            android:textSize="@dimen/text_size_medium" />
 
         <RadioButton
             android:id="@+id/monthly"
@@ -45,9 +43,18 @@
             android:layout_marginHorizontal="@dimen/margin_large"
             android:drawablePadding="@dimen/padding_large"
             android:padding="@dimen/padding_large"
-            android:text="Monthly"
-            android:textSize="@dimen/text_size_medium"
-            android:textStyle="bold" />
+            android:text="Sort By : Month"
+            android:textSize="@dimen/text_size_medium" />
+
+        <RadioButton
+            android:id="@+id/dateWise"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_large"
+            android:drawablePadding="@dimen/padding_large"
+            android:padding="@dimen/padding_large"
+            android:text="Sort By : Date"
+            android:textSize="@dimen/text_size_medium" />
     </RadioGroup>
 
     <Button
