@@ -72,4 +72,87 @@ public class Utility_Calendar {
         calendar.set(Calendar.MILLISECOND, 999);
         return calendar;
     }
+
+    public static Calendar getFYQuarterStart(long financialYear, int quarter) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.clear();
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        int year = (int) financialYear;
+
+        switch (quarter) {
+            case 1: // Apr-Jun
+                calendar.set(year, Calendar.APRIL, 1);
+                break;
+            case 2: // Jul-Sep
+                calendar.set(year, Calendar.JULY, 1);
+                break;
+            case 3: // Oct-Dec
+                calendar.set(year, Calendar.OCTOBER, 1);
+                break;
+            case 4: // Jan-Mar (next year)
+                calendar.set(year + 1, Calendar.JANUARY, 1);
+                break;
+            default:
+                throw new IllegalArgumentException("Quarter must be between 1 and 4");
+        }
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+    }
+
+    public static Calendar getFYQuarterEnd(long financialYear, int quarter) {
+        Calendar calendar = getFYQuarterStart(financialYear, quarter);
+
+        switch (quarter) {
+            case 1:
+                calendar.set(Calendar.MONTH, Calendar.JUNE);
+                break;
+            case 2:
+                calendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
+                break;
+            case 3:
+                calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+                break;
+            case 4:
+                calendar.set(Calendar.MONTH, Calendar.MARCH);
+                calendar.set(Calendar.YEAR, (int) financialYear + 1); // Q4 is next year
+                break;
+        }
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar;
+    }
+
+
+    public static Calendar getStartOfYear(long time) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTimeInMillis(time);
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+    }
+
+    public static Calendar getEndOfYear(long time) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendar.setTimeInMillis(time);
+        calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+        calendar.set(Calendar.DAY_OF_MONTH, 31);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar;
+    }
 }

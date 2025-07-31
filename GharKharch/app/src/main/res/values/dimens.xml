@@ -34,4 +34,6 @@
     <dimen name="rec_corner_radius">10dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="titleBarsElevation">5dp</dimen>
+
 </resources>

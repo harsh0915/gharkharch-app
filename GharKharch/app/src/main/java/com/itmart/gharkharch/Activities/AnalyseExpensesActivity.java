@@ -1,6 +1,7 @@
 package com.itmart.gharkharch.Activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -21,13 +22,14 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.itmart.gharkharch.DataModels.GenericItem;
+import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItemType;
+import com.itmart.gharkharch.DataModels.ItemForAnalysis;
+import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.Utilities.Utility_Calendar;
+import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class AnalyseExpensesActivity extends AppCompatActivity {
@@ -35,43 +37,93 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private final int BAR_CHART = 0;
     private final int PIE_CHART = 1;
     private int currentChartType;
-    private GenericItemType selectedItemType;
-    private RadioGroup itemRadioGroup;
-    private List<GenericItem> x_y_coordinatesList;
     private BarChart barChart;
+    private ImageView toggleChartType;
+    private Button confirmChartFilter;
+    private Button confirmSortFilter;
+    private LinearLayout chartFiltersContainer;
+    private LinearLayout sortFiltersContainer;
+    private ImageView chartFiltersDropdown;
+    private ImageView sortByDropdown;
+    private ImageView dateForSorting;
+    private RadioGroup chartFiltersRadioGroup;
     private PieChart pieChart;
     private RadioButton expenseRB;
     private RadioButton subCatRB;
     private RadioButton categoriesRB;
-    private ImageView toggleChartType;
-    private ImageView showItems;
-    private Button confirmBtn;
-    private LinearLayout itemListForAnalysis;
+    private RadioGroup sortFiltersRadioGroup;
+    private RadioButton yearlyRB;
+    private RadioButton quarterlyRB;
+    private RadioButton monthlyRB;
+    private List<ItemForAnalysis> coordinatesList;
+    private List<ItemForAnalysis> categoriesList;
+    private List<ItemForAnalysis> subCategoriesList;
+    private List<ItemForAnalysis> expenseList;
+    private Utility_DBOperations utilityDbOperations;
+    private GenericItemType chartFilter;
+    private SortBy sortBy;
+    private int selectedQuarter;
+    private long selectedTimeInMillis;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analyse_expenses);
-
+        initializeDataAContainers();
         initializeUiElements();
         setupClickListeners();
+        fetchData();
+    }
+
+    private void initializeDataAContainers() {
+        coordinatesList = new ArrayList<>();
+        categoriesList = new ArrayList<>();
+        subCategoriesList = new ArrayList<>();
+        expenseList = new ArrayList<>();
+        selectedQuarter = -1;
+        sortBy = SortBy.Month;
+        chartFilter = GenericItemType.Category;
+        currentChartType = BAR_CHART;
+        selectedTimeInMillis = System.currentTimeMillis();
     }
 
     private void initializeUiElements() {
         barChart = findViewById(R.id.barChart);
+        barChart.setNoDataText("Please wait your data is being loaded");
+        barChart.setNoDataTextColor(getColor(R.color.primaryTextColor));
         toggleChartType = findViewById(R.id.toggleChartType);
-        showItems = findViewById(R.id.showItems);
-        itemListForAnalysis = findViewById(R.id.item_list_for_analyse);
-        itemRadioGroup = findViewById(R.id.itemRadioGroup);
+
+        //chart filters radio button and layouts
+        chartFiltersDropdown = findViewById(R.id.chartFiltersDropdown);
+        chartFiltersContainer = findViewById(R.id.chartFiltersContainer);
+        chartFiltersRadioGroup = findViewById(R.id.chartFiltersRadioGroup);
         categoriesRB = findViewById(R.id.categoriesRB);
         subCatRB = findViewById(R.id.subCatRB);
         expenseRB = findViewById(R.id.expenseRB);
-        confirmBtn = findViewById(R.id.confirmBtn);
-        inflateBarChart();
-        selectedItemType = GenericItemType.Category;
+        confirmChartFilter = findViewById(R.id.confirmChartFilter);
+
+        //sort radio button and layouts
+        sortByDropdown = findViewById(R.id.sortByDropdown);
+        dateForSorting = findViewById(R.id.dateForSorting);
+        sortFiltersContainer = findViewById(R.id.sortFiltersContainer);
+        sortFiltersRadioGroup = findViewById(R.id.sortFiltersRadioGroup);
+        yearlyRB = findViewById(R.id.yearly);
+        quarterlyRB = findViewById(R.id.quarterly);
+        monthlyRB = findViewById(R.id.monthly);
+        confirmSortFilter = findViewById(R.id.confirmSortFilter);
+
+        //default view states
         categoriesRB.setChecked(true);
-        currentChartType = BAR_CHART;
+        monthlyRB.setChecked(true);
+    }
+
+    private void fetchData() {
+        utilityDbOperations = Utility_DBOperations.getInstance(this);
+        utilityDbOperations.fetchCategoriesForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchCategoriesCallback);
+        utilityDbOperations.fetchSubCategoriesForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchSubCategoriesCallback);
+        utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, selectedQuarter, fetchExpenseCallback);
+
     }
 
     private void setupClickListeners() {
@@ -86,50 +138,87 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             }
         });
 
-        showItems.setOnClickListener(v -> {
-            toggleItemList();
+        chartFiltersDropdown.setOnClickListener(v -> {
+            toggleChartFilterList();
         });
 
-        itemRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            switch (checkedId) {
-
-            }
+        sortByDropdown.setOnClickListener(v -> {
+            toggleSortFilterList();
         });
 
-        confirmBtn.setOnClickListener(v -> {
-            if (categoriesRB.getId() == itemRadioGroup.getCheckedRadioButtonId()) {
-                selectedItemType = GenericItemType.Category;
-            } else if (subCatRB.getId() == itemRadioGroup.getCheckedRadioButtonId()) {
-                selectedItemType = GenericItemType.Sub_Category;
+        confirmChartFilter.setOnClickListener(v -> {
+            if (categoriesRB.getId() == chartFiltersRadioGroup.getCheckedRadioButtonId() && chartFilter != GenericItemType.Category) {
+                chartFilter = GenericItemType.Category;
+                coordinatesList.clear();
+                coordinatesList.addAll(categoriesList);
+                inflateBarChart();
+            } else if (subCatRB.getId() == chartFiltersRadioGroup.getCheckedRadioButtonId() && chartFilter != GenericItemType.Sub_Category) {
+                chartFilter = GenericItemType.Sub_Category;
+                coordinatesList.clear();
+                coordinatesList.addAll(subCategoriesList);
+                inflateBarChart();
             } else {
-                selectedItemType = GenericItemType.Expenses;
+                if (chartFilter != GenericItemType.Expenses) {
+                    chartFilter = GenericItemType.Expenses;
+                    coordinatesList.clear();
+                    coordinatesList.addAll(expenseList);
+                    inflateBarChart();
+                }
             }
-            toggleItemList();
+            toggleChartFilterList();
+//            fetch the selected list type for xy coordinates than set the new xy coordinates for the chat to show and rcv
+        });
+
+        confirmSortFilter.setOnClickListener(v -> {
+            if (yearlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Year) {
+                sortBy = SortBy.Year;
+            } else if (quarterlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Quarter) {
+                sortBy = SortBy.Quarter;
+            } else {
+                if (sortBy != SortBy.Month) {
+                    sortBy = SortBy.Month;
+                }
+            }
+            toggleSortFilterList();
 //            fetch the selected list type for xy coordinates than set the new xy coordinates for the chat to show and rcv
         });
     }
 
-    private void toggleItemList() {
-        if (itemListForAnalysis.getVisibility() == View.GONE) {
-            itemListForAnalysis.setVisibility(View.VISIBLE);
-            itemListForAnalysis.setTranslationY(-10);
-            itemListForAnalysis.animate().translationY(0).setInterpolator(new LinearInterpolator()).setDuration(100).start();
-            showItems.animate().rotation(180).setInterpolator(new LinearInterpolator()).setDuration(200).start();
+    private void toggleChartFilterList() {
+        if (chartFiltersContainer.getVisibility() == View.GONE) {
+            chartFiltersContainer.setVisibility(View.VISIBLE);
+            chartFiltersContainer.setTranslationY(-20);
+            chartFiltersContainer.animate().translationY(0).setInterpolator(new LinearInterpolator()).setDuration(100).start();
+            chartFiltersDropdown.animate().rotation(180).setInterpolator(new LinearInterpolator()).setDuration(200).start();
         } else {
-            itemListForAnalysis.animate().translationY(-10).setInterpolator(new LinearInterpolator()).setDuration(100).withEndAction(() -> {
-                itemListForAnalysis.setVisibility(View.GONE);
-                itemListForAnalysis.setTranslationY(0);
+            chartFiltersContainer.animate().translationY(-20).setInterpolator(new LinearInterpolator()).setDuration(100).withEndAction(() -> {
+                chartFiltersContainer.setVisibility(View.GONE);
+                chartFiltersContainer.setTranslationY(0);
             });
-            showItems.animate().rotation(0).setInterpolator(new LinearInterpolator()).setDuration(200).start();
+            chartFiltersDropdown.animate().rotation(0).setInterpolator(new LinearInterpolator()).setDuration(200).start();
+        }
+    }
+
+    private void toggleSortFilterList() {
+        if (sortFiltersContainer.getVisibility() == View.GONE) {
+            sortFiltersContainer.setVisibility(View.VISIBLE);
+            sortFiltersContainer.setTranslationY(-20);
+            sortFiltersContainer.animate().translationY(0).setInterpolator(new LinearInterpolator()).setDuration(100).start();
+            sortByDropdown.animate().rotation(180).setInterpolator(new LinearInterpolator()).setDuration(200).start();
+        } else {
+            sortFiltersContainer.animate().translationY(-20).setInterpolator(new LinearInterpolator()).setDuration(100).withEndAction(() -> {
+                sortFiltersContainer.setVisibility(View.GONE);
+                sortFiltersContainer.setTranslationY(0);
+            });
+            sortByDropdown.animate().rotation(0).setInterpolator(new LinearInterpolator()).setDuration(200).start();
         }
     }
 
     private void inflateBarChart() {
-        List<Integer> y = Arrays.asList(10, 15, 7, 20, 13, 22, 5, 1, 6, 7, 8, 16);
-
+        barChart.clear();
         List<BarEntry> co_ordinates = new ArrayList<>();
-        for (int i = 0; i < y.size(); i++) {
-            co_ordinates.add(new BarEntry(i, y.get(i)));
+        for (int i = 0; i < coordinatesList.size(); i++) {
+            co_ordinates.add(new BarEntry(i, coordinatesList.get(i).getAmount()));
         }
         //dataset represents one set{} of co_ordinates
         BarDataSet barDataSet = new BarDataSet(co_ordinates, "Label");
@@ -141,42 +230,106 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         BarData barData = new BarData(barDataSet);
         barData.setBarWidth(0.7f);
         barData.setValueTextColor(getColor(R.color.primaryTextColorVariant));
-        setupBarChart();
+        setupBarChartAttributes();
         barChart.setData(barData);
         barChart.invalidate();
     }
 
-    private void setupBarChart() {
+    private void setupBarChartAttributes() {
         Description desc = new Description();
         desc.setEnabled(false);
-        //x axis of the bar chart
+        // -------------------- x axis of the bar chart --------------------
         XAxis xAxis = barChart.getXAxis();
         xAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
-//        xAxis.setLabelRotationAngle(90f);
         xAxis.setTextColor(getColor(R.color.primaryTextColor));
-        String[] xAxisLabels = Utility_Calendar.getMonths();
+        String[] xAxisLabels = getXAxisLabelsFromDataList();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabels));
-        //left y axis of bar chart
+        xAxis.setLabelCount(xAxisLabels.length, false);
+        // -------------------- left y axis of bar chart --------------------
         YAxis leftAxis = barChart.getAxisLeft();
+        leftAxis.setGranularity(500f);
+        xAxis.setGranularityEnabled(true);
         leftAxis.setTextColor(getColor(R.color.primaryTextColor));
-        //right y axis of bar chart
+        // -------------------- right y axis of bar chart --------------------
         YAxis rightAxis = barChart.getAxisRight();
+        rightAxis.setGranularity(500f);
         rightAxis.setTextColor(getColor(R.color.primaryTextColor));
-        //legend color is the label's legend that should match with the bar color
+        // -------------------- legend color is the label's legend that should match with the bar color --------------------
         Legend legend = barChart.getLegend();
         legend.setTextColor(getColor(R.color.primaryTextColor));
-        //setting up some bar
-        barChart.setNoDataText("No expenses to show");
+        // -------------------- setting up some bar attributes --------------------
         barChart.setFitBars(true);
         barChart.setPinchZoom(true);
         barChart.setVisibleXRangeMaximum(20f);
         barChart.setDescription(desc);
         barChart.setDragEnabled(true);
-//        barChart.setExtraTopOffset(20f);
         barChart.setScaleEnabled(true);
         barChart.setHighlightPerTapEnabled(false);
-        barChart.setNoDataTextColor(getColor(R.color.primaryTextColor));
         barChart.setBorderColor(getColor(R.color.secondaryColor));
     }
+
+    private String[] getXAxisLabelsFromDataList() {
+        return coordinatesList.stream()
+                .map(item -> item != null ? item.getName() : "")
+                .toArray(String[]::new);
+    }
+
+    private final Utility_DBOperations.Callback_DBOpsForAnalysis fetchCategoriesCallback = new Utility_DBOperations.Callback_DBOpsForAnalysis() {
+
+        @Override
+        public void onSuccess(DBOpsForAnalysisCallbackObject callbackObject) {
+            categoriesList.clear();
+            categoriesList.addAll(callbackObject.getData());
+            coordinatesList.clear();
+            coordinatesList.addAll(categoriesList);
+            inflateBarChart();
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOpsForAnalysis fetchSubCategoriesCallback = new Utility_DBOperations.Callback_DBOpsForAnalysis() {
+        @Override
+        public void onSuccess(DBOpsForAnalysisCallbackObject callbackObject) {
+            subCategoriesList.clear();
+            subCategoriesList.addAll(callbackObject.getData());
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOpsForAnalysis fetchExpenseCallback = new Utility_DBOperations.Callback_DBOpsForAnalysis() {
+        @Override
+        public void onSuccess(DBOpsForAnalysisCallbackObject callbackObject) {
+            expenseList.clear();
+            expenseList.addAll(callbackObject.getData());
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
 }

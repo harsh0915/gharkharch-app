@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -12,7 +11,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:elevation="@dimen/titleBarsElevation">
 
         <TextView
             android:id="@+id/page_title"
@@ -64,22 +64,27 @@
 
             </FrameLayout>
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_large">
+                android:layout_marginHorizontal="@dimen/margin_large"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/selectedChartFilter"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center"
+                    android:layout_weight="1"
                     android:padding="@dimen/padding_large"
                     android:text="Categories"
                     android:textSize="@dimen/text_size_medium"
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/showItems"
+                    android:id="@+id/chartFiltersDropdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center"
@@ -87,22 +92,47 @@
                     android:padding="@dimen/padding_large"
                     android:src="@drawable/dropdown_arrow_icon" />
 
-            </FrameLayout>
+            </LinearLayout>
 
-            <include layout="@layout/item_list_for_analyse" />
+            <include layout="@layout/chart_filters_radio_group" />
 
-            <TextView
-                android:id="@+id/showDataBy"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/margin_large"
-                android:drawablePadding="@dimen/padding_large"
-                android:padding="@dimen/padding_large"
-                android:text="Show Data : Quaterly"
-                android:textSize="@dimen/text_size_medium"
-                android:textStyle="italic"
-                android:visibility="gone"
-                app:drawableEndCompat="@drawable/dropdown_arrow_icon" />
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/selectedSortBy"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="@dimen/padding_large"
+                    android:text="Sort By : Monthly"
+                    android:textSize="@dimen/text_size_medium" />
+
+                <ImageView
+                    android:id="@+id/dateForSorting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:importantForAccessibility="no"
+                    android:padding="@dimen/padding_large"
+                    android:src="@drawable/calendar_icon" />
+
+                <ImageView
+                    android:id="@+id/sortByDropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center"
+                    android:importantForAccessibility="no"
+                    android:padding="@dimen/padding_large"
+                    android:src="@drawable/dropdown_arrow_icon" />
+
+            </LinearLayout>
+
+            <include layout="@layout/sort_filters_radio_group" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dataList"

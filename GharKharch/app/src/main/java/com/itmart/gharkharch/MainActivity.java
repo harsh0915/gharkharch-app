@@ -26,6 +26,8 @@ import com.itmart.gharkharch.Activities.RestoreDataActivity;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.BookExpenseFragment;
+import com.itmart.gharkharch.Utilities.Utility_DBDebug;
+import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 
 import java.util.HashMap;
 
@@ -45,11 +47,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView analyse_expenses;
     private TextView backup_data;
     private TextView restore_data;
+    private Utility_DBOperations utilityDbOperations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        utilityDbOperations = Utility_DBOperations.getInstance(this);
         initializeUiElements();
         setupClickListeners();
 
@@ -73,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //take back the screen to where user was and notify the bottom nav to update the selected item
-        if(savedInstanceState!=null){
+        if (savedInstanceState != null) {
 
         }
     }
@@ -177,8 +181,8 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        profile.setOnClickListener(v->{
-            Intent edit_profile =  new Intent(MainActivity.this, EditProfileActivity.class);
+        profile.setOnClickListener(v -> {
+            Intent edit_profile = new Intent(MainActivity.this, EditProfileActivity.class);
             startActivity(edit_profile);
         });
 
@@ -197,8 +201,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(settings);
         });
 
-        restore_data.setOnClickListener(v->{
-            Intent edit_profile =  new Intent(MainActivity.this, RestoreDataActivity.class);
+        restore_data.setOnClickListener(v -> {
+            Intent edit_profile = new Intent(MainActivity.this, RestoreDataActivity.class);
             startActivity(edit_profile);
         });
 
@@ -217,4 +221,5 @@ public class MainActivity extends AppCompatActivity {
         });
         snackbar.show();
     }
+
 }

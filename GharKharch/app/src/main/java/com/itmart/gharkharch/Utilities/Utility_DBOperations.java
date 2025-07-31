@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.view.View;
 
 import com.itmart.gharkharch.DataModels.Category;
+import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.Expense;
 import com.itmart.gharkharch.DataModels.GenericItem;
+import com.itmart.gharkharch.DataModels.ItemForAnalysis;
+import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 
@@ -22,7 +24,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Utility_DBOperations {
-
 
     private final Context context;
     private static Utility_DBOperations instance;
@@ -48,6 +49,14 @@ public class Utility_DBOperations {
 
     public interface Callback_DBOperations {
         void onSuccess(DatabaseCallbackObject databaseObjectsList);
+
+        void onFailure(Exception e);
+
+        void onWarning();
+    }
+
+    public interface Callback_DBOpsForAnalysis {
+        void onSuccess(DBOpsForAnalysisCallbackObject callbackObject);
 
         void onFailure(Exception e);
 
@@ -110,22 +119,14 @@ public class Utility_DBOperations {
     }
 
     //data list fetch
-    public void fetch_expenses(Callback_DBOperations callbackDbOperations) {
+    public void fetch_category_list(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
+            HashSet<String> data_fast_lookup = new HashSet<>();
             try {
-                String query = "select " +
-                        "exp." + DatabaseHelper.COLUMN_EXPENSE_ID +
-                        ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
-                        ", exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
-                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT +
-                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
-                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_MODE +
-                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_REMARKS +
-                        " from " + DatabaseHelper.TABLE_EXPENSES + " as exp " +
-                        " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as sub " +
-                        " on (exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY + " = sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + ") " +
-                        " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
+                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
+
+                String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES + " order by " + DatabaseHelper.COLUMN_CATEGORY_NAME + " asc";
                 Cursor cursor = null;
 
                 try {
@@ -133,21 +134,14 @@ public class Utility_DBOperations {
 
                     if (cursor.moveToFirst()) {
                         do {
-
-                            int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
-                            String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
-                            int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
-                            int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
-                            long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
-                            int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
-                            String expense_remarks = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_REMARKS));
-
-                            Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode, expense_remarks);
-                            data_list.add(expense);
+                            int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
+                            String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+                            Category category = new Category(cat_id, cat_name);
+                            data_list.add(category);
+                            data_fast_lookup.add(cat_name);
                         } while (cursor.moveToNext());
                     }
-
-                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list));
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
                 } catch (Exception e) {
                     callbackDbOperations.onFailure(e);
                 } finally {
@@ -202,14 +196,22 @@ public class Utility_DBOperations {
         });
     }
 
-    public void fetch_category_list(Callback_DBOperations callbackDbOperations) {
+    public void fetch_expenses(Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
-            HashSet<String> data_fast_lookup = new HashSet<>();
             try {
-                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
-
-                String query = "select * from " + DatabaseHelper.TABLE_CATEGORIES + " order by " + DatabaseHelper.COLUMN_CATEGORY_NAME + " asc";
+                String query = "select " +
+                        "exp." + DatabaseHelper.COLUMN_EXPENSE_ID +
+                        ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                        ", exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_MODE +
+                        ", exp." + DatabaseHelper.COLUMN_EXPENSE_REMARKS +
+                        " from " + DatabaseHelper.TABLE_EXPENSES + " as exp " +
+                        " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as sub " +
+                        " on (exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY + " = sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + ") " +
+                        " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
                 Cursor cursor = null;
 
                 try {
@@ -217,14 +219,21 @@ public class Utility_DBOperations {
 
                     if (cursor.moveToFirst()) {
                         do {
-                            int cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_ID));
-                            String cat_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
-                            Category category = new Category(cat_id, cat_name);
-                            data_list.add(category);
-                            data_fast_lookup.add(cat_name);
+
+                            int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
+                            String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
+                            int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
+                            int expense_amount = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_AMOUNT));
+                            long expense_date = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
+                            int expense_mode = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_MODE));
+                            String expense_remarks = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_REMARKS));
+
+                            Expense expense = new Expense(expense_id, expense_name, sub_cat_id, expense_amount, expense_date, expense_mode, expense_remarks);
+                            data_list.add(expense);
                         } while (cursor.moveToNext());
                     }
-                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
+
+                    callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list));
                 } catch (Exception e) {
                     callbackDbOperations.onFailure(e);
                 } finally {
@@ -232,6 +241,226 @@ public class Utility_DBOperations {
                 }
             } catch (Exception e) {
                 callbackDbOperations.onFailure(e);
+            }
+        });
+    }
+
+    public void fetchCategoriesForAnalysis(Long timeInMillis, SortBy selectBy, int quarter, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+        dbExecutor.execute(() -> {
+            String query;
+            List<ItemForAnalysis> data = new ArrayList<>();
+            try {
+                switch (selectBy) {
+
+                    case Year:
+                        query = "select " +
+                                " cat." + DatabaseHelper.COLUMN_CATEGORY_NAME +
+                                ", SUM(exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_CATEGORIES + " as cat" +
+                                " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " on cat." + DatabaseHelper.COLUMN_CATEGORY_ID + " = scat." + DatabaseHelper.COLUMN_UNDER_CATEGORY +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfYear(timeInMillis).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfYear(timeInMillis).getTimeInMillis() +
+                                " group by cat." + DatabaseHelper.COLUMN_CATEGORY_NAME;
+                        break;
+
+                    case Quarter:
+                        if (quarter == -1) {
+                            callbackDbOpsForAnalysis.onWarning();
+                            return;
+                        }
+                        query = "select " +
+                                " cat." + DatabaseHelper.COLUMN_CATEGORY_NAME +
+                                ", SUM(exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_CATEGORIES + " as cat" +
+                                " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " on cat." + DatabaseHelper.COLUMN_CATEGORY_ID + " = scat." + DatabaseHelper.COLUMN_UNDER_CATEGORY +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getFYQuarterStart(timeInMillis, quarter).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getFYQuarterEnd(timeInMillis, quarter).getTimeInMillis() +
+                                " group by cat." + DatabaseHelper.COLUMN_CATEGORY_NAME;
+                        break;
+
+                    case Month:
+                    default:
+                        query = "select " +
+                                " cat." + DatabaseHelper.COLUMN_CATEGORY_NAME +
+                                ", SUM(exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_CATEGORIES + " as cat" +
+                                " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " on cat." + DatabaseHelper.COLUMN_CATEGORY_ID + " = scat." + DatabaseHelper.COLUMN_UNDER_CATEGORY +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfMonth(timeInMillis).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() +
+                                " group by cat." + DatabaseHelper.COLUMN_CATEGORY_NAME;
+                        break;
+
+                }
+                Cursor cursor = null;
+                try {
+                    cursor = readable_db.rawQuery(query, null);
+//                    Utility_DBDebug.printCursorData(cursor, "harshBarChart");
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_CATEGORY_NAME));
+                            int amount = cursor.getInt(cursor.getColumnIndexOrThrow("TotalExpense"));
+                            ItemForAnalysis item = new ItemForAnalysis(name, amount);
+                            data.add(item);
+                        } while (cursor.moveToNext());
+                    }
+                    callbackDbOpsForAnalysis.onSuccess(new DBOpsForAnalysisCallbackObject(data));
+                } catch (Exception e) {
+                    callbackDbOpsForAnalysis.onFailure(e);
+                    Log.i("DatabaseDebugger", "error : " + e.getMessage());
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+            } catch (Exception e) {
+                callbackDbOpsForAnalysis.onFailure(e);
+            }
+        });
+    }
+
+    public void fetchSubCategoriesForAnalysis(Long timeInMillis, SortBy selectBy, int quarter, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+        dbExecutor.execute(() -> {
+            String query;
+            List<ItemForAnalysis> data = new ArrayList<>();
+            try {
+                switch (selectBy) {
+
+                    case Year:
+                        query = "select " +
+                                " scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                                ", SUM ( exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfYear(timeInMillis).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfYear(timeInMillis).getTimeInMillis() +
+                                " group by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME;
+                        break;
+
+                    case Quarter:
+                        if (quarter == -1) {
+                            callbackDbOpsForAnalysis.onWarning();
+                            return;
+                        }
+                        query = "select " +
+                                " scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                                ", SUM ( exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getFYQuarterStart(timeInMillis, quarter).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getFYQuarterEnd(timeInMillis, quarter).getTimeInMillis() +
+                                " group by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME;
+                        break;
+
+                    case Month:
+                    default:
+                        query = "select " +
+                                " scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
+                                ", SUM ( exp." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as scat" +
+                                " join " + DatabaseHelper.TABLE_EXPENSES + " as exp" +
+                                " on scat." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfMonth(timeInMillis).getTimeInMillis() +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() +
+                                " group by " + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME;
+                        break;
+                }
+                Cursor cursor = null;
+                try {
+                    cursor = readable_db.rawQuery(query, null);
+//                    Utility_DBDebug.printCursorData(cursor, "db analysis");
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
+                            int amount = cursor.getInt(cursor.getColumnIndexOrThrow("TotalExpense"));
+                            ItemForAnalysis item = new ItemForAnalysis(name, amount);
+                            data.add(item);
+                        } while (cursor.moveToNext());
+                    }
+                    callbackDbOpsForAnalysis.onSuccess(new DBOpsForAnalysisCallbackObject(data));
+                } catch (Exception e) {
+                    callbackDbOpsForAnalysis.onFailure(e);
+                    Log.i("DatabaseDebugger", "error : " + e.getMessage());
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+            } catch (Exception e) {
+                callbackDbOpsForAnalysis.onFailure(e);
+            }
+        });
+    }
+
+    public void fetchExpenseForAnalysis(Long timeInMillis, SortBy selectBy, int quarter, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+        dbExecutor.execute(() -> {
+            String query;
+            List<ItemForAnalysis> data = new ArrayList<>();
+            try {
+                switch (selectBy) {
+
+                    case Year:
+                        query = "select " +
+                                " exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
+                                ", SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_EXPENSES +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfYear(timeInMillis) +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfYear(timeInMillis) +
+                                " group by " + DatabaseHelper.COLUMN_EXPENSE_DATE;
+                        break;
+
+                    case Quarter:
+                        if (quarter == -1) {
+                            callbackDbOpsForAnalysis.onWarning();
+                            return;
+                        }
+                        query = "select " +
+                                " exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
+                                ", SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_EXPENSES +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getFYQuarterStart(timeInMillis, quarter) +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getFYQuarterEnd(timeInMillis, quarter) +
+                                " group by " + DatabaseHelper.COLUMN_EXPENSE_DATE;
+                        break;
+
+                    case Month:
+                    default:
+                        query = "select " +
+                                " exp." + DatabaseHelper.COLUMN_EXPENSE_DATE +
+                                ", SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
+                                " from " + DatabaseHelper.TABLE_EXPENSES +
+                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfMonth(timeInMillis) +
+                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfMonth(timeInMillis) +
+                                " group by " + DatabaseHelper.COLUMN_EXPENSE_DATE;
+                        break;
+                }
+                Cursor cursor = null;
+                try {
+                    cursor = readable_db.rawQuery(query, null);
+//                    Utility_DBDebug.printCursorData(cursor, "db analysis");
+                    if (cursor.moveToFirst()) {
+                        do {
+                            String name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_DATE));
+                            int amount = cursor.getInt(cursor.getColumnIndexOrThrow("TotalExpense"));
+                            ItemForAnalysis item = new ItemForAnalysis(name, amount);
+                            data.add(item);
+                        } while (cursor.moveToNext());
+                    }
+                    callbackDbOpsForAnalysis.onSuccess(new DBOpsForAnalysisCallbackObject(data));
+                } catch (Exception e) {
+                    callbackDbOpsForAnalysis.onFailure(e);
+                    Log.i("DatabaseDebugger", "error : " + e.getMessage());
+                } finally {
+                    if (cursor != null) cursor.close();
+                }
+            } catch (Exception e) {
+                callbackDbOpsForAnalysis.onFailure(e);
             }
         });
     }

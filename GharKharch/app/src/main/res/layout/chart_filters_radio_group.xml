@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/item_list_for_analyse"
+    android:id="@+id/chartFiltersContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/margin_large"
+    android:layout_marginVertical="@dimen/margin_small"
     android:background="@drawable/rounded_panel"
     android:backgroundTint="@color/secondaryColor"
     android:gravity="end"
@@ -11,7 +12,7 @@
     android:visibility="gone">
 
     <RadioGroup
-        android:id="@+id/itemRadioGroup"
+        android:id="@+id/chartFiltersRadioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -50,12 +51,12 @@
     </RadioGroup>
 
     <Button
-        android:id="@+id/confirmBtn"
+        android:id="@+id/confirmChartFilter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/margin_large"
+        android:layout_margin="@dimen/margin_medium"
+        android:background="@drawable/rounded_panel"
         android:backgroundTint="@color/backgroundColorVariant"
-        android:padding="@dimen/padding_medium"
         android:text="Ok" />
 
 </LinearLayout>
