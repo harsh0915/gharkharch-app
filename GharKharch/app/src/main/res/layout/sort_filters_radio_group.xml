@@ -17,26 +17,6 @@
         android:layout_height="wrap_content">
 
         <RadioButton
-            android:id="@+id/yearly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_large"
-            android:drawablePadding="@dimen/padding_large"
-            android:padding="@dimen/padding_large"
-            android:text="Sort By : Year"
-            android:textSize="@dimen/text_size_medium" />
-
-        <RadioButton
-            android:id="@+id/quarterly"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/margin_large"
-            android:drawablePadding="@dimen/padding_large"
-            android:padding="@dimen/padding_large"
-            android:text="Sort By : Quarter"
-            android:textSize="@dimen/text_size_medium" />
-
-        <RadioButton
             android:id="@+id/monthly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

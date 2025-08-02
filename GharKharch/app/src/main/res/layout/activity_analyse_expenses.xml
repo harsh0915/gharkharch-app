@@ -69,38 +69,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/margin_large"
                 android:gravity="center"
-                android:orientation="horizontal"
-                tools:ignore="UseCompoundDrawables">
-
-                <TextView
-                    android:id="@+id/selectedChartFilter"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start|center"
-                    android:layout_weight="1"
-                    android:padding="@dimen/padding_large"
-                    android:text="Categories"
-                    android:textSize="@dimen/text_size_medium"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:id="@+id/chartFiltersDropdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:importantForAccessibility="no"
-                    android:padding="@dimen/padding_large"
-                    android:src="@drawable/dropdown_arrow_icon" />
-
-            </LinearLayout>
-
-            <include layout="@layout/chart_filters_radio_group" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_large"
-                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
