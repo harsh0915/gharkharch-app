@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -47,6 +48,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private ImageView sortByDropdown;
     private ImageView dateForSorting;
     private PieChart pieChart;
+    private TextView selectedSortBy;
     private RadioGroup sortFiltersRadioGroup;
     private RadioButton monthlyRB;
     private RadioButton dateRB;
@@ -80,6 +82,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         toggleChartType = findViewById(R.id.toggleChartType);
 
         //sort radio button and layouts
+        selectedSortBy = findViewById(R.id.selectedSortBy);
         sortByDropdown = findViewById(R.id.sortByDropdown);
         dateForSorting = findViewById(R.id.dateForSorting);
         sortFiltersContainer = findViewById(R.id.sortFiltersContainer);
@@ -127,9 +130,11 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         confirmSortFilter.setOnClickListener(v -> {
             if (monthlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Month) {
                 sortBy = SortBy.Month;
+                selectedSortBy.setText("Sort By : Month");
                 utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
             } else if (dateRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Date) {
                 sortBy = SortBy.Date;
+                selectedSortBy.setText("Sort By : Date");
                 utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
             }
             toggleSortFilterList();
