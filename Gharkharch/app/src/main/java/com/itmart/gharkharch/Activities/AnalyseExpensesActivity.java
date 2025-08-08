@@ -46,7 +46,6 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private Button confirmSortFilter;
     private LinearLayout sortFiltersContainer;
     private ImageView sortByDropdown;
-    private ImageView dateForSorting;
     private PieChart pieChart;
     private TextView selectedSortBy;
     private RadioGroup sortFiltersRadioGroup;
@@ -54,7 +53,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private RadioButton dateRB;
     private List<ItemForAnalysis> expenseList;
     private Utility_DBOperations utilityDbOperations;
-    private SortBy sortBy;
+    private static SortBy sortBy = SortBy.Month;
     private long selectedTimeInMillis;
 
 
@@ -70,7 +69,6 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     private void initializeDataAContainers() {
         expenseList = new ArrayList<>();
-        sortBy = SortBy.Month;
         currentChartType = BAR_CHART;
         selectedTimeInMillis = System.currentTimeMillis();
     }
@@ -84,7 +82,6 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         //sort radio button and layouts
         selectedSortBy = findViewById(R.id.selectedSortBy);
         sortByDropdown = findViewById(R.id.sortByDropdown);
-        dateForSorting = findViewById(R.id.dateForSorting);
         sortFiltersContainer = findViewById(R.id.sortFiltersContainer);
         sortFiltersRadioGroup = findViewById(R.id.sortFiltersRadioGroup);
         monthlyRB = findViewById(R.id.monthly);
@@ -113,17 +110,11 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             }
         });
 
-        dateForSorting.setOnClickListener(v -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selectedTimeInMillis).setTheme(R.style.custom_date_picker).build();
-
-            datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
-
-            datePicker.addOnPositiveButtonClickListener(selection -> {
-                selectedTimeInMillis = selection;
-            });
+        sortByDropdown.setOnClickListener(v -> {
+            toggleSortFilterList();
         });
 
-        sortByDropdown.setOnClickListener(v -> {
+        selectedSortBy.setOnClickListener(v->{
             toggleSortFilterList();
         });
 
@@ -131,12 +122,13 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             if (monthlyRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Month) {
                 sortBy = SortBy.Month;
                 selectedSortBy.setText("Sort By : Month");
-                utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
+                recreate();
             } else if (dateRB.getId() == sortFiltersRadioGroup.getCheckedRadioButtonId() && sortBy != SortBy.Date) {
                 sortBy = SortBy.Date;
                 selectedSortBy.setText("Sort By : Date");
-                utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
+                recreate();
             }
+
             toggleSortFilterList();
         });
     }
@@ -193,7 +185,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         xAxis.setLabelCount(5, false);
         // -------------------- left y axis of bar chart --------------------
         YAxis leftAxis = barChart.getAxisLeft();
-        leftAxis.setGranularity(500f);
+        leftAxis.setGranularity(1f);
         xAxis.setGranularityEnabled(true);
         leftAxis.setTextColor(getColor(R.color.primaryTextColor));
         // -------------------- right y axis of bar chart --------------------
@@ -208,7 +200,9 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         barChart.setFitBars(true);
         barChart.setDescription(desc);
         barChart.setDragEnabled(true);
-        barChart.setScaleEnabled(false);
+        barChart.setScaleEnabled(true);
+        barChart.setScaleXEnabled(true);
+        barChart.setScaleYEnabled(false);
         barChart.setHighlightPerTapEnabled(false);
         barChart.setVisibleXRangeMaximum(5f);
         barChart.zoom(1.2f, 1f, 0f, 0f);

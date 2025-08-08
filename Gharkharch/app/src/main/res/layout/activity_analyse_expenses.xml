@@ -81,15 +81,6 @@
                     android:textSize="@dimen/text_size_medium" />
 
                 <ImageView
-                    android:id="@+id/dateForSorting"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:importantForAccessibility="no"
-                    android:padding="@dimen/padding_large"
-                    android:src="@drawable/calendar_icon" />
-
-                <ImageView
                     android:id="@+id/sortByDropdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

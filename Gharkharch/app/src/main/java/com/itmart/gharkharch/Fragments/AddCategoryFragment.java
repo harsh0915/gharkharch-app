@@ -109,6 +109,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
+                return;
             }
             if (isEditMode) {
                 if (catId == INVALID_CAT_ID) {

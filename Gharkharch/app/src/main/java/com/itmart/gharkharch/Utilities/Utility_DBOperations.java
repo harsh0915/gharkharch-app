@@ -426,14 +426,14 @@ public class Utility_DBOperations {
 //                        break;
 
                     case Month:
-                        query = "WITH months_tab AS (" +
+                        query = " with months_tab AS (" +
                                 " SELECT '01' AS Time UNION ALL SELECT '02' UNION ALL SELECT '03'" +
                                 " UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL SELECT '06'" +
                                 " UNION ALL SELECT '07' UNION ALL SELECT '08' UNION ALL SELECT '09'" +
                                 " UNION ALL SELECT '10' UNION ALL SELECT '11' UNION ALL SELECT '12' )" +
                                 " select " +
                                 " m.Time" +
-                                ", COALESCE(SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + "), 0) as TotalExpense" +
+                                " , COALESCE(SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + "), 0) as TotalExpense" +
                                 " from months_tab as m" +
                                 " left join " + DatabaseHelper.TABLE_EXPENSES + " as e" +
                                 " on strftime ('%m', datetime(e." + DatabaseHelper.COLUMN_EXPENSE_DATE + "/1000, 'unixepoch')) = m.Time" +
@@ -445,14 +445,21 @@ public class Utility_DBOperations {
 
                     case Date:
                     default:
-                        query = "select " +
-                                " strftime ('%Y/%m/%d', datetime(" + DatabaseHelper.COLUMN_EXPENSE_DATE + "/1000, 'unixepoch')) as Time" +
-                                ", SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + ") as TotalExpense" +
-                                " from " + DatabaseHelper.TABLE_EXPENSES +
-                                " where " + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + Utility_Calendar.getStartOfMonth(timeInMillis).getTimeInMillis() +
-                                " and " + DatabaseHelper.COLUMN_EXPENSE_DATE + " < " + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() +
-                                " group by Time" +
-                                " order by Time";
+                        query = " with recursive Temp_DateTable(Time) as (" +
+                                " select date(datetime(" + Utility_Calendar.getStartOfMonth(timeInMillis).getTimeInMillis() + "/1000, 'unixepoch'))" +
+                                " union all" +
+                                " select date(Time, '+1 day')" +
+                                " from Temp_DateTable" +
+                                " where Time < date(datetime(" + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() + " / 1000, 'unixepoch', '-1 day'))" +
+                                " )" +
+                                " select" +
+                                " strftime ('%d', Temp_DateTable.Time) as Time" +
+                                " , COALESCE(SUM(e." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + "), 0)as TotalExpense" +
+                                " from Temp_DateTable" +
+                                " left join " + DatabaseHelper.TABLE_EXPENSES + " as e" +
+                                " on date(datetime(e." + DatabaseHelper.COLUMN_EXPENSE_DATE + " / 1000, 'unixepoch')) = Temp_DateTable.Time " +
+                                " group by Temp_DateTable.Time" +
+                                " order by Temp_DateTable.Time";
                         break;
                 }
                 Cursor cursor = null;
