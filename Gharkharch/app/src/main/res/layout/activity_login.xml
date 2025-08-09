@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".Activities.LoginActivity">
+
+    <TextView
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="@dimen/padding_large"
+        android:text="@string/app_name"
+        android:textSize="@dimen/text_size_large"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/usernameET"
+        style="@style/custom_edit_text"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_large"
+        android:hint="@string/hint_username"
+        android:importantForAutofill="no" />
+
+    <EditText
+        android:id="@+id/passwordET"
+        style="@style/custom_edit_text"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="@dimen/margin_large"
+        android:hint="@string/hint_password"
+        android:importantForAutofill="no"
+        android:inputType="numberPassword"
+        android:maxLength="8" />
+
+    <Button
+        android:id="@+id/loginBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/buttonColor"
+        android:padding="@dimen/padding_medium"
+        android:text="Login"
+        android:textSize="@dimen/text_size_medium"
+        android:textStyle="bold" />
+
+
+</LinearLayout>
