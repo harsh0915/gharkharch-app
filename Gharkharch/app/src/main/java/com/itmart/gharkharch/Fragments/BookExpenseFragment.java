@@ -242,7 +242,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 utilityDbOperations.add_expense(under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
             }
 
-            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
             resetForm();
         });
 
@@ -315,6 +315,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             datePicker.addOnPositiveButtonClickListener(selection -> {
                 startDate.setTimeInMillis(selection.first);
                 endDate.setTimeInMillis(selection.second);
+                utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
             });
         });
     }
@@ -326,7 +327,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
             utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
-            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
             page_title.setText("Book Expenses");
         } else {
             resetForm();
@@ -360,7 +361,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void database_updated() {
-        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
     }
 
     @Override
@@ -388,7 +389,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     private void inflate_expense_RCV() {
-        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_expenses, item_type, this);
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_expense_list.setAdapter(simple_adapter);
@@ -425,7 +426,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         modes_of_payment.setText(CASH);
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
-        if(isEditMode) {
+        startDate = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
+        endDate = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
+        if (isEditMode) {
             selected_date = System.currentTimeMillis();
             date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
         }

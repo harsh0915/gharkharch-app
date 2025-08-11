@@ -196,7 +196,7 @@ public class Utility_DBOperations {
         });
     }
 
-    public void fetch_expenses(Callback_DBOperations callbackDbOperations) {
+    public void fetch_expenses(Long startDate, Long endDate, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
             try {
@@ -211,6 +211,8 @@ public class Utility_DBOperations {
                         " from " + DatabaseHelper.TABLE_EXPENSES + " as exp " +
                         " join " + DatabaseHelper.TABLE_SUB_CATEGORIES + " as sub " +
                         " on (exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY + " = sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + ") " +
+                        " where exp." + DatabaseHelper.COLUMN_EXPENSE_DATE + " > " + startDate + " and " +
+                        " exp." + DatabaseHelper.COLUMN_EXPENSE_DATE + " <= " + endDate +
                         " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
                 Cursor cursor = null;
 

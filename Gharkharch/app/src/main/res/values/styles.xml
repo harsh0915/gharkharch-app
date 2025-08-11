@@ -33,6 +33,8 @@
         <item name="colorOnSurface">@color/primaryTextColor</item>
         <!--usually heading on the containers -->
         <item name="colorOnSurfaceVariant">@color/primaryTextColorVariant</item>
+        <!--secondary container inside the main dialog could be the range highlighter in date range picker-->
+        <item name="colorSecondaryContainer">@color/backgroundColorVariant</item>
         <item name="android:background">@color/backgroundColor</item>
         <item name="shapeCornerFamily">rounded</item>
     </style>
