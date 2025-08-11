@@ -118,6 +118,8 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
 
+        help.setOnClickListener(v -> showChartHelp());
+
         showYearPicker.setOnClickListener(v -> {
             if (sortBy == SortBy.Month) {
                 showYearPickerDialog();
@@ -285,6 +287,19 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             recreate();
         });
 
+        dialog.show();
+    }
+
+    public void showChartHelp() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_bar_help, null);  // you can rename this layout if you want
+        builder.setView(view);
+
+        Dialog dialog = builder.create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         dialog.show();
     }
 

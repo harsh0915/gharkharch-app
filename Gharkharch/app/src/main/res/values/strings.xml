@@ -22,4 +22,18 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
+
+    <!-- Accessibility content descriptions -->
+    <string name="zoom_instruction">🔍 <b>Zoom</b> : Use two fingers to zoom in or out horizontally and explore more months.</string>
+    <string name="switch_timeframe_instruction">🔁 <b>Switch Months or Years</b> : Use the date picker to easily change the timeframe.</string>
+    <string name="view_details_instruction">📝 <b>See More Details</b> : Tap on any bar to check daily expenses for that month.</string>
+    <string name="reset_instruction">❌ <b>Reset</b> : Remove any applied filters to jump back to the current month.</string>
+
+    <!-- Accessibility content descriptions -->
+    <string name="zoom_instruction_desc">Instructions for zooming the chart</string>
+    <string name="switch_timeframe_instruction_desc">Instructions to switch months or years</string>
+    <string name="view_details_instruction_desc">Instructions for viewing details on a bar tap</string>
+    <string name="reset_instruction_desc">Instructions to reset filters</string>
+
+
 </resources>

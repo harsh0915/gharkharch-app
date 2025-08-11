@@ -25,6 +25,10 @@
     <dimen name="text_size_medium">15sp</dimen>
     <dimen name="text_size_large">17sp</dimen>
 
+    <!--text size-->
+
+    <dimen name="line_spacing_small">5dp</dimen>
+
     <!--icon size-->
 
     <dimen name="icon_small">14dp</dimen>
