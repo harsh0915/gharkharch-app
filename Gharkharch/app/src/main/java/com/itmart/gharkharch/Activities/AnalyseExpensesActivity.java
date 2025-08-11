@@ -220,7 +220,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         barChart.setDragEnabled(true);
         barChart.setScaleEnabled(true);
         barChart.setScaleXEnabled(true);
-        barChart.setScaleYEnabled(false);
+        barChart.setScaleYEnabled(true);
         barChart.setVisibleXRangeMaximum(5f);
         barChart.zoom(1.2f, 1f, 0f, 0f);
         barChart.setBorderColor(getColor(R.color.secondaryColor));
