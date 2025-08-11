@@ -1,13 +1,26 @@
 package com.itmart.gharkharch.DatabaseHelper;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.nfc.Tag;
 import android.util.Log;
 
+import com.itmart.gharkharch.R;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+    private final String TAG = "DatabaseDebugger";
+    private final Context context;
     private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "ghar_kharch_db";
     private static final int DATABASE_VERSION = 1;
@@ -53,8 +66,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             COLUMN_EXPENSE_REMARKS + " TEXT DEFAULT NULL, " +
             " FOREIGN KEY (" + COLUMN_UNDER_SUB_CATEGORY + ") REFERENCES " + TABLE_SUB_CATEGORIES + "(" + COLUMN_SUB_CATEGORY_ID + ") " +
             "ON DELETE RESTRICT )";
+
     private DatabaseHelper(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     //public method to get the single instance of the database helper
@@ -71,9 +86,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_CATEGORIES_TABLE);
             db.execSQL(CREATE_SUB_CATEGORY_TABLE);
             db.execSQL(CREATE_EXPENSE_TABLE);
-            Log.i("harshTagDBCreate", "Successful table creation!");
+            Log.i(TAG, "Successful table creation!");
+            importCSVToDB(context.getResources().openRawResource(R.raw.cat), TABLE_CATEGORIES, db);
+            importCSVToDB(context.getResources().openRawResource(R.raw.subcat), TABLE_SUB_CATEGORIES, db);
+            Log.i(TAG, "Successfully parsed csv files to db!");
         } catch (SQLException e) {
-            Log.e("harshTagDBCreate", "Sql table creation error!\nError : " + e.getMessage());
+            Log.e(TAG, "Sql table creation error!\nError : " + e.getMessage());
         }
     }
 
@@ -90,7 +108,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //            if(oldVersion<2){}
             db.setTransactionSuccessful();
         } catch (RuntimeException e) {
-            Log.e("harshTagDBUpgrade", "Database Updating Failed : Updating Disturbed Data Integrity.");
+            Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity.");
             throw new RuntimeException("Database upgrade failed", e); // Crash on failure for data integrity
         } finally {
             db.endTransaction();
@@ -112,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.e("harshTagDBColumnCheck", "Database Updating Failed : Updating Disturbed Data Integrity.");
+            Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity.");
             throw new RuntimeException("Failed to check column existence", e);
         } finally {
             if (cursor != null)
@@ -120,4 +138,93 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return exists;
     }
+
+//    public void importCSVToDB(String csvFilePath, String tableName) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        BufferedReader reader = null;
+//        try {
+//            reader = new BufferedReader(new FileReader(csvFilePath));
+//            db.beginTransaction();
+//
+//            String line;
+//            String[] columns = null;
+//            boolean isFirstLine = true;
+//
+//            while ((line = reader.readLine()) != null) {
+//                String[] values = line.split(",");
+//
+//                // First line is header
+//                if (isFirstLine) {
+//                    columns = values;
+//                    isFirstLine = false;
+//                    continue;
+//                }
+//
+//                // Prepare ContentValues
+//                ContentValues contentValues = new ContentValues();
+//                for (int i = 0; i < columns.length && i < values.length; i++) {
+//                    contentValues.put(columns[i], values[i]);
+//                }
+//
+//                db.insert(tableName, null, contentValues);
+//            }
+//            db.setTransactionSuccessful();
+//        } catch (Exception e) {
+//            Log.e("DatabaseDebugger", Log.getStackTraceString(e));
+//        } finally {
+//            if (db.inTransaction()) {
+//                db.endTransaction();
+//            }
+//            try {
+//                if (reader != null) {
+//                    reader.close();
+//                }
+//            } catch (IOException e) {
+//                Log.e("DatabaseDebugger", Log.getStackTraceString(e));
+//            }
+//        }
+//    }
+
+    public void importCSVToDB(InputStream inputStream, String tableName, SQLiteDatabase db) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            db.beginTransaction();
+
+            String line;
+            String[] columns = null;
+            boolean isFirstLine = true;
+
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+
+                if (isFirstLine) {
+                    columns = values;
+                    isFirstLine = false;
+                    continue;
+                }
+
+                ContentValues contentValues = new ContentValues();
+                for (int i = 0; i < columns.length && i < values.length; i++) {
+                    contentValues.put(columns[i], values[i]);
+                }
+
+                db.insert(tableName, null, contentValues);
+            }
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
+        } finally {
+            if (db.inTransaction()) {
+                db.endTransaction();
+            }
+            try {
+                if (reader != null) reader.close();
+                if (inputStream != null) inputStream.close();
+            } catch (IOException e) {
+                Log.e(TAG, Log.getStackTraceString(e));
+            }
+        }
+    }
+
 }
