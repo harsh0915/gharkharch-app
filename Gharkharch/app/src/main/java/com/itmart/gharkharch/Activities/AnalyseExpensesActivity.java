@@ -1,6 +1,5 @@
 package com.itmart.gharkharch.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -73,7 +71,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         } else {
             sortBy = SortBy.Month;
             selectedTimeInMillis = System.currentTimeMillis();
-            selectedYear = Utility_Calendar.getYearInMillis(selectedTimeInMillis);
+            selectedYear = Utility_Calendar.getYear(selectedTimeInMillis);
             selectedMonth = -1;
             isAltered = false;
         }
@@ -148,7 +146,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
                     try {
                         isAltered = true;
                         selectedMonth = (int) e.getX();
-                        selectedTimeInMillis = Utility_Calendar.getMonthInMillis(selectedMonth).getTimeInMillis();
+                        selectedTimeInMillis = Utility_Calendar.getMonthInMillis(selectedMonth, selectedYear).getTimeInMillis();
                         sortBy = SortBy.Date;
                         recreate();
                     } catch (Exception err) {
@@ -243,7 +241,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     public void showYearPickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.year_picker, null);
+        View view = getLayoutInflater().inflate(R.layout.dialog_item_picker, null);
         builder.setView(view);
 
         NumberPicker yearPicker = view.findViewById(R.id.number_picker);
@@ -262,7 +260,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         okBtn.setOnClickListener(btn -> {
             isAltered = true;
             selectedYear = yearPicker.getValue();
-            selectedTimeInMillis = Utility_Calendar.getTimeInMillis(selectedYear);
+            selectedTimeInMillis = Utility_Calendar.getYearInMillis(selectedYear);
             dialog.dismiss();
             recreate();
         });
@@ -272,11 +270,17 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     public void showMonthPickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.year_picker, null);
+        View view = getLayoutInflater().inflate(R.layout.dialog_item_picker, null);
         builder.setView(view);
 
         NumberPicker monthPicker = view.findViewById(R.id.number_picker);
+        NumberPicker yearPicker = view.findViewById(R.id.number_picker2);
+        yearPicker.setVisibility(View.VISIBLE);
         Button okBtn = view.findViewById(R.id.okBtn);
+
+        yearPicker.setMinValue(1900);
+        yearPicker.setMaxValue(2100);
+        yearPicker.setValue(selectedYear);
 
         monthPicker.setMinValue(0);
         monthPicker.setMaxValue(11);
@@ -292,7 +296,8 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         okBtn.setOnClickListener(btn -> {
             isAltered = true;
             selectedMonth = monthPicker.getValue();
-            selectedTimeInMillis = Utility_Calendar.getMonthInMillis(selectedMonth).getTimeInMillis();
+            selectedYear = yearPicker.getValue();
+            selectedTimeInMillis = Utility_Calendar.getMonthInMillis(selectedMonth, selectedYear).getTimeInMillis();
             dialog.dismiss();
             recreate();
         });
@@ -315,7 +320,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     public void resetFilters() {
         selectedTimeInMillis = System.currentTimeMillis();
-        selectedYear = Utility_Calendar.getYearInMillis(selectedTimeInMillis);
+        selectedYear = Utility_Calendar.getYear(selectedTimeInMillis);
         selectedMonth = 0;
         sortBy = SortBy.Month;
         resetButton.setVisibility(View.GONE);

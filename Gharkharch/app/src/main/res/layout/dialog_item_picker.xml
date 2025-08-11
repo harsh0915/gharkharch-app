@@ -8,10 +8,24 @@
     android:orientation="vertical"
     android:padding="20dp">
 
-    <NumberPicker
-        android:id="@+id/number_picker"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content">
+
+        <NumberPicker
+            android:id="@+id/number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small" />
+
+        <NumberPicker
+            android:id="@+id/number_picker2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_small"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/okBtn"
