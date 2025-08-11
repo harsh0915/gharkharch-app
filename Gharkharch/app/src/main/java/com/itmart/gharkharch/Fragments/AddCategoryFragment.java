@@ -148,8 +148,9 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
         if (!hidden) {
-            resetForm();
             page_title.setText("Expense Category");
+        } else {
+            resetForm();
         }
     }
 
@@ -201,6 +202,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         cancelBtn.setVisibility(View.GONE);
         inputCategory.setText("");
         inputCategory.setHint(R.string.hint_category);
+        if(search_button.getVisibility()==View.GONE){
+            toggle_search_view();
+            search_view.setQuery("", false);
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

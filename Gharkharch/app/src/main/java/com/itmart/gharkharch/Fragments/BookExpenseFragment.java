@@ -77,7 +77,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private long selected_date;
     private TextView modes_of_payment;
     private GenericItemType item_type;
-    private DatabaseHelper databaseHelper;
     private int under_sub_category_id;
     private ImageView search_button;
     private SearchView search_view;
@@ -105,7 +104,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         item_type = GenericItemType.Expenses;
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
-        databaseHelper = DatabaseHelper.getInstance(requireContext());
         expense_list = new ArrayList<>();
         filtered_expenses = new ArrayList<>();
         filtered_sub_cat_search_list = new ArrayList<>();
@@ -431,6 +429,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         if (isEditMode) {
             selected_date = System.currentTimeMillis();
             date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
+        }
+        if(search_button.getVisibility()==View.GONE){
+            toggle_search_view();
+            search_view.setQuery("", false);
         }
         isEditMode = false;
     }

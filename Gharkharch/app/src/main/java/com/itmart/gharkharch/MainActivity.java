@@ -26,8 +26,7 @@ import com.itmart.gharkharch.Activities.RestoreDataActivity;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.BookExpenseFragment;
-import com.itmart.gharkharch.Utilities.Utility_DBDebug;
-import com.itmart.gharkharch.Utilities.Utility_DBOperations;
+import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 import java.util.HashMap;
 
@@ -41,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout landing_page;
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
+    private Utility_UiAlerts utilityUiAlerts;
     //drawer elements
     private TextView profile;
     private TextView manage_expenses;
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeUiElements() {
         fragmentMap = new HashMap<>();
+        utilityUiAlerts = Utility_UiAlerts.getInstance(this);
         //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fragmentContainer = findViewById(R.id.fragmentContainer);
@@ -179,13 +180,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         profile.setOnClickListener(v -> {
-            Intent edit_profile = new Intent(MainActivity.this, EditProfileActivity.class);
-            startActivity(edit_profile);
+            utilityUiAlerts.generateToast("Feature under development");
+//            Intent edit_profile = new Intent(MainActivity.this, EditProfileActivity.class);
+//            startActivity(edit_profile);
         });
 
         manage_expenses.setOnClickListener(v -> {
-            Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
-            startActivity(manage_expenses);
+            utilityUiAlerts.generateToast("Feature under development");
+//            Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
+//            startActivity(manage_expenses);
         });
 
         analyse_expenses.setOnClickListener(v -> {
@@ -194,13 +197,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
         backup_data.setOnClickListener(v -> {
-            Intent settings = new Intent(MainActivity.this, BackupDataActivity.class);
-            startActivity(settings);
+            utilityUiAlerts.generateToast("Feature under development");
+//            Intent settings = new Intent(MainActivity.this, BackupDataActivity.class);
+//            startActivity(settings);
         });
 
         restore_data.setOnClickListener(v -> {
-            Intent edit_profile = new Intent(MainActivity.this, RestoreDataActivity.class);
-            startActivity(edit_profile);
+            utilityUiAlerts.generateToast("Feature under development");
+//            Intent edit_profile = new Intent(MainActivity.this, RestoreDataActivity.class);
+//            startActivity(edit_profile);
         });
 
     }

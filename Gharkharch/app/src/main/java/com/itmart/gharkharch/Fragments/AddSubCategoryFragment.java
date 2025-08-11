@@ -225,9 +225,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         super.onHiddenChanged(hidden);
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
-            resetForm();
             utilityDbOperations.fetch_category_list(fetchCatCallback);
             page_title.setText("Expense Heads");
+        } else {
+            resetForm();
         }
     }
 
@@ -303,6 +304,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_category_search.setVisibility(View.GONE);
         inputCategory.setHint(R.string.hint_category);
         inputSubCategory.setHint(R.string.hint_sub_category);
+        if(search_button.getVisibility()==View.GONE){
+            toggle_search_view();
+            search_view.setQuery("", false);
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

@@ -81,7 +81,9 @@
             android:layout_marginVertical="@dimen/margin_medium"
             android:layout_weight="1"
             android:background="@drawable/search_bar_border"
+            android:closeIcon="@null"
             android:iconifiedByDefault="false"
+            android:searchIcon="@null"
             android:visibility="gone" />
 
         <ImageView
