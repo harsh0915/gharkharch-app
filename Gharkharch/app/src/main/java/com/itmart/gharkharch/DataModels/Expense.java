@@ -51,11 +51,11 @@ public class Expense implements Parcelable, ExpenseItem {
         return expense_id;
     }
 
-    public String getExpense_name() {
+    public String getName() {
         return expense_name;
     }
 
-    public int getUnder_sub_cat_id() {
+    public int getParentId() {
         return under_sub_cat_id;
     }
 

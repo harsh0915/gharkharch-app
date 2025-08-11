@@ -45,6 +45,15 @@ public class Category implements Parcelable, GenericItem {
         dest.writeString(category_name);
     }
 
+
+    public int getId() {
+        return this.category_id;
+    }
+
+    public String getName() {
+        return this.category_name;
+    }
+
     @Override
     public int get_item_id() {
         return category_id;

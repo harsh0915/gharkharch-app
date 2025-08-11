@@ -1,27 +1,29 @@
 import express from 'express'
 import https from 'https'
-//import fs from 'fs'
+import fs from 'fs'
 import {getCategories, getSubCategories,	getExpenses} from './database.js'
 
-//const server = https.createServer();
 const app = express()
 
-app.get('/', async (req, res) => {
-	const result = await getSubCategories()
-  res.send(result[0]) 
+const options = {
+	key: fs.readFileSync('./openssl/private.key'),      // Your private private-key
+	cert: fs.readFileSync('./openssl/certificate.crt')      // Your SSL/TLS certificate
+};
+
+//pass the express app to manage queries made to
+//the server
+const server = https.createServer(options,app);
+
+//listen at 443
+server.listen(443, () => {
+	console.log("HTTPS serever listening at port 443")
 })
 
-app.listen(3000,'0.0.0.0',()=> {
-console.log("Server is running!")
-}) 
+app.get('/', async (req, res) => {
+	res.send("hello")
+})
 
-//const options = {
-//  key: fs.readFileSync('private-key.pem'),      // Your private private-key
-//  cert: fs.readFileSync('certificate.pem')      // Your SSL/TLS certificate
-//};
-
-//server.listen(options, (req, res) => {
-//	res.writeHead(200);
-//}).listen(443, () => {
-//	console.log("HTTPS serever listening at port 443")
-//})
+app.get('/sub_categories', async (req, res) => {
+	const result = await getSubCategories()
+	res.send(result) 
+})

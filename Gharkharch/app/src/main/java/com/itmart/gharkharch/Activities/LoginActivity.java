@@ -4,14 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.MainActivity;
 import com.itmart.gharkharch.R;
+import com.itmart.gharkharch.RemoteDataAndApis.RemoteData;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -30,6 +39,21 @@ public class LoginActivity extends AppCompatActivity {
     private void setupClickListeners() {
         loginBtn.setOnClickListener(v -> {
             verifyUser();
+
+            RemoteData.get(this.getApplicationContext(), new RemoteData.ResCallback<List<SubCategory>>() {
+                @Override
+                public void onSuccess(List<SubCategory> response) {
+                    for (SubCategory s : response) {
+                        Log.i("harshRemoteData","="+ s.getSub_category_name());
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    Log.i("harshRemoteData", "=>" + e.getMessage());
+                }
+            });
+
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
             //send user details via intent received while confirming details
             startActivity(main);
@@ -55,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameET.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                
+
             }
 
             @Override

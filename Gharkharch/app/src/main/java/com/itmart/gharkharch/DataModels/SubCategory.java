@@ -54,6 +54,22 @@ public class SubCategory implements Parcelable, SubCatItem {
         dest.writeString(under_cat_name);
     }
 
+    public int getId() {
+        return this.sub_category_id;
+    }
+
+    public String getName() {
+        return this.sub_category_name;
+    }
+
+    public String getParentName() {
+        return this.under_cat_name;
+    }
+
+    public int getParentId() {
+        return this.category_id;
+    }
+
     @Override
     public int get_item_id() {
         return sub_category_id;
