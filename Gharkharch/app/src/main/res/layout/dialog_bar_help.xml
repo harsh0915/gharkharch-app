@@ -10,36 +10,36 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/zoom_instruction"
-        android:textSize="@dimen/text_size_medium"
-        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:layout_marginBottom="@dimen/padding_small"
         android:contentDescription="@string/zoom_instruction_desc"
-        android:layout_marginBottom="@dimen/padding_small" />
+        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:text="@string/zoom_instruction"
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/switch_timeframe_instruction"
-        android:textSize="@dimen/text_size_medium"
-        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:layout_marginBottom="@dimen/padding_small"
         android:contentDescription="@string/switch_timeframe_instruction_desc"
-        android:layout_marginBottom="@dimen/padding_small" />
+        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:text="@string/switch_timeframe_instruction"
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/view_details_instruction"
-        android:textSize="@dimen/text_size_medium"
-        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:layout_marginBottom="@dimen/padding_small"
         android:contentDescription="@string/view_details_instruction_desc"
-        android:layout_marginBottom="@dimen/padding_small" />
+        android:lineSpacingExtra="@dimen/line_spacing_small"
+        android:text="@string/view_details_instruction"
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/reset_instruction"
-        android:textSize="@dimen/text_size_medium"
+        android:contentDescription="@string/reset_instruction_desc"
         android:lineSpacingExtra="@dimen/line_spacing_small"
-        android:contentDescription="@string/reset_instruction_desc" />
+        android:text="@string/reset_instruction"
+        android:textSize="@dimen/text_size_medium" />
 
 </LinearLayout>
