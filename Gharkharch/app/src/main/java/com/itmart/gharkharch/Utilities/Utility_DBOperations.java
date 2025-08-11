@@ -452,7 +452,7 @@ public class Utility_DBOperations {
                                 " union all" +
                                 " select date(Time, '+1 day')" +
                                 " from Temp_DateTable" +
-                                " where Time <= date(datetime(" + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() + " / 1000, 'unixepoch'))" +
+                                " where Time <= date(datetime(" + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() + " / 1000, 'unixepoch','-1 day'))" +
                                 " )" +
                                 " select" +
                                 " strftime ('%d', Temp_DateTable.Time) as Time" +
