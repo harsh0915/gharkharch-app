@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Activities;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -16,6 +17,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
@@ -29,6 +32,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.itmart.gharkharch.Adapters.AnalyticsAdapter;
 import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
 import com.itmart.gharkharch.DataModels.SortBy;
@@ -47,11 +51,13 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private ImageView showYearPicker;
     private TextView selectedSortBy;
     private List<ItemForAnalysis> expenseList;
+    private RecyclerView rcv_dataList;
+    private AnalyticsAdapter adapter;
     private Utility_DBOperations utilityDbOperations;
     private int selectedYear;
     private int selectedMonth;
-    private SortBy sortBy = SortBy.Month;
-    private long selectedTimeInMillis = System.currentTimeMillis();
+    private SortBy sortBy;
+    private long selectedTimeInMillis;
     private boolean isAltered;
 
     @Override
@@ -60,12 +66,15 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_analyse_expenses);
         if (savedInstanceState != null) {
             sortBy = SortBy.valueOf(savedInstanceState.getString("sortBy"));
+            selectedTimeInMillis = savedInstanceState.getLong("selectedTimeInMillis");
             selectedYear = savedInstanceState.getInt("selectedYear");
             selectedMonth = savedInstanceState.getInt("selectedMonth");
-            selectedTimeInMillis = savedInstanceState.getLong("selectedTimeInMillis");
             isAltered = savedInstanceState.getBoolean("isAltered");
         } else {
+            sortBy = SortBy.Month;
+            selectedTimeInMillis = System.currentTimeMillis();
             selectedYear = Utility_Calendar.getYearInMillis(selectedTimeInMillis);
+            selectedMonth = -1;
             isAltered = false;
         }
         initializeUiElements();
@@ -92,9 +101,9 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("sortBy", sortBy.name());
+        outState.putLong("selectedTimeInMillis", selectedTimeInMillis);
         outState.putInt("selectedYear", selectedYear);
         outState.putInt("selectedMonth", selectedMonth);
-        outState.putLong("selectedTimeInMillis", selectedTimeInMillis);
         outState.putBoolean("isAltered", isAltered);
     }
 
@@ -104,14 +113,16 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         barChart.setNoDataTextColor(getColor(R.color.primaryTextColor));
         help = findViewById(R.id.toggleChartType);
         resetButton = findViewById(R.id.remove_filters);
-
-        //sort radio button and layouts
+        rcv_dataList = findViewById(R.id.rcv_dataList);
         selectedSortBy = findViewById(R.id.selectedSortBy);
         showYearPicker = findViewById(R.id.showYearPicker);
     }
 
     private void fetchData() {
         expenseList = new ArrayList<>();
+//        adapter = new AnalyticsAdapter(this, expenseList, sortBy, selectedYear);
+//        rcv_dataList.setLayoutManager(new LinearLayoutManager(this));
+//        rcv_dataList.setAdapter(adapter);
         utilityDbOperations = Utility_DBOperations.getInstance(this);
         utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
     }
@@ -261,8 +272,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     public void showMonthPickerDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.year_picker, null);  // you can rename this layout if you want
-
+        View view = getLayoutInflater().inflate(R.layout.year_picker, null);
         builder.setView(view);
 
         NumberPicker monthPicker = view.findViewById(R.id.number_picker);
@@ -292,7 +302,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     public void showChartHelp() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.dialog_bar_help, null);  // you can rename this layout if you want
+        View view = getLayoutInflater().inflate(R.layout.dialog_bar_help, null);
         builder.setView(view);
 
         Dialog dialog = builder.create();
@@ -318,8 +328,10 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         public void onSuccess(DBOpsForAnalysisCallbackObject callbackObject) {
             expenseList.clear();
             expenseList.addAll(callbackObject.getData());
-            Log.i("harshDebug", ">" + expenseList.get(11).getAmount());
-            new Handler(Looper.getMainLooper()).post(() -> inflateBarChart());
+            new Handler(Looper.getMainLooper()).post(() -> {
+//                adapter.notifyDataSetChanged();
+                inflateBarChart();
+            });
         }
 
         @Override

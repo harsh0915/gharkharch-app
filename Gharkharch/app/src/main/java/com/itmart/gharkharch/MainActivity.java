@@ -165,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDrawerStateChanged(int newState) {
 
-                //checks if drawer is being opened applies a blur effect
                 if (
                         (newState == DrawerLayout.STATE_DRAGGING)
                                 || (newState == DrawerLayout.STATE_IDLE && landing_page.isDrawerOpen(drawer_panel))

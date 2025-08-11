@@ -5,7 +5,7 @@
     android:layout_marginVertical="@dimen/margin_very_small"
     android:gravity="center"
     android:orientation="horizontal"
-    android:padding="@dimen/padding_large">
+    android:padding="@dimen/padding_small">
 
     <TextView
         android:id="@+id/item_name"
@@ -14,14 +14,14 @@
         android:layout_marginHorizontal="@dimen/margin_large"
         android:layout_weight="1"
         android:text="month"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_medium" />
 
     <TextView
-        android:id="@+id/expense"
+        android:id="@+id/item_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/margin_large"
         android:text="total expense"
-        android:textSize="@dimen/text_size_large" />
+        android:textSize="@dimen/text_size_medium" />
 
 </LinearLayout>
