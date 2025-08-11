@@ -31,7 +31,7 @@
             android:layout_gravity="end|center"
             android:importantForAccessibility="no"
             android:padding="@dimen/padding_large"
-            android:src="@drawable/bar_graph_icon" />
+            android:src="@drawable/help_icon" />
 
     </FrameLayout>
 
@@ -45,53 +45,45 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <FrameLayout
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/barChart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:layout_marginHorizontal="@dimen/margin_medium"
-                android:layout_marginVertical="@dimen/margin_small">
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/barChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp" />
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/pieChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:visibility="gone" />
-
-            </FrameLayout>
+                android:layout_margin="@dimen/margin_small" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/margin_large"
                 android:gravity="center"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
 
                 <TextView
                     android:id="@+id/selectedSortBy"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:padding="@dimen/padding_large"
-                    android:text="Sort By : Month"
+                    android:text="Showing expenses for year : "
                     android:textSize="@dimen/text_size_medium" />
 
                 <ImageView
-                    android:id="@+id/sortByDropdown"
+                    android:id="@+id/remove_filters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
+                    android:importantForAccessibility="no"
+                    android:padding="@dimen/padding_medium"
+                    android:src="@drawable/close_icon" />
+
+                <ImageView
+                    android:id="@+id/showYearPicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:importantForAccessibility="no"
                     android:padding="@dimen/padding_large"
-                    android:src="@drawable/dropdown_arrow_icon" />
+                    android:src="@drawable/calendar_icon" />
 
             </LinearLayout>
-
-            <include layout="@layout/sort_filters_radio_group" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/dataList"

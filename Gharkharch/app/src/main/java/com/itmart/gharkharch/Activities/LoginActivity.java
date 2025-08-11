@@ -39,21 +39,6 @@ public class LoginActivity extends AppCompatActivity {
     private void setupClickListeners() {
         loginBtn.setOnClickListener(v -> {
             verifyUser();
-
-            RemoteData.get(this.getApplicationContext(), new RemoteData.ResCallback<List<SubCategory>>() {
-                @Override
-                public void onSuccess(List<SubCategory> response) {
-                    for (SubCategory s : response) {
-                        Log.i("harshRemoteData","="+ s.getSub_category_name());
-                    }
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.i("harshRemoteData", "=>" + e.getMessage());
-                }
-            });
-
             Intent main = new Intent(LoginActivity.this, MainActivity.class);
             //send user details via intent received while confirming details
             startActivity(main);

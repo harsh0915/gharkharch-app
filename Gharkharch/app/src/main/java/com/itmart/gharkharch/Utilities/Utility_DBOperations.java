@@ -450,7 +450,7 @@ public class Utility_DBOperations {
                                 " union all" +
                                 " select date(Time, '+1 day')" +
                                 " from Temp_DateTable" +
-                                " where Time < date(datetime(" + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() + " / 1000, 'unixepoch', '-1 day'))" +
+                                " where Time <= date(datetime(" + Utility_Calendar.getEndOfMonth(timeInMillis).getTimeInMillis() + " / 1000, 'unixepoch'))" +
                                 " )" +
                                 " select" +
                                 " strftime ('%d', Temp_DateTable.Time) as Time" +
@@ -465,6 +465,7 @@ public class Utility_DBOperations {
                 Cursor cursor = null;
                 try {
                     cursor = readable_db.rawQuery(query, null);
+//                    Log.i("DatabaseDebugger", " Date is :" + Utility_DateFormats.convertLongToDate_DD_MM_YY(timeInMillis));
 //                    Utility_DBDebug.printCursorData(cursor, "db analysis");
                     if (cursor.moveToFirst()) {
                         do {

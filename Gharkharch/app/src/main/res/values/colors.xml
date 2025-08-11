@@ -25,6 +25,6 @@
 
     <!--color for custom views-->
     <color name="searchBarBg">#5A6B7D</color>
-    <color name="highlightedBars">#FFFFFF</color>
+    <color name="highlightedBars">#00B2FF</color>
 
 </resources>

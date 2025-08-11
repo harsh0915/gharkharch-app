@@ -211,9 +211,13 @@ public class MainActivity extends AppCompatActivity {
     private void show_quit_confirmation_dialog() {
         Snackbar snackbar = Snackbar.make(bottomNavigationView, "Are you sure you want to quit?", Snackbar.LENGTH_LONG);
         TextView textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
+        TextView actionable_textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_action);
+
         textView.setTextColor(getColor(R.color.primaryTextColor));
         snackbar.setBackgroundTint(getColor(R.color.backgroundColor));
-        snackbar.setAction("Yes", v -> {
+        actionable_textView.setTextColor(getColor(R.color.red));
+
+        snackbar.setAction("Quit", v -> {
             snackbar.dismiss();
             finishAffinity();
         });

@@ -6,9 +6,9 @@ import {getCategories, getSubCategories,	getExpenses} from './database.js'
 const app = express()
 
 const options = {
-	key: fs.readFileSync('./openssl/private.key'),      // Your private private-key
-	cert: fs.readFileSync('./openssl/certificate.crt')      // Your SSL/TLS certificate
-};
+	key: fs.readFileSync('./openssl/private.key'),      	
+	cert: fs.readFileSync('./openssl/certificate.crt')      
+}
 
 //pass the express app to manage queries made to
 //the server
