@@ -211,8 +211,8 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text);
         TextView actionable_textView = snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_action);
 
-        textView.setTextColor(getColor(R.color.primaryTextColor));
-        snackbar.setBackgroundTint(getColor(R.color.backgroundColor));
+        textView.setTextColor(getColor(R.color.black));
+        snackbar.setBackgroundTint(getColor(R.color.white));
         actionable_textView.setTextColor(getColor(R.color.red));
 
         snackbar.setAction("Quit", v -> {
