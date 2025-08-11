@@ -47,7 +47,6 @@
             android:padding="@dimen/padding_large"
             android:text="Manage Expenses"
             android:textSize="@dimen/text_size_medium"
-            android:visibility="gone"
             app:drawableStartCompat="@drawable/manage_expenses_icon" />
 
         <TextView
@@ -84,7 +83,7 @@
             android:layout_marginVertical="@dimen/margin_small"
             android:drawablePadding="@dimen/padding_large"
             android:padding="@dimen/padding_large"
-            android:text="RestoreData"
+            android:text="Restore Data"
             android:textColor="@color/primaryTextColor"
             android:textSize="@dimen/text_size_medium"
             app:drawableStartCompat="@drawable/restore_icon" />

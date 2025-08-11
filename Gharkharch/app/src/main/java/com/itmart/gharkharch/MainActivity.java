@@ -47,17 +47,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView analyse_expenses;
     private TextView backup_data;
     private TextView restore_data;
-    private Utility_DBOperations utilityDbOperations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        utilityDbOperations = Utility_DBOperations.getInstance(this);
         initializeUiElements();
         setupClickListeners();
 
-//        loads the initial fragment
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
             currentFragment = new AddCategoryFragment();
@@ -67,7 +64,12 @@ public class MainActivity extends AppCompatActivity {
                     .hide(currentFragment)
                     .commit();
         }
-        bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
+
+        if (savedInstanceState != null) {
+            bottomNavigationView.setSelectedItemId(savedInstanceState.getInt("selectedItem"));
+        } else {
+            bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
+        }
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -75,16 +77,12 @@ public class MainActivity extends AppCompatActivity {
                 show_quit_confirmation_dialog();
             }
         });
-
-        //take back the screen to where user was and notify the bottom nav to update the selected item
-        if (savedInstanceState != null) {
-
-        }
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        outState.putInt("selectedItem", bottomNavigationView.getSelectedItemId());
     }
 
     private void initializeUiElements() {
