@@ -135,7 +135,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             }
         });
 
-        //TODO:bind the search list adapter with the input text
         inputCategory.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -144,7 +143,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                rcv_category_search.setVisibility(View.VISIBLE);
+                if(s.length()==0)
+                    rcv_category_search.setVisibility(View.GONE);
+                else
+                    rcv_category_search.setVisibility(View.VISIBLE);
                 String query = s.toString().toLowerCase();
                 filterList(query, filtered_cat_search_list, category_search_list, ListType.Search);
             }
@@ -156,7 +158,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         inputCategory.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
+            if (hasFocus && inputCategory.getText().toString().length()>1) {
                 rcv_category_search.setVisibility(View.VISIBLE);
             } else {
                 rcv_category_search.setVisibility(View.GONE);
@@ -171,7 +173,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         addBtn.setOnClickListener(v -> {
-            utilityKeyboard.close_keyboard(v);
+//            utilityKeyboard.close_keyboard(v);
 
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
             if (sub_cat_name.isEmpty()) {
@@ -308,6 +310,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             toggle_search_view();
             search_view.setQuery("", false);
         }
+        inputSubCategory.requestFocus();
     }
 
     @SuppressLint("NotifyDataSetChanged")

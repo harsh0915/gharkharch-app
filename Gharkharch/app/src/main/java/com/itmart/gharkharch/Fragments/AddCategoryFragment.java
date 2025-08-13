@@ -104,7 +104,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         });
 
         addBtn.setOnClickListener(v -> {
-            utilityKeyboard.close_keyboard(v);
+//            utilityKeyboard.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty()) {
