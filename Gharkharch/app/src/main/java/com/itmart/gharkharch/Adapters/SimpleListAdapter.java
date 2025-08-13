@@ -22,6 +22,7 @@ import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
+import com.itmart.gharkharch.Utilities.Utility_DateFormats;
 
 import java.util.List;
 
@@ -65,9 +66,13 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
 
         if (item_type == GenericItemType.Expenses && item instanceof ExpenseItem) {
             holder.item_amount.setVisibility(View.VISIBLE);
+            holder.item_date.setVisibility(View.VISIBLE);
             holder.item_amount.setText("\u20B9" + ((ExpenseItem) item).get_item_amount());
-        } else
+            holder.item_date.setText(Utility_DateFormats.convertLongToDate_DD_MM_YY(((ExpenseItem) item).get_date()));
+        } else {
             holder.item_amount.setVisibility(View.GONE);
+            holder.item_date.setVisibility(View.GONE);
+        }
 
         holder.delete_item.setOnClickListener(v -> {
             fun_delete_item(item);
@@ -129,15 +134,20 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         simpleList_clickListener.edit_item(item);
     }
 
+    public GenericItem getItemAtCurrentPos(int index) {
+        return this.simple_item_list.get(index);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView item_name, item_amount;
+        TextView item_name, item_amount, item_date;
         ImageView delete_item, edit_item;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             item_name = itemView.findViewById(R.id.item_name);
             item_amount = itemView.findViewById(R.id.item_amount);
+            item_date = itemView.findViewById(R.id.item_date);
             delete_item = itemView.findViewById(R.id.delete_item);
             edit_item = itemView.findViewById(R.id.edit_item);
         }

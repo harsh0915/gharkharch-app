@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,17 +40,15 @@ import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.DataModels.PaymentMode;
-import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.R;
 
-import com.itmart.gharkharch.Utilities.Utility_Calendar;
+import com.itmart.gharkharch.RCVDecorHeaders.RCVMonthDecorHeader;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_DateFormats;
 import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -90,6 +87,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private Utility_Keyboard utilityKeyboard;
     private int expenseId;
     private static final int INVALID_EXPENSE_ID = -1;
+
     private enum ListType {
         Search, Simple
     }
@@ -162,7 +160,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length()==0)
+                if (s.length() == 0)
                     rcv_sub_category_search.setVisibility(View.GONE);
                 else
                     rcv_sub_category_search.setVisibility(View.VISIBLE);
@@ -177,7 +175,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         input_expense_name.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && input_expense_name.getText().toString().length()>1) {
+            if (hasFocus && input_expense_name.getText().toString().length() > 1) {
                 rcv_sub_category_search.setVisibility(View.VISIBLE);
             } else {
                 rcv_sub_category_search.setVisibility(View.GONE);
@@ -306,7 +304,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
             utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
-            utilityDbOperations.fetch_expenses( fetchExpensesCallback);
+            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
             page_title.setText("Book Expenses");
         } else {
             resetForm();
@@ -340,7 +338,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void database_updated() {
-        utilityDbOperations.fetch_expenses( fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
     }
 
     @Override
@@ -370,6 +368,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private void inflate_expense_RCV() {
         utilityDbOperations.fetch_expenses(fetchExpensesCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_expenses, item_type, this);
+        rcv_expense_list.addItemDecoration(new RCVMonthDecorHeader(requireContext()));
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_expense_list.setAdapter(simple_adapter);
     }
@@ -409,7 +408,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             selected_date = System.currentTimeMillis();
             date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
         }
-        if(search_button.getVisibility()==View.GONE){
+        if (search_button.getVisibility() == View.GONE) {
             toggle_search_view();
             search_view.setQuery("", false);
         }
