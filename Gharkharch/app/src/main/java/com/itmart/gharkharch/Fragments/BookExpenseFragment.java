@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -43,12 +44,14 @@ import com.itmart.gharkharch.DataModels.PaymentMode;
 import com.itmart.gharkharch.R;
 
 import com.itmart.gharkharch.RCVDecorHeaders.RCVMonthDecorHeader;
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_DateFormats;
 import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
@@ -57,6 +60,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private final String CASH = "CASH";
     private final String UPI = "UPI";
     private final String CARD = "CARD";
+    private final int CURRENT_YEAR = Utility_Calendar.getYear(System.currentTimeMillis());
     private TextView date_picker;
     private EditText input_expense_name;
     private EditText input_expense_amount;
@@ -85,7 +89,11 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private boolean isEditMode;
     private PaymentMode selected_mode_of_payment;
     private Utility_Keyboard utilityKeyboard;
+    private ImageView showCalendar;
+    private Calendar startDate;
+    private Calendar endDate;
     private int expenseId;
+    private int selectedMonth;
     private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
@@ -103,8 +111,12 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         filtered_sub_cat_search_list = new ArrayList<>();
         sub_category_fast_lookup = new HashSet<>();
         sub_category_search_list = new ArrayList<>();
-        selected_date = System.currentTimeMillis();
         selected_mode_of_payment = PaymentMode.CASH;
+        //all time based vars
+        selected_date = System.currentTimeMillis();
+        startDate = Utility_Calendar.getStartOfMonth(selected_date);
+        endDate = Utility_Calendar.getEndOfMonth(selected_date);
+        selectedMonth = Utility_Calendar.getMonth(selected_date);
         expenseId = -1;
         isEditMode = false;
     }
@@ -126,6 +138,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         search_view = view.findViewById(R.id.search_view);
         list_title = view.findViewById(R.id.list_title);
         close_button = view.findViewById(R.id.close_button);
+        showCalendar = view.findViewById(R.id.show_calendar);
         page_title = requireActivity().findViewById(R.id.page_title);
         return view;
     }
@@ -201,24 +214,25 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         addBtn.setOnClickListener(v -> {
-//            utilityKeyboard.close_keyboard(v);
-
             String expense_name = input_expense_name.getText().toString();
             String amountString = input_expense_amount.getText().toString();
             String expense_remark = input_expense_remarks.getText().toString().trim();
 
             //empty expense name
             if (expense_name.isEmpty()) {
+                utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!", WARNING);
                 return;
             }
             //trying to use a category without defining it first
             if (!sub_category_fast_lookup.contains(expense_name)) {
-                Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + expense_name + "\" heads before using it. ", WARNING);
+                utilityKeyboard.close_keyboard(v);
+                Utility_UiAlerts.generateSnackBar(addBtn, "No such head found!", WARNING);
                 return;
             }
             //amount can't be empty
             if (amountString.isEmpty()) {
+                utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "Amount cannot be empty", WARNING);
                 return;
             }
@@ -231,10 +245,15 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 }
                 utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
             } else {
+                if (expenseId == INVALID_EXPENSE_ID) {
+                    Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Please select a head from the list!", WARNING);
+                    utilityKeyboard.close_keyboard(v);
+                    return;
+                }
                 utilityDbOperations.add_expense(under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);
             }
 
-            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
             resetForm();
         });
 
@@ -295,6 +314,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             }
         });
 
+        showCalendar.setOnClickListener(v -> {
+            showMonthPickerDialog();
+        });
+
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -304,7 +327,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         if (!hidden) {
             //refresh list when coming from another frag as it may have added another data set
             utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
-            utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
             page_title.setText("Book Expenses");
         } else {
             resetForm();
@@ -338,11 +361,12 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void database_updated() {
-        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
     }
 
     @Override
     public void on_item_clicked(GenericItem clicked_item) {
+        expenseId = clicked_item.get_item_id();
         input_expense_name.setText(clicked_item.get_item_name());
         under_sub_category_id = clicked_item.get_item_id();
         //this line moves the cursor to the end of the text inside the edi text
@@ -366,9 +390,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     private void inflate_expense_RCV() {
-        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
         simple_adapter = new SimpleListAdapter(requireContext(), filtered_expenses, item_type, this);
-        rcv_expense_list.addItemDecoration(new RCVMonthDecorHeader(requireContext()));
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(requireContext()));
         rcv_expense_list.setAdapter(simple_adapter);
     }
@@ -404,16 +427,51 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         modes_of_payment.setText(CASH);
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
-        if (isEditMode) {
+        if (isHidden()) {
             selected_date = System.currentTimeMillis();
             date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
+            startDate = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
+            endDate = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
+            selectedMonth = Utility_Calendar.getMonth(selected_date);
         }
         if (search_button.getVisibility() == View.GONE) {
             toggle_search_view();
             search_view.setQuery("", false);
         }
         isEditMode = false;
+        expenseId = -1;
         input_expense_name.requestFocus();
+    }
+
+    public void showMonthPickerDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_item_picker, null);
+        builder.setView(view);
+
+        NumberPicker monthPicker = view.findViewById(R.id.number_picker);
+        Button okBtn = view.findViewById(R.id.okBtn);
+
+        monthPicker.setMinValue(0);
+        monthPicker.setMaxValue(11);
+        monthPicker.setValue(selectedMonth);
+        monthPicker.setDisplayedValues(Utility_Calendar.getMonths());
+
+        Dialog dialog = builder.create();
+
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        okBtn.setOnClickListener(btn -> {
+            selectedMonth = monthPicker.getValue();
+            long selectedMonthInMillis = Utility_Calendar.getMonthInMillis(selectedMonth, CURRENT_YEAR).getTimeInMillis();
+            startDate = Utility_Calendar.getStartOfMonth(selectedMonthInMillis);
+            endDate = Utility_Calendar.getEndOfMonth(selectedMonthInMillis);
+            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     @SuppressLint("NotifyDataSetChanged")

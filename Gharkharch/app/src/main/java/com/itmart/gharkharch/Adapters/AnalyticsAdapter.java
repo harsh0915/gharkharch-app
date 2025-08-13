@@ -12,26 +12,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.itmart.gharkharch.DataModels.ExpenseItem;
+import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
-import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.Utilities.Utility_Calendar;
 
 import java.util.List;
 
 public class AnalyticsAdapter extends RecyclerView.Adapter<AnalyticsAdapter.ViewHolder> {
 
     private final Context context;
-    private final List<ItemForAnalysis> dataList;
-    private final SortBy sortBy;
+    private final List<GenericItem> dataList;
     private String[] xAxisLabels;
-    private final int year;
 
-    public AnalyticsAdapter(Context context, List<ItemForAnalysis> dataList, SortBy sortBy, int year) {
+    public AnalyticsAdapter(Context context, List<GenericItem> dataList) {
         this.context = context;
         this.dataList = dataList;
-        this.sortBy = sortBy;
-        this.year = year;
         getXAxisLabelsFromDataList();
     }
 
@@ -44,16 +40,9 @@ public class AnalyticsAdapter extends RecyclerView.Adapter<AnalyticsAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull AnalyticsAdapter.ViewHolder holder, int position) {
-
-        ItemForAnalysis item = dataList.get(position);
-        String date;
-        if (sortBy == Month) {
-            date = xAxisLabels[position] + ", " + year;
-        } else {
-            date = item.getName() + ", " + xAxisLabels[position] + ", " + year;
-        }
-        holder.item_name.setText(date);
-        holder.item_amount.setText("\u20B9" + item.getAmount());
+        ExpenseItem item = (ExpenseItem) dataList.get(position);
+        holder.item_name.setText("expenese");
+        holder.item_amount.setText("\u20B9" + item.get_item_amount());
     }
 
     @Override
@@ -62,16 +51,7 @@ public class AnalyticsAdapter extends RecyclerView.Adapter<AnalyticsAdapter.View
     }
 
     private void getXAxisLabelsFromDataList() {
-        switch (sortBy) {
-            case Date:
-                xAxisLabels = dataList.stream().map(item -> item != null ? item.getName() : "").toArray(String[]::new);
-                break;
-
-            case Month:
-            default:
-                xAxisLabels = Utility_Calendar.getMonths();
-                break;
-        }
+        xAxisLabels = dataList.stream().map(item -> item != null ? item.get_item_name() : "").toArray(String[]::new);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

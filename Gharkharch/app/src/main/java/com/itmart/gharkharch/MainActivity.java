@@ -186,9 +186,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         manage_expenses.setOnClickListener(v -> {
-            utilityUiAlerts.generateToast("Feature under development");
-//            Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
-//            startActivity(manage_expenses);
+//            utilityUiAlerts.generateToast("Feature under development");
+            Intent manage_expenses = new Intent(MainActivity.this, ManageExpensesActivity.class);
+            startActivity(manage_expenses);
         });
 
         analyse_expenses.setOnClickListener(v -> {

@@ -135,6 +135,12 @@ public class Utility_Calendar {
         return calendar.getTimeInMillis();
     }
 
+    public static int getMonth(Long timeInMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(timeInMillis);
+        return calendar.get(Calendar.MONTH);
+    }
+
     public static int getYear(Long timeInMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
