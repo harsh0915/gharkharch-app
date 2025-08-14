@@ -34,6 +34,7 @@
     <string name="switch_timeframe_instruction_desc">Instructions to switch months or years</string>
     <string name="view_details_instruction_desc">Instructions for viewing details on a bar tap</string>
     <string name="reset_instruction_desc">Instructions to reset filters</string>
+    <string name="rotate_phone">Please rotate you phone for a better viewing experience</string>
 
 
 </resources>

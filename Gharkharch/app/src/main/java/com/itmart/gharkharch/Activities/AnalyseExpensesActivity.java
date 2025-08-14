@@ -1,6 +1,7 @@
 package com.itmart.gharkharch.Activities;
 
 import android.app.Dialog;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
@@ -30,7 +32,6 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.itmart.gharkharch.Adapters.AnalyticsAdapter;
 import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
 import com.itmart.gharkharch.DataModels.SortBy;
@@ -49,11 +50,10 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private ImageView showYearPicker;
     private TextView selectedSortBy;
     private List<ItemForAnalysis> expenseList;
-    private RecyclerView rcv_dataList;
-    private AnalyticsAdapter adapter;
     private Utility_DBOperations utilityDbOperations;
     private int selectedYear;
     private int selectedMonth;
+    private FrameLayout topBar;
     private SortBy sortBy;
     private long selectedTimeInMillis;
     private boolean isAltered;
@@ -78,6 +78,11 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         initializeUiElements();
         setupClickListeners();
         fetchData();
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            topBar.setVisibility(View.GONE);
+        } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            topBar.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -106,21 +111,18 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     }
 
     private void initializeUiElements() {
+        topBar = findViewById(R.id.topBar);
         barChart = findViewById(R.id.barChart);
         barChart.setNoDataText("Please wait your data is being loaded");
         barChart.setNoDataTextColor(getColor(R.color.primaryTextColor));
         help = findViewById(R.id.toggleChartType);
         resetButton = findViewById(R.id.remove_filters);
-        rcv_dataList = findViewById(R.id.rcv_dataList);
         selectedSortBy = findViewById(R.id.selectedSortBy);
         showYearPicker = findViewById(R.id.showYearPicker);
     }
 
     private void fetchData() {
         expenseList = new ArrayList<>();
-//        adapter = new AnalyticsAdapter(this, expenseList, sortBy, selectedYear);
-//        rcv_dataList.setLayoutManager(new LinearLayoutManager(this));
-//        rcv_dataList.setAdapter(adapter);
         utilityDbOperations = Utility_DBOperations.getInstance(this);
         utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
     }
@@ -334,7 +336,6 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             expenseList.clear();
             expenseList.addAll(callbackObject.getData());
             new Handler(Looper.getMainLooper()).post(() -> {
-//                adapter.notifyDataSetChanged();
                 inflateBarChart();
             });
         }

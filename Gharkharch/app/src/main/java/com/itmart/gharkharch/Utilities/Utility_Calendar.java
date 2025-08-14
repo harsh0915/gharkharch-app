@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Utilities;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -145,6 +146,21 @@ public class Utility_Calendar {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeInMillis);
         return calendar.get(Calendar.YEAR);
+    }
+
+    public static Calendar[] getYearRange() {
+        Calendar now = Calendar.getInstance();
+        Calendar[] range = new Calendar[2];
+
+        Calendar start = (Calendar) now.clone();
+        start.add(Calendar.YEAR, -10);
+        range[0] = start;
+
+        Calendar end = (Calendar) now.clone();
+        end.add(Calendar.YEAR, 10);
+        range[1] = end;
+
+        return range;
     }
 
     public static Calendar getStartOfYear(long time) {

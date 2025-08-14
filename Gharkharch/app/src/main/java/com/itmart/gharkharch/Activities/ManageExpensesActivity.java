@@ -5,33 +5,35 @@ import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.itmart.gharkharch.Adapters.AnalyticsAdapter;
+import com.itmart.gharkharch.Adapters.ManageExpensesAdapter;
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.RCVDecorHeaders.RCVMonthDecorHeader;
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class ManageExpensesActivity extends AppCompatActivity implements SimpleListAdapter.SimpleList_Interface {
+public class ManageExpensesActivity extends AppCompatActivity  {
 
     private Utility_DBOperations utilityDbOperations;
     private GenericItemType item_type;
-    private AnalyticsAdapter simple_adapter;
+    private ManageExpensesAdapter simple_adapter;
     private List<GenericItem> expense_list;
     private List<GenericItem> filtered_expenses;
     private RecyclerView rcv_expense_list;
+    private Calendar startDate;
+    private Calendar endDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,29 +44,17 @@ public class ManageExpensesActivity extends AppCompatActivity implements SimpleL
         fetchData();
     }
 
-    @Override
-    public void delete_item(int item_id) {
-
-    }
-
-    @Override
-    public void edit_item(GenericItem item) {
-
-    }
-
-    @Override
-    public void database_updated() {
-
-    }
-
     private void initializeDataStructures() {
         utilityDbOperations = Utility_DBOperations.getInstance(this);
         expense_list = new ArrayList<>();
         filtered_expenses = new ArrayList<>();
+        Calendar[] range = Utility_Calendar.getYearRange();
+        startDate = range[0];
+        endDate = range[1];
     }
 
     private void inflateRCV() {
-        simple_adapter = new AnalyticsAdapter(this, filtered_expenses);
+        simple_adapter = new ManageExpensesAdapter(this, filtered_expenses);
 //        rcv_expense_list.addItemDecoration(new RCVMonthDecorHeader(this));
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(this));
         rcv_expense_list.setAdapter(simple_adapter);
@@ -77,7 +67,7 @@ public class ManageExpensesActivity extends AppCompatActivity implements SimpleL
     }
 
     private void fetchData() {
-//        utilityDbOperations.fetch_expenses(fetchExpensesCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
     }
 
     private final Utility_DBOperations.Callback_DBOperations fetchExpensesCallback = new Utility_DBOperations.Callback_DBOperations() {

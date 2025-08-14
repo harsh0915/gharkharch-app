@@ -1,9 +1,7 @@
 package com.itmart.gharkharch.Adapters;
 
-import static com.itmart.gharkharch.DataModels.SortBy.Date;
-import static com.itmart.gharkharch.DataModels.SortBy.Month;
-
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,34 +12,37 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
-import com.itmart.gharkharch.DataModels.ItemForAnalysis;
 import com.itmart.gharkharch.R;
 
 import java.util.List;
 
-public class AnalyticsAdapter extends RecyclerView.Adapter<AnalyticsAdapter.ViewHolder> {
+public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAdapter.ViewHolder> {
 
     private final Context context;
     private final List<GenericItem> dataList;
     private String[] xAxisLabels;
 
-    public AnalyticsAdapter(Context context, List<GenericItem> dataList) {
+    public ManageExpensesAdapter(Context context, List<GenericItem> dataList) {
         this.context = context;
         this.dataList = dataList;
+        this.xAxisLabels = new String[dataList.size()];
         getXAxisLabelsFromDataList();
     }
 
     @NonNull
     @Override
-    public AnalyticsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ManageExpensesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_analytics, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AnalyticsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ManageExpensesAdapter.ViewHolder holder, int position) {
+        if (xAxisLabels.length == 0) {
+            getXAxisLabelsFromDataList();
+        }
         ExpenseItem item = (ExpenseItem) dataList.get(position);
-        holder.item_name.setText("expenese");
+        holder.item_name.setText(xAxisLabels[position]);
         holder.item_amount.setText("\u20B9" + item.get_item_amount());
     }
 
