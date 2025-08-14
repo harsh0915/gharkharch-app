@@ -55,6 +55,10 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
         xAxisLabels = dataList.stream().map(item -> item != null ? item.get_item_name() : "").toArray(String[]::new);
     }
 
+    public GenericItem getItemAtCurrentPos(int index) {
+        return this.dataList.get(index);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView item_name;
         private final TextView item_amount;

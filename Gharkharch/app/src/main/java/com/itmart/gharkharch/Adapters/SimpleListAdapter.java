@@ -134,10 +134,6 @@ public class SimpleListAdapter extends RecyclerView.Adapter<SimpleListAdapter.Vi
         simpleList_clickListener.edit_item(item);
     }
 
-    public GenericItem getItemAtCurrentPos(int index) {
-        return this.simple_item_list.get(index);
-    }
-
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView item_name, item_amount, item_date;

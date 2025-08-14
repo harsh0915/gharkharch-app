@@ -214,25 +214,26 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         addBtn.setOnClickListener(v -> {
+            utilityKeyboard.close_keyboard(v);
             String expense_name = input_expense_name.getText().toString();
             String amountString = input_expense_amount.getText().toString();
             String expense_remark = input_expense_remarks.getText().toString().trim();
 
             //empty expense name
             if (expense_name.isEmpty()) {
-                utilityKeyboard.close_keyboard(v);
+//                utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!", WARNING);
                 return;
             }
             //trying to use a category without defining it first
             if (!sub_category_fast_lookup.contains(expense_name)) {
-                utilityKeyboard.close_keyboard(v);
+//                utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "No such head found!", WARNING);
                 return;
             }
             //amount can't be empty
             if (amountString.isEmpty()) {
-                utilityKeyboard.close_keyboard(v);
+//                utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "Amount cannot be empty", WARNING);
                 return;
             }
@@ -240,7 +241,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             if (isEditMode) {
                 if (expenseId == INVALID_EXPENSE_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense", ERROR);
-                    utilityKeyboard.close_keyboard(v);
+//                    utilityKeyboard.close_keyboard(v);
                     resetForm();
                     return;
                 }
@@ -248,7 +249,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             } else {
                 if (expenseId == INVALID_EXPENSE_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Please select a head from the list!", WARNING);
-                    utilityKeyboard.close_keyboard(v);
+//                    utilityKeyboard.close_keyboard(v);
                     return;
                 }
                 utilityDbOperations.add_expense(under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, bookExpenseCallback);

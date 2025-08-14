@@ -1,6 +1,6 @@
 package com.itmart.gharkharch.DataModels;
 
-public enum SortBy {
+public enum GroupBy {
     Date,
     Month,
     Quarter,

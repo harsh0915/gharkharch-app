@@ -12,8 +12,8 @@ import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.Expense;
 import com.itmart.gharkharch.DataModels.GenericItem;
+import com.itmart.gharkharch.DataModels.GroupBy;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
-import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.DataModels.SubCategory;
 import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 
@@ -196,6 +196,7 @@ public class Utility_DBOperations {
         });
     }
 
+    //fetches expenses by 1 month
     public void fetch_expenses(Long startDate, Long endDate, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
@@ -247,7 +248,7 @@ public class Utility_DBOperations {
         });
     }
 
-//    public void fetchCategoriesForAnalysis(Long timeInMillis, SortBy sortBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+//    public void fetchCategoriesForAnalysis(Long timeInMillis, GroupBy sortBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
 //        dbExecutor.execute(() -> {
 //            String query;
 //            List<ItemForAnalysis> data = new ArrayList<>();
@@ -327,7 +328,7 @@ public class Utility_DBOperations {
 //        });
 //    }
 
-//    public void fetchSubCategoriesForAnalysis(Long timeInMillis, SortBy sortBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+//    public void fetchSubCategoriesForAnalysis(Long timeInMillis, GroupBy sortBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
 //        dbExecutor.execute(() -> {
 //            String query;
 //            List<ItemForAnalysis> data = new ArrayList<>();
@@ -400,12 +401,12 @@ public class Utility_DBOperations {
 //        });
 //    }
 
-    public void fetchExpenseForAnalysis(Long timeInMillis, SortBy sortBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
+    public void fetchExpensesByGroup(Long timeInMillis, GroupBy groupBy, Callback_DBOpsForAnalysis callbackDbOpsForAnalysis) {
         dbExecutor.execute(() -> {
             String query;
             List<ItemForAnalysis> data = new ArrayList<>();
             try {
-                switch (sortBy) {
+                switch (groupBy) {
 
 //                    case Year:
 //                        query = "select " +

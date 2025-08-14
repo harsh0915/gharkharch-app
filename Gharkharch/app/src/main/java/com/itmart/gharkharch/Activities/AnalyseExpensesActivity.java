@@ -18,7 +18,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
@@ -33,8 +32,8 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.itmart.gharkharch.DataModels.DBOpsForAnalysisCallbackObject;
+import com.itmart.gharkharch.DataModels.GroupBy;
 import com.itmart.gharkharch.DataModels.ItemForAnalysis;
-import com.itmart.gharkharch.DataModels.SortBy;
 import com.itmart.gharkharch.R;
 import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
@@ -54,7 +53,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private int selectedYear;
     private int selectedMonth;
     private FrameLayout topBar;
-    private SortBy sortBy;
+    private GroupBy groupBy;
     private long selectedTimeInMillis;
     private boolean isAltered;
 
@@ -63,13 +62,13 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_analyse_expenses);
         if (savedInstanceState != null) {
-            sortBy = SortBy.valueOf(savedInstanceState.getString("sortBy"));
+            groupBy = GroupBy.valueOf(savedInstanceState.getString("groupBy"));
             selectedTimeInMillis = savedInstanceState.getLong("selectedTimeInMillis");
             selectedYear = savedInstanceState.getInt("selectedYear");
             selectedMonth = savedInstanceState.getInt("selectedMonth");
             isAltered = savedInstanceState.getBoolean("isAltered");
         } else {
-            sortBy = SortBy.Month;
+            groupBy = GroupBy.Month;
             selectedTimeInMillis = System.currentTimeMillis();
             selectedYear = Utility_Calendar.getYear(selectedTimeInMillis);
             selectedMonth = -1;
@@ -88,7 +87,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (sortBy == SortBy.Month) {
+        if (groupBy == GroupBy.Month) {
             selectedSortBy.setText("Expenses for year : " + selectedYear);
         } else {
             selectedSortBy.setText("Expenses for month of : " + Utility_Calendar.getMonths()[selectedMonth]);
@@ -103,7 +102,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("sortBy", sortBy.name());
+        outState.putString("groupBy", groupBy.name());
         outState.putLong("selectedTimeInMillis", selectedTimeInMillis);
         outState.putInt("selectedYear", selectedYear);
         outState.putInt("selectedMonth", selectedMonth);
@@ -124,7 +123,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
     private void fetchData() {
         expenseList = new ArrayList<>();
         utilityDbOperations = Utility_DBOperations.getInstance(this);
-        utilityDbOperations.fetchExpenseForAnalysis(selectedTimeInMillis, sortBy, fetchExpenseCallback);
+        utilityDbOperations.fetchExpensesByGroup(selectedTimeInMillis, groupBy, fetchExpenseCallback);
     }
 
     private void setupClickListeners() {
@@ -132,7 +131,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         help.setOnClickListener(v -> showChartHelp());
 
         showYearPicker.setOnClickListener(v -> {
-            if (sortBy == SortBy.Month) {
+            if (groupBy == GroupBy.Month) {
                 showYearPickerDialog();
             } else {
                 showMonthPickerDialog();
@@ -142,14 +141,14 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         barChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override
             public void onValueSelected(Entry e, Highlight h) {
-                if (sortBy == SortBy.Date) return;
+                if (groupBy == GroupBy.Date) return;
 
                 if (e instanceof BarEntry) {
                     try {
                         isAltered = true;
                         selectedMonth = (int) e.getX();
                         selectedTimeInMillis = Utility_Calendar.getMonthInMillis(selectedMonth, selectedYear).getTimeInMillis();
-                        sortBy = SortBy.Date;
+                        groupBy = GroupBy.Date;
                         recreate();
                     } catch (Exception err) {
                         Log.i("ChartDebug", "Something went wrong ! ERROR : " + err.getMessage());
@@ -228,7 +227,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
 
     private String[] getXAxisLabelsFromDataList() {
         String[] xAxisLabels;
-        switch (sortBy) {
+        switch (groupBy) {
             case Date:
                 xAxisLabels = expenseList.stream().map(item -> item != null ? item.getName() : "").toArray(String[]::new);
                 break;
@@ -324,7 +323,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         selectedTimeInMillis = System.currentTimeMillis();
         selectedYear = Utility_Calendar.getYear(selectedTimeInMillis);
         selectedMonth = 0;
-        sortBy = SortBy.Month;
+        groupBy = GroupBy.Month;
         resetButton.setVisibility(View.GONE);
         isAltered = false;
         recreate();

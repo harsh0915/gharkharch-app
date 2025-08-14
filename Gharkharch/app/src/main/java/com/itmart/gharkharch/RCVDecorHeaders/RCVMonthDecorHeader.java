@@ -9,7 +9,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.itmart.gharkharch.Adapters.SimpleListAdapter;
+import com.itmart.gharkharch.Adapters.ManageExpensesAdapter;
 import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.R;
@@ -41,7 +41,7 @@ public class RCVMonthDecorHeader extends RecyclerView.ItemDecoration {
 
     @Override
     public void onDrawOver(@NonNull Canvas canvas, RecyclerView parent, @NonNull RecyclerView.State state) {
-        SimpleListAdapter adapter = (SimpleListAdapter) parent.getAdapter();
+        ManageExpensesAdapter adapter = (ManageExpensesAdapter) parent.getAdapter();
         if (adapter == null || adapter.getItemCount() == 0) return;
 
         int left = parent.getPaddingLeft();
@@ -76,7 +76,7 @@ public class RCVMonthDecorHeader extends RecyclerView.ItemDecoration {
         canvas.drawText(currentHeader, left + 40, textY, textPaint);
     }
 
-    private boolean isFirstInMonth(int position, SimpleListAdapter adapter) {
+    private boolean isFirstInMonth(int position, ManageExpensesAdapter adapter) {
         if (position == 0) return true;
 
         GenericItem current = adapter.getItemAtCurrentPos(position);
@@ -90,7 +90,7 @@ public class RCVMonthDecorHeader extends RecyclerView.ItemDecoration {
         return false;
     }
 
-    private String getMonthYearForPosition(int position, SimpleListAdapter adapter) {
+    private String getMonthYearForPosition(int position, ManageExpensesAdapter adapter) {
         GenericItem item = adapter.getItemAtCurrentPos(position);
         if (item instanceof ExpenseItem) {
             return monthYearFormat.format(new Date(((ExpenseItem) item).get_date()));
