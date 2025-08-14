@@ -240,6 +240,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             if (isEditMode) {
                 if (expenseId == INVALID_EXPENSE_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense", ERROR);
+                    utilityKeyboard.close_keyboard(v);
                     resetForm();
                     return;
                 }

@@ -45,7 +45,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private List<GenericItem> category_list;
     private RecyclerView rcv_category_list;
     private SimpleListAdapter simple_adapter;
-    private DatabaseHelper databaseHelper;
     private TextView page_title;
     private GenericItemType item_type;
     private Utility_DBOperations utilityDbOperations;
@@ -104,16 +103,16 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         });
 
         addBtn.setOnClickListener(v -> {
-//            utilityKeyboard.close_keyboard(v);
+            utilityKeyboard.close_keyboard(v);
 
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
-                return;
+                 return;
             }
             if (isEditMode) {
                 if (catId == INVALID_CAT_ID) {
-                    Utility_UiAlerts.generateSnackBar(rcv_category_list, "Invalid expense", ERROR);
+                    Utility_UiAlerts.generateSnackBar(rcv_category_list, "Invalid category", ERROR);
                     resetForm();
                     return;
                 }
@@ -202,7 +201,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         cancelBtn.setVisibility(View.GONE);
         inputCategory.setText("");
         inputCategory.setHint(R.string.hint_category);
-        if(search_button.getVisibility()==View.GONE){
+        if (search_button.getVisibility() == View.GONE) {
             toggle_search_view();
             search_view.setQuery("", false);
         }

@@ -57,8 +57,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private HashSet<String> category_fast_lookup;
     private RecyclerView rcv_category_search;
     private SearchListAdapter search_adapter;
-    private DatabaseHelper databaseHelper;
-    private int under_catId;
     private TextView page_title;
     private SimpleListAdapter simple_adapter;
     private RecyclerView rcv_sub_category_list;
@@ -71,8 +69,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private Utility_Keyboard utilityKeyboard;
     private List<GenericItem> filtered_cat_search_list;
     private List<GenericItem> filtered_sub_categories;
-    private int subCatId;
     private boolean isEditMode;
+    private int under_catId;
+    private int subCatId;
     private static final int INVALID_SUB_CAT_ID = -1;
 
     private enum ListType {
@@ -86,7 +85,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         item_type = GenericItemType.Sub_Category;
         utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
         utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
-        databaseHelper = DatabaseHelper.getInstance(requireContext());
         filtered_cat_search_list = new ArrayList<>();
         sub_category_list = new ArrayList<>();
         category_search_list = new ArrayList<>();
@@ -143,7 +141,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(s.length()==0)
+                if (s.length() == 0)
                     rcv_category_search.setVisibility(View.GONE);
                 else
                     rcv_category_search.setVisibility(View.VISIBLE);
@@ -158,7 +156,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         inputCategory.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && inputCategory.getText().toString().length()>1) {
+            if (hasFocus && inputCategory.getText().toString().length() > 1) {
                 rcv_category_search.setVisibility(View.VISIBLE);
             } else {
                 rcv_category_search.setVisibility(View.GONE);
@@ -173,17 +171,19 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         });
 
         addBtn.setOnClickListener(v -> {
-//            utilityKeyboard.close_keyboard(v);
+            utilityKeyboard.close_keyboard(v);
 
             String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
             if (sub_cat_name.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense head name can't be empty!", WARNING);
                 return;
-            } else if (cat_name.isEmpty()) {
+            }
+            if (cat_name.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense head can't be added without a category!", WARNING);
                 return;
-            } else if (!category_fast_lookup.contains(cat_name)) {
-                Utility_UiAlerts.generateSnackBar(addBtn, "Please add the \"" + cat_name + "\" category before using it. ", WARNING);
+            }
+            if (!category_fast_lookup.contains(cat_name)) {
+                Utility_UiAlerts.generateSnackBar(addBtn, "No such category found!", WARNING);
                 return;
             }
             if (isEditMode) {
@@ -194,6 +194,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                 }
                 utilityDbOperations.edit_sub_category(subCatId, under_catId, sub_cat_name, editedSubCatCallback);
             } else {
+                if (under_catId == INVALID_SUB_CAT_ID) {
+                    Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Please select a category from the list!", WARNING);
+                    return;
+                }
                 utilityDbOperations.addSubCategory(sub_cat_name, under_catId, addSubCatCallback);
             }
 
@@ -306,7 +310,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_category_search.setVisibility(View.GONE);
         inputCategory.setHint(R.string.hint_category);
         inputSubCategory.setHint(R.string.hint_sub_category);
-        if(search_button.getVisibility()==View.GONE){
+        if (search_button.getVisibility() == View.GONE) {
             toggle_search_view();
             search_view.setQuery("", false);
         }
