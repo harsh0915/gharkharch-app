@@ -460,7 +460,7 @@ public class Utility_DBOperations {
                                 " , COALESCE(SUM(e." + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + "), 0)as TotalExpense" +
                                 " from Temp_DateTable" +
                                 " left join " + DatabaseHelper.TABLE_EXPENSES + " as e" +
-                                " on date(datetime(e." + DatabaseHelper.COLUMN_EXPENSE_DATE + " / 1000, 'unixepoch')) = Temp_DateTable.Time " +
+                                " on e." + DatabaseHelper.COLUMN_INDEXED_DATE + " = Temp_DateTable.Time " +
                                 " group by Temp_DateTable.Time" +
                                 " order by Temp_DateTable.Time";
                         break;

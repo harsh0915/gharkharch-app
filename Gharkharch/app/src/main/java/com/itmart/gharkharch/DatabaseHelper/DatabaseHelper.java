@@ -23,7 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private final Context context;
     private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "ghar_kharch_db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     //    tables
     public static String TABLE_CATEGORIES = "categories";
@@ -46,6 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static String COLUMN_EXPENSE_DATE = "expense_date";
     public static String COLUMN_EXPENSE_MODE = "expense_mode";
     public static String COLUMN_EXPENSE_REMARKS = "expense_remarks";
+    public static String COLUMN_INDEXED_DATE = "indexed_date";
 
     //create tables
     public String CREATE_CATEGORIES_TABLE = "create table " + TABLE_CATEGORIES + "(" +
@@ -90,8 +91,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             importCSVToDB(context.getResources().openRawResource(R.raw.cat), TABLE_CATEGORIES, db);
             importCSVToDB(context.getResources().openRawResource(R.raw.subcat), TABLE_SUB_CATEGORIES, db);
             Log.i(TAG, "Successfully parsed csv files to db!");
+            //create the indexed date column in expense table
+            db.execSQL(
+                    "alter table " + TABLE_EXPENSES +
+                            " add column " + COLUMN_INDEXED_DATE + " text"
+            );
+            //fill existing data into the new crated column
+            db.execSQL(
+                    "UPDATE " + TABLE_EXPENSES +
+                            " SET " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'));"
+            );
+            //create index for faster joins
+            db.execSQL(
+                    "create index if not exists indx_date on " + TABLE_EXPENSES + "(" + COLUMN_INDEXED_DATE + ")"
+            );
+            //add trigger for insert and updates
+            db.execSQL(
+                    "create trigger if not exists trigger_insert_indexed_date" +
+                            " after insert on " + TABLE_EXPENSES +
+                            " for each row " +
+                            " begin " +
+                            " update " + TABLE_EXPENSES +
+                            " set " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'))" +
+                            " where " + COLUMN_EXPENSE_ID + " = NEW." + COLUMN_EXPENSE_ID + ";" +
+                            " end "
+            );
+            db.execSQL(
+                    " create trigger if not exists trigger_update_indexed_date" +
+                            " after update of " + COLUMN_EXPENSE_DATE + " on " + TABLE_EXPENSES +
+                            " for each row " +
+                            " begin " +
+                            " update " + TABLE_EXPENSES +
+                            " set " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'))" +
+                            " where " + COLUMN_EXPENSE_ID + " = NEW." + COLUMN_EXPENSE_ID + ";" +
+                            " end"
+            );
+            Log.i(TAG, "Successfully created the indexed date column!");
         } catch (SQLException e) {
-            Log.e(TAG, "Sql table creation error!\nError : " + e.getMessage());
+            Log.e(TAG, "Sql table creation error!\nError : " + e);
         }
     }
 
@@ -103,15 +140,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.beginTransaction();
-        try {
-//            if(oldVersion<2){}
-            db.setTransactionSuccessful();
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity.");
-            throw new RuntimeException("Database upgrade failed", e); // Crash on failure for data integrity
-        } finally {
-            db.endTransaction();
+        if (oldVersion < 2) {
+            db.beginTransaction();
+            try {
+                //create the indexed date column in expense table
+                if (!doesColumnExist(db, TABLE_EXPENSES, COLUMN_INDEXED_DATE)) {
+                    db.execSQL(
+                            "alter table " + TABLE_EXPENSES +
+                                    " add column " + COLUMN_INDEXED_DATE + " text"
+                    );
+                }
+                //fill existing data into the new crated column
+                db.execSQL(
+                        "UPDATE " + TABLE_EXPENSES +
+                                " SET " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'));"
+                );
+                //create index for faster joins
+                db.execSQL(
+                        "create index if not exists indx_date on " + TABLE_EXPENSES + "(" + COLUMN_INDEXED_DATE + ")"
+                );
+                //add triggers for insert and updates
+                db.execSQL(
+                        "create trigger if not exists trigger_insert_indexed_date" +
+                                " after insert on " + TABLE_EXPENSES +
+                                " for each row " +
+                                " begin " +
+                                " update " + TABLE_EXPENSES +
+                                " set " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'))" +
+                                " where " + COLUMN_EXPENSE_ID + " = NEW." + COLUMN_EXPENSE_ID + ";" +
+                                " end "
+                );
+                db.execSQL(
+                        " create trigger if not exists trigger_update_indexed_date" +
+                                " after update of " + COLUMN_EXPENSE_DATE + " on " + TABLE_EXPENSES +
+                                " for each row " +
+                                " begin " +
+                                " update " + TABLE_EXPENSES +
+                                " set " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'))" +
+                                " where " + COLUMN_EXPENSE_ID + " = NEW." + COLUMN_EXPENSE_ID + ";" +
+                                " end"
+                );
+                db.setTransactionSuccessful();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity." + e.getMessage());
+                throw new RuntimeException("Database upgrade failed", e); // Crash on failure for data integrity
+            } finally {
+                db.endTransaction();
+            }
+        }
+
+        if (oldVersion < 3) {
+            db.beginTransaction();
+            try {
+                //update logic goes here
+                db.setTransactionSuccessful();
+            } catch (RuntimeException e) {
+                Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity." + e.getMessage());
+                throw new RuntimeException("Database upgrade failed", e); // Crash on failure for data integrity
+            } finally {
+                db.endTransaction();
+            }
         }
     }
 

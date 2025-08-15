@@ -1,3 +1,10 @@
+#ignored files for node server
+.env
+logs/
+*.log
+node_modules/
+
+#ignored files for android proejct
 *.iml
 .gradle
 /local.properties
