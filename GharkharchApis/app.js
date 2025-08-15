@@ -1,21 +1,20 @@
 import express from 'express'
 import https from 'https'
 import fs from 'fs'
-import {getCategories, getSubCategories,	getExpenses} from './database.js'
+import {getUser} from './database.js'
+import dotenv from "dotenv"
 
+dotenv.config();
 const app = express()
-
 const options = {
 	key: fs.readFileSync('./openssl/private.key'),      	
 	cert: fs.readFileSync('./openssl/certificate.crt')      
 }
 
-//pass the express app to manage queries made to
-//the server
+//pass the express app
 const server = https.createServer(options,app);
 
-//listen at 443
-server.listen(443, () => {
+server.listen(process.env.PORT, () => {
 	console.log("HTTPS serever listening at port 443")
 })
 
@@ -24,6 +23,6 @@ app.get('/', async (req, res) => {
 })
 
 app.get('/sub_categories', async (req, res) => {
-	const result = await getSubCategories()
+	const result = await getUser()
 	res.send(result) 
 })
