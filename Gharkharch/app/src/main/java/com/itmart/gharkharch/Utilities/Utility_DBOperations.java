@@ -25,19 +25,13 @@ import java.util.concurrent.Executors;
 
 public class Utility_DBOperations {
 
-    private final Context context;
+    private final String TAG = "DatabaseOperations";
     private static Utility_DBOperations instance;
     private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
     private final DatabaseHelper databaseHelper;
-    private final SQLiteDatabase writeable_db;
-    private final SQLiteDatabase readable_db;
 
     private Utility_DBOperations(Context context) {
-        this.context = context.getApplicationContext();
-        this.databaseHelper = DatabaseHelper.getInstance(this.context);
-        this.writeable_db = databaseHelper.getWritableDatabase();
-        this.readable_db = databaseHelper.getReadableDatabase();
-        this.writeable_db.setForeignKeyConstraintsEnabled(true);
+        this.databaseHelper = DatabaseHelper.getInstance(context.getApplicationContext());
     }
 
     public static synchronized Utility_DBOperations getInstance(Context context) {
@@ -67,6 +61,7 @@ public class Utility_DBOperations {
     public void add_expense(int under_sub_category_id, int amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY, under_sub_category_id);
                 values.put(DatabaseHelper.COLUMN_EXPENSE_AMOUNT, amount);
@@ -77,8 +72,8 @@ public class Utility_DBOperations {
                 writeable_db.insert(DatabaseHelper.TABLE_EXPENSES, null, values);
                 callbackDbOperations.onSuccess(new DatabaseCallbackObject());
             } catch (Exception e) {
+                Log.e(TAG, "Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
-
             }
         });
     }
@@ -86,6 +81,7 @@ public class Utility_DBOperations {
     public void addSubCategory(String new_sub_category, int under_cat_id, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
                 values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_cat_id);
@@ -96,6 +92,7 @@ public class Utility_DBOperations {
                     callbackDbOperations.onWarning();
                 }
             } catch (Exception e) {
+                Log.e(TAG, "Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
             }
         });
@@ -104,12 +101,14 @@ public class Utility_DBOperations {
     public void addCategory(String new_category, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
                 values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
                 try {
                     writeable_db.insertOrThrow(DatabaseHelper.TABLE_CATEGORIES, null, values);
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject());
                 } catch (SQLiteConstraintException e) {
+                    Log.e(TAG, "Error : " + e.getMessage());
                     callbackDbOperations.onWarning();
                 }
             } catch (Exception e) {
@@ -143,6 +142,7 @@ public class Utility_DBOperations {
                     }
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
                 } catch (Exception e) {
+                    Log.e(TAG, "Error : " + e.getMessage());
                     callbackDbOperations.onFailure(e);
                 } finally {
                     if (cursor != null) cursor.close();
@@ -158,6 +158,7 @@ public class Utility_DBOperations {
             List<GenericItem> data_list = new ArrayList<>();
             HashSet<String> data_fast_lookup = new HashSet<>();
             try {
+                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
                 String query = "select " +
                         " sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID +
                         ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
@@ -186,6 +187,7 @@ public class Utility_DBOperations {
                     }
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list, data_fast_lookup));
                 } catch (Exception e) {
+                    Log.e(TAG, "Error : " + e.getMessage());
                     callbackDbOperations.onFailure(e);
                 } finally {
                     if (cursor != null) cursor.close();
@@ -201,6 +203,7 @@ public class Utility_DBOperations {
         dbExecutor.execute(() -> {
             List<GenericItem> data_list = new ArrayList<>();
             try {
+                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
                 String query = "select " +
                         "exp." + DatabaseHelper.COLUMN_EXPENSE_ID +
                         ", sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_NAME +
@@ -222,7 +225,6 @@ public class Utility_DBOperations {
 
                     if (cursor.moveToFirst()) {
                         do {
-
                             int expense_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSE_ID));
                             String expense_name = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME));
                             int sub_cat_id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY));
@@ -238,6 +240,7 @@ public class Utility_DBOperations {
 
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject(data_list));
                 } catch (Exception e) {
+                    Log.e(TAG, "Error : " + e.getMessage());
                     callbackDbOperations.onFailure(e);
                 } finally {
                     if (cursor != null) cursor.close();
@@ -406,6 +409,7 @@ public class Utility_DBOperations {
             String query;
             List<ItemForAnalysis> data = new ArrayList<>();
             try {
+                SQLiteDatabase readable_db = databaseHelper.getReadableDatabase();
                 switch (groupBy) {
 
 //                    case Year:
@@ -468,7 +472,6 @@ public class Utility_DBOperations {
                 Cursor cursor = null;
                 try {
                     cursor = readable_db.rawQuery(query, null);
-//                    Log.i("DatabaseDebugger", " Date is :" + Utility_DateFormats.convertLongToDate_DD_MM_YY(timeInMillis));
 //                    Utility_DBDebug.printCursorData(cursor, "db analysis");
                     if (cursor.moveToFirst()) {
                         do {
@@ -480,8 +483,8 @@ public class Utility_DBOperations {
                     }
                     callbackDbOpsForAnalysis.onSuccess(new DBOpsForAnalysisCallbackObject(data));
                 } catch (Exception e) {
+                    Log.e(TAG, "Error : " + e.getMessage());
                     callbackDbOpsForAnalysis.onFailure(e);
-                    Log.i("DatabaseDebugger", "error : " + e.getMessage());
                 } finally {
                     if (cursor != null) cursor.close();
                 }
@@ -495,6 +498,7 @@ public class Utility_DBOperations {
     public void edit_category(int id, String edited_cat_name, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 String where_clause = DatabaseHelper.COLUMN_CATEGORY_ID + " = ?";
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
@@ -507,6 +511,7 @@ public class Utility_DBOperations {
                     callbackDbOperations.onWarning();
                 }
             } catch (Exception e) {
+                Log.e(TAG, "Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
             }
         });
@@ -515,6 +520,7 @@ public class Utility_DBOperations {
     public void edit_sub_category(int id, int under_catId, String edited_sub_cat_name, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 String where_clause = DatabaseHelper.COLUMN_SUB_CATEGORY_ID + " = ?";
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
@@ -527,6 +533,7 @@ public class Utility_DBOperations {
                     callbackDbOperations.onWarning();
                 }
             } catch (Exception e) {
+                Log.e(TAG, "Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
             }
         });
@@ -535,6 +542,7 @@ public class Utility_DBOperations {
     public void edit_expense(int id, int under_sub_cat, int edited_amount, long date, int mode_of_payment, String expense_remarks, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 String where_clause = DatabaseHelper.COLUMN_EXPENSE_ID + " = ?";
                 String[] where_args = new String[]{String.valueOf(id)};
                 ContentValues values = new ContentValues();
@@ -547,6 +555,7 @@ public class Utility_DBOperations {
                 writeable_db.update(DatabaseHelper.TABLE_EXPENSES, values, where_clause, where_args);
                 callbackDbOperations.onSuccess(new DatabaseCallbackObject());
             } catch (Exception e) {
+                Log.e(TAG, "Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
             }
         });
@@ -556,6 +565,7 @@ public class Utility_DBOperations {
     public void delete_item(int id, int item_type, Callback_DBOperations callbackDbOperations) {
         dbExecutor.execute(() -> {
             try {
+                SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 String where_clause;
                 String[] where_args;
                 int rows;
@@ -567,9 +577,7 @@ public class Utility_DBOperations {
                             where_args = new String[]{String.valueOf(id)};
                             rows = writeable_db.delete(DatabaseHelper.TABLE_CATEGORIES, where_clause, where_args);
                             if (rows == 0)
-                                Log.i("harshTagSqlQuery", "Something went wrong while deleting the rows from category table.");
-                            else
-                                Log.i("harshTagSqlQuery", "Rows updated successfully. Rows updated : " + id);
+                                Log.e(TAG, "Something went wrong while deleting the rows from category table.");
                         } catch (SQLiteConstraintException e) {
                             if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
                                 callbackDbOperations.onWarning();
@@ -586,9 +594,7 @@ public class Utility_DBOperations {
                             where_args = new String[]{String.valueOf(id)};
                             rows = writeable_db.delete(DatabaseHelper.TABLE_SUB_CATEGORIES, where_clause, where_args);
                             if (rows == 0)
-                                Log.w("harshTagSqlQuery", "Something went wrong while deleting the rows from sub-category table.");
-                            else
-                                Log.i("harshTagSqlQuery", "Rows delete successfully.");
+                                Log.e(TAG, "Something went wrong while deleting the rows from sub-category table.");
                         } catch (SQLiteConstraintException e) {
                             if (e.getMessage() != null && e.getMessage().contains("FOREIGN KEY constraint failed")) {
                                 callbackDbOperations.onWarning();
@@ -605,9 +611,7 @@ public class Utility_DBOperations {
                             where_args = new String[]{String.valueOf(id)};
                             rows = writeable_db.delete(DatabaseHelper.TABLE_EXPENSES, where_clause, where_args);
                             if (rows == 0)
-                                Log.i("harshTagSqlQuery", "Something went wrong while deleting the rows from expense table.");
-                            else
-                                Log.i("harshTagSqlQuery", "Row delete successfully.");
+                                Log.i(TAG, "Something went wrong while deleting the rows from expense table.");
                         } catch (Exception e) {
                             callbackDbOperations.onFailure(e);
                         }
@@ -616,7 +620,7 @@ public class Utility_DBOperations {
 
                 callbackDbOperations.onSuccess(new DatabaseCallbackObject());
             } catch (Exception e) {
-                Log.e("harshTagDelete", "Constraint Error : " + e.getMessage());
+                Log.e(TAG, "Constraint Error : " + e.getMessage());
                 callbackDbOperations.onFailure(e);
             }
         });

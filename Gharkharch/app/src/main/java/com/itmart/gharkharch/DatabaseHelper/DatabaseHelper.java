@@ -6,20 +6,18 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.itmart.gharkharch.R;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private final String TAG = "DatabaseDebugger";
+    private final String TAG = "DatabaseHelper";
     private final Context context;
     private static DatabaseHelper instance;
     private static final String DATABASE_NAME = "ghar_kharch_db";
@@ -70,7 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private DatabaseHelper(Context context) {
         super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     //public method to get the single instance of the database helper
@@ -135,7 +133,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
-        db.execSQL("PRAGMA foreign_keys = ON;");
+        db.setForeignKeyConstraintsEnabled(true);
     }
 
     @Override

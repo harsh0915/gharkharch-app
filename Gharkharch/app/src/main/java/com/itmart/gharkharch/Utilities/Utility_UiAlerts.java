@@ -88,9 +88,6 @@ public class Utility_UiAlerts {
                 textView.setText(msg);
             }
             snackbar.setBackgroundTint(bgColor);
-//            snackbar.setAction("Dismiss", (v) -> {
-//                snackbar.dismiss();
-//            });
             snackbar.show();
         });
     }
