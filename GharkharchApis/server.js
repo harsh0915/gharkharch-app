@@ -42,7 +42,7 @@ app.post('/login', async (req, res) => {
 		const password = req.body.password
 		const user = await getUserDetails(user_name)
 		//no user with this user_name
-		if (!user)	return res.status(500).send("No such user found in the database")
+		if (!user)	return res.status(401).send("No such user found in the database")
 
 		if (user[COLUMNS.IS_SUB_ACTIVE] == 0)  return res.status(401).send("Subscription revoked")
 
@@ -79,7 +79,7 @@ app.post('/verify', async (req, res) => {
 	//if its a consecutive login use tokens to simulate SSO 
 	const token = req.headers.authorization
 
-	if (!token) return res.status(200).send("Token missing!")
+	if (!token) return res.status(200).send({ access_granted: true, message: "Token Missing" })
 
 	try {
 		const decoded_token = jwt.verify(token, process.env.SECRET)

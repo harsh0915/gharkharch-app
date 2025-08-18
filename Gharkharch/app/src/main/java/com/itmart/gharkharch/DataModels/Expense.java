@@ -13,7 +13,7 @@ public class Expense implements Parcelable, ExpenseItem {
     private final int expense_amount;
     private final long expense_date;
     private final int expense_mode;
-    private String expense_remarks;
+    private final String expense_remarks;
 
     public Expense(int expense_id, String expense_name, int under_sub_cat_id, int expense_amount, long expense_date, int expense_mode, String expense_remarks) {
         this.expense_id = expense_id;
