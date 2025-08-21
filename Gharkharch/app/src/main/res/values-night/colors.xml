@@ -7,6 +7,7 @@
     <color name="primaryTextColorVariant">#B0BEC5</color>
     <color name="secondaryColor">#6C8CBF</color>
     <color name="buttonColor">#5C8FD6</color>
+    <color name="inactiveButtonColor">#97AFD2</color>
     <color name="iconColor">#CDDEED</color>
     <color name="dialog_bg">#3E5C76</color>
 

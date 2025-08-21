@@ -53,9 +53,8 @@ export async function insertToken(token, user_name) {
 	const result = await pool.query
 		(`update ${TABLES.REFRESH_TOKENS} set 
 		${COLUMNS.REFRESH_TOKEN} = ?,
-		${COLUMNS.EXPIRY} = NOW() + INTERVAL 30 Day,
-		${COLUMNS.USER_NAME} = ?`,
-		[token, user_name])
+		${COLUMNS.EXPIRY} = NOW() + INTERVAL 30 Day
+		where	${COLUMNS.USER_NAME} = ?`, [token, user_name])
 
 	return result[0].affectedRows;
 }

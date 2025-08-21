@@ -35,7 +35,7 @@
         android:layout_marginVertical="@dimen/margin_large"
         android:hint="@string/hint_password"
         android:importantForAutofill="no"
-        android:inputType="numberPassword"
+        android:inputType="textPassword"
         android:maxLength="8" />
 
     <Button
@@ -47,6 +47,5 @@
         android:text="Login"
         android:textSize="@dimen/text_size_medium"
         android:textStyle="bold" />
-
 
 </LinearLayout>

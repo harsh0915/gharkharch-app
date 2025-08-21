@@ -42,9 +42,9 @@ app.post('/login', async (req, res) => {
 		const password = req.body.password
 		const user = await getUserDetails(user_name)
 		//no user with this user_name
-		if (!user)	return res.status(401).send("No such user found in the database")
+		if (!user) return res.status(404).send("No such user found in the database")
 
-		if (user[COLUMNS.IS_SUB_ACTIVE] == 0)  return res.status(401).send("Subscription revoked")
+		if (user[COLUMNS.IS_SUB_ACTIVE] == 0) return res.status(403).send("Subscription revoked")
 
 		//remember to use transaction later
 		//check if its the first login, if so then accept the newly entered password;onboarding logic
@@ -66,7 +66,7 @@ app.post('/login', async (req, res) => {
 				const tokens = await generateTokens(user_name)
 				return res.status(200).json(tokens)
 			} else {
-				return res.status(401).send("Auth Failed : Wrong password")
+				return res.status(403).send("Auth Failed : Wrong password")
 			}
 		}
 	}
@@ -75,11 +75,11 @@ app.post('/login', async (req, res) => {
 	}
 })
 
-app.post('/verify', async (req, res) => {
+app.get('/verify', async (req, res) => {
 	//if its a consecutive login use tokens to simulate SSO 
 	const token = req.headers.authorization
 
-	if (!token) return res.status(200).send({ access_granted: true, message: "Token Missing" })
+	if (!token) return res.status(401).send({ access_granted: false, message: "Token Missing" })
 
 	try {
 		const decoded_token = jwt.verify(token, process.env.SECRET)
@@ -89,15 +89,15 @@ app.post('/verify', async (req, res) => {
 		if (isSubActive == 1) {
 			res.status(200).json({ access_granted: true, message: "Access Granted" })
 		} else {
-			res.status(200).json({ access_granted: false, message: "Subscription Revoked" })
+			res.status(403).json({ access_granted: false, message: "Subscription Revoked" })
 		}
 	}
 	catch (e) {
 		if (e.name == "TokenExpiredError") {
-			return res.status(401).send("Token Expired")
+			return res.status(403).send("Token Expired")
 		} else {
 			console.log("Received an invalid token!!!")
-			return res.status(401).send(`Invalid Token ${e.message}`)
+			return res.status(403).send(`Invalid Token ${e.message}`)
 		}
 	}
 })
@@ -108,7 +108,9 @@ app.post('/refresh', async (req, res) => {
 		const user_token = req.body.refresh_token
 		const user = await getUserDetails(user_name)
 		//no user with this user_name
-		if (!user) return res.status(401).send("No such user found in the database")
+		if (!user) return res.status(404).send("No such user found in the database")
+		//check if user has a valid subscription
+		if (user[COLUMNS.IS_SUB_ACTIVE] == 0) return res.status(403).send("Subscription revoked")
 		//check if refresh token is valid then generate new token otherwise return access denied
 		const refresh_token = user[COLUMNS.REFRESH_TOKEN]
 		//need to generate buffers to compare the hashed string from db and req
@@ -130,10 +132,16 @@ app.post('/refresh', async (req, res) => {
 				return res.status(200).json({ refresh_token: refresh_token, access_token: access_token })
 			}
 		} else {
-			return res.status(401).send("Auth Failed : Invalid refresh token")
+			return res.status(403).send("Auth Failed : Invalid refresh token")
 		}
 	}
 	catch (e) {
 		return res.status(500).send(`Oops something went wrong! Error : ${e.message}`)
 	}
 })
+
+//debugger to listen for any non exisisting endpoints
+app.use((req, res) => {
+	console.log(`No route matched: ${req.method} ${req.url}`);
+	res.status(404).send("Not Found");
+});

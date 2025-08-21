@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout landing_page;
     private FrameLayout drawer_panel;
     private LinearLayout content_panel;
-    private Utility_UiAlerts utilityUiAlerts;
     //drawer elements
     private TextView profile;
     private TextView manage_expenses;
@@ -87,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializeUiElements() {
         fragmentMap = new HashMap<>();
-        utilityUiAlerts = Utility_UiAlerts.getInstance(this);
         //views
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         fragmentContainer = findViewById(R.id.fragmentContainer);
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         profile.setOnClickListener(v -> {
-            utilityUiAlerts.generateToast("Feature under development");
+            Utility_UiAlerts.generateToast("Feature under development", MainActivity.this);
 //            Intent edit_profile = new Intent(MainActivity.this, EditProfileActivity.class);
 //            startActivity(edit_profile);
         });
@@ -197,13 +195,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         backup_data.setOnClickListener(v -> {
-            utilityUiAlerts.generateToast("Feature under development");
+            Utility_UiAlerts.generateToast("Feature under development", MainActivity.this);
 //            Intent settings = new Intent(MainActivity.this, BackupDataActivity.class);
 //            startActivity(settings);
         });
 
         restore_data.setOnClickListener(v -> {
-            utilityUiAlerts.generateToast("Feature under development");
+            Utility_UiAlerts.generateToast("Feature under development", MainActivity.this);
 //            Intent edit_profile = new Intent(MainActivity.this, RestoreDataActivity.class);
 //            startActivity(edit_profile);
         });
