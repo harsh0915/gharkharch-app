@@ -11,12 +11,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.itmart.gharkharch.Adapters.ManageExpensesAdapter;
-import com.itmart.gharkharch.Adapters.SimpleListAdapter;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.RCVDecorHeaders.RCVMonthDecorHeader;
 import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
@@ -56,7 +54,6 @@ public class ManageExpensesActivity extends AppCompatActivity  {
 
     private void inflateRCV() {
         simple_adapter = new ManageExpensesAdapter(this, filtered_expenses);
-        rcv_expense_list.addItemDecoration(new RCVMonthDecorHeader(this));
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(this));
         rcv_expense_list.setAdapter(simple_adapter);
     }
@@ -84,10 +81,8 @@ public class ManageExpensesActivity extends AppCompatActivity  {
 
         @Override
         public void onFailure(Exception e) {
-
             Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
             Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Couldn't fetch expenses", ERROR);
-
         }
 
         @Override
