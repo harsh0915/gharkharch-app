@@ -176,6 +176,7 @@ public class RemoteRepository {
                         Log.i(TAG, "Access Denied : " + response.message());
                         handler.post(callback::onAccessRevoked);
                     } else {
+                        Log.i(TAG, "Error code : " + response.code());
                         if (response.body() != null) {
                             handler.post(() -> callback.onError(response.body().toString()));
                         } else {

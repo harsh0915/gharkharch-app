@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/margin_large"
         android:hint="@string/hint_username"
-        android:importantForAutofill="no" />
+        android:importantForAutofill="no"
+        android:inputType="text" />
 
     <EditText
         android:id="@+id/passwordET"

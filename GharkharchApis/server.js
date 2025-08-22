@@ -104,6 +104,7 @@ app.get('/verify', async (req, res) => {
 
 app.post('/refresh', async (req, res) => {
 	try {
+		console.log(`${req.body.name} is refreshing the tokens`)
 		const user_name = req.body.name
 		const user_token = req.body.refresh_token
 		const user = await getUserDetails(user_name)

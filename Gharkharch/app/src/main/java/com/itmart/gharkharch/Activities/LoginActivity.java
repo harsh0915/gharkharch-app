@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -24,6 +27,7 @@ import com.itmart.gharkharch.MainActivity;
 import com.itmart.gharkharch.R;
 import com.itmart.gharkharch.RemoteDataAndApis.RemoteRepository;
 import com.itmart.gharkharch.Utilities.Utility_Internet;
+import com.itmart.gharkharch.Utilities.Utility_NetworkMonitor;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_UserPreferences;
 
@@ -34,7 +38,6 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginBtn;
     private RemoteRepository remoteRepository;
     private Utility_UserPreferences persistent_storage;
-    private boolean isInternetAvailable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +50,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        autoLogin();
-        showNoInternetDialog();
-//            loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.inactiveButtonColor));
+    protected void onDestroy() {
+        super.onDestroy();
+        Utility_NetworkMonitor.unregisterNetworkCallback(LoginActivity.this, networkMonitorCallback);
+        Log.i(TAG, "destroyed ");
     }
 
     private void setupClickListeners() {
@@ -81,8 +83,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initializeHelperClasses() {
-        isInternetAvailable = false;
         remoteRepository = RemoteRepository.getInstance();
+        Utility_NetworkMonitor.registerNetworkCallback(LoginActivity.this, networkMonitorCallback);
         persistent_storage = new Utility_UserPreferences(LoginActivity.this);
     }
 
@@ -97,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                         Utility_UiAlerts.generateToast("Logged in successfully", LoginActivity.this);
                         Intent main = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(main);
+                        finish();
                     }
                 }
 
@@ -107,7 +110,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String e) {
-                    Log.e(TAG, "Something went wrong! Error : " + e);
+                    Log.e(TAG, "Error : " + e);
                 }
             });
         }
@@ -122,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                 persistent_storage.saveTokens(response.getRefresh_token(), response.getAccess_token());
                 Intent main = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(main);
+                finish();
             }
 
             @Override
@@ -131,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onError(String e) {
-                Log.e(TAG, "Something went wrong! Error : " + e);
+                Log.e(TAG, "Error : " + e);
             }
         });
     }
@@ -146,6 +150,7 @@ public class LoginActivity extends AppCompatActivity {
                     Utility_UiAlerts.generateToast("Logged in successful", LoginActivity.this);
                     Intent main = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(main);
+                    finish();
                 }
 
                 @Override
@@ -155,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(String e) {
-                    Log.e(TAG, "Something went wrong! Error : " + e);
+                    Log.e(TAG, "Error : " + e);
                 }
             });
         }
@@ -211,4 +216,18 @@ public class LoginActivity extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.show();
     }
+
+    private final ConnectivityManager.NetworkCallback networkMonitorCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
+            autoLogin();
+        }
+
+        @Override
+        public void onUnavailable() {
+            super.onUnavailable();
+            showNoInternetDialog();
+        }
+    };
 }
