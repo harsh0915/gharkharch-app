@@ -2,12 +2,16 @@ package com.itmart.gharkharch.Activities;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +30,6 @@ import com.itmart.gharkharch.DataModels.VerifyJSON;
 import com.itmart.gharkharch.MainActivity;
 import com.itmart.gharkharch.R;
 import com.itmart.gharkharch.RemoteDataAndApis.RemoteRepository;
-import com.itmart.gharkharch.Utilities.Utility_Internet;
 import com.itmart.gharkharch.Utilities.Utility_NetworkMonitor;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_UserPreferences;
@@ -50,10 +53,19 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onResume() {
+        super.onResume();
+        if (!getCurrentNetworkState()) {
+            showNoInternetDialog();
+            loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.inactiveButtonColor));
+        }
+        Utility_NetworkMonitor.registerNetworkCallback(LoginActivity.this, networkMonitorCallback);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         Utility_NetworkMonitor.unregisterNetworkCallback(LoginActivity.this, networkMonitorCallback);
-        Log.i(TAG, "destroyed ");
     }
 
     private void setupClickListeners() {
@@ -84,7 +96,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initializeHelperClasses() {
         remoteRepository = RemoteRepository.getInstance();
-        Utility_NetworkMonitor.registerNetworkCallback(LoginActivity.this, networkMonitorCallback);
         persistent_storage = new Utility_UserPreferences(LoginActivity.this);
     }
 
@@ -221,13 +232,26 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onAvailable(@NonNull Network network) {
             super.onAvailable(network);
-            autoLogin();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.buttonColor));
+                autoLogin();
+            });
         }
 
         @Override
-        public void onUnavailable() {
-            super.onUnavailable();
-            showNoInternetDialog();
+        public void onLost(@NonNull Network network) {
+            super.onLost(network);
+            new Handler(Looper.getMainLooper()).post(() -> {
+                showNoInternetDialog();
+                loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.inactiveButtonColor));
+            });
         }
     };
+
+    public boolean getCurrentNetworkState() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network activeNetwork = cm.getActiveNetwork();
+        NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+        return (caps != null && (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)));
+    }
 }
