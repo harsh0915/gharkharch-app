@@ -17,13 +17,14 @@ import com.itmart.gharkharch.DataModels.GenericItemType;
 import com.itmart.gharkharch.R;
 import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
+import com.itmart.gharkharch.Utilities.Utility_MonthHeaderRCV;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class ManageExpensesActivity extends AppCompatActivity  {
+public class ManageExpensesActivity extends AppCompatActivity implements ManageExpensesAdapter.Click_Interface {
 
     private Utility_DBOperations utilityDbOperations;
     private GenericItemType item_type;
@@ -43,6 +44,21 @@ public class ManageExpensesActivity extends AppCompatActivity  {
         fetchData();
     }
 
+    @Override
+    public void delete_item(int item_id) {
+
+    }
+
+    @Override
+    public void edit_item(GenericItem item) {
+
+    }
+
+    @Override
+    public void database_updated() {
+
+    }
+
     private void initializeDataStructures() {
         utilityDbOperations = Utility_DBOperations.getInstance(this);
         expense_list = new ArrayList<>();
@@ -53,7 +69,8 @@ public class ManageExpensesActivity extends AppCompatActivity  {
     }
 
     private void inflateRCV() {
-        simple_adapter = new ManageExpensesAdapter(this, filtered_expenses);
+        simple_adapter = new ManageExpensesAdapter(this, filtered_expenses, this);
+        rcv_expense_list.addItemDecoration(new Utility_MonthHeaderRCV(ManageExpensesActivity.this));
         rcv_expense_list.setLayoutManager(new LinearLayoutManager(this));
         rcv_expense_list.setAdapter(simple_adapter);
     }

@@ -343,10 +343,5 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         public void onFailure(Exception e) {
 
         }
-
-        @Override
-        public void onWarning() {
-
-        }
     };
 }

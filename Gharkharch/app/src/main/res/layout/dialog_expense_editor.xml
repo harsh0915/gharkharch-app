@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:importantForAutofill="no"
         android:inputType="text"
-        android:padding="@dimen/padding_large" />
+        android:padding="@dimen/padding_large"
+        tools:ignore="LabelFor" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -53,8 +53,6 @@ public class Utility_DBOperations {
         void onSuccess(DBOpsForAnalysisCallbackObject callbackObject);
 
         void onFailure(Exception e);
-
-        void onWarning();
     }
 
     //add operations
@@ -222,6 +220,7 @@ public class Utility_DBOperations {
 
                 try {
                     cursor = readable_db.rawQuery(query, null);
+//                    Utility_DBDebug.printCursorData(cursor, "harshBarChart");
 
                     if (cursor.moveToFirst()) {
                         do {
@@ -434,10 +433,18 @@ public class Utility_DBOperations {
 
                     case Month:
                         query = " with months_tab AS (" +
-                                " SELECT '01' AS Time UNION ALL SELECT '02' UNION ALL SELECT '03'" +
-                                " UNION ALL SELECT '04' UNION ALL SELECT '05' UNION ALL SELECT '06'" +
-                                " UNION ALL SELECT '07' UNION ALL SELECT '08' UNION ALL SELECT '09'" +
-                                " UNION ALL SELECT '10' UNION ALL SELECT '11' UNION ALL SELECT '12' )" +
+                                " SELECT '01' AS Time" +
+                                " UNION ALL SELECT '02'" +
+                                " UNION ALL SELECT '03'" +
+                                " UNION ALL SELECT '04'" +
+                                " UNION ALL SELECT '05'" +
+                                " UNION ALL SELECT '06'" +
+                                " UNION ALL SELECT '07'" +
+                                " UNION ALL SELECT '08'" +
+                                " UNION ALL SELECT '09'" +
+                                " UNION ALL SELECT '10'" +
+                                " UNION ALL SELECT '11'" +
+                                " UNION ALL SELECT '12' )" +
                                 " select " +
                                 " m.Time" +
                                 " , COALESCE(SUM(" + DatabaseHelper.COLUMN_EXPENSE_AMOUNT + "), 0) as TotalExpense" +
