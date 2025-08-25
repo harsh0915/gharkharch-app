@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="@dimen/margin_small"
+    android:paddingVertical="@dimen/margin_small"
     android:gravity="center"
     android:orientation="horizontal"
     android:paddingHorizontal="@dimen/padding_large">
@@ -24,7 +24,6 @@
         android:layout_height="wrap_content"
         android:text="asjdkljaskdj"
         android:textSize="@dimen/text_size_medium"
-        android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@id/edit_item"
         app:layout_constraintStart_toEndOf="@id/item_name"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +35,6 @@
         android:text="asjdkljaskdj"
         android:textColor="@color/primaryTextColorVariant"
         android:textSize="@dimen/text_size_small"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/edit_item"
         app:layout_constraintStart_toStartOf="parent"

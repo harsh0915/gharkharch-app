@@ -8,7 +8,7 @@ export async function generateTokens(user_name) {
 	try {
 		const all_good = await insertToken(refresh_token, user_name)
 		if (all_good == 1) {
-			const access_token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1m' })
+			const access_token = jwt.sign(payload, process.env.SECRET, { expiresIn: '15m' })
 			return { refresh_token, access_token }
 		} else {
 			return null
@@ -22,7 +22,7 @@ export async function generateTokens(user_name) {
 export async function generateAccesToken(user_name) {
 	const payload = { username: user_name }
 	try {
-		const access_token = jwt.sign(payload, process.env.SECRET, { expiresIn: '1m' })
+		const access_token = jwt.sign(payload, process.env.SECRET, { expiresIn: '15m' })
 		return access_token
 	}
 	catch (e) {

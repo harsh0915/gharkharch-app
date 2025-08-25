@@ -148,19 +148,11 @@ public class Utility_Calendar {
         return calendar.get(Calendar.YEAR);
     }
 
-    public static Calendar[] getYearRange() {
+    public static Calendar getLastTenYears() {
         Calendar now = Calendar.getInstance();
-        Calendar[] range = new Calendar[2];
-
         Calendar start = (Calendar) now.clone();
         start.add(Calendar.YEAR, -10);
-        range[0] = start;
-
-        Calendar end = (Calendar) now.clone();
-        end.add(Calendar.YEAR, 10);
-        range[1] = end;
-
-        return range;
+        return start;
     }
 
     public static Calendar getStartOfYear(long time) {

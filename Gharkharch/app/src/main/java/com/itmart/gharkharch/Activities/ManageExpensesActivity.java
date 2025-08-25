@@ -1,6 +1,7 @@
 package com.itmart.gharkharch.Activities;
 
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -27,7 +28,6 @@ import java.util.List;
 public class ManageExpensesActivity extends AppCompatActivity implements ManageExpensesAdapter.Click_Interface {
 
     private Utility_DBOperations utilityDbOperations;
-    private GenericItemType item_type;
     private ManageExpensesAdapter simple_adapter;
     private List<GenericItem> expense_list;
     private List<GenericItem> filtered_expenses;
@@ -46,6 +46,8 @@ public class ManageExpensesActivity extends AppCompatActivity implements ManageE
 
     @Override
     public void delete_item(int item_id) {
+        utilityDbOperations.delete_item(item_id, GenericItemType.Expenses.getValue(), deleteCallback);
+        utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
 
     }
 
@@ -54,18 +56,13 @@ public class ManageExpensesActivity extends AppCompatActivity implements ManageE
 
     }
 
-    @Override
-    public void database_updated() {
-
-    }
-
     private void initializeDataStructures() {
         utilityDbOperations = Utility_DBOperations.getInstance(this);
         expense_list = new ArrayList<>();
         filtered_expenses = new ArrayList<>();
-        Calendar[] range = Utility_Calendar.getYearRange();
-        startDate = range[0];
-        endDate = range[1];
+        startDate = Utility_Calendar.getLastTenYears();
+        endDate = Calendar.getInstance();
+        endDate.setTimeInMillis(System.currentTimeMillis());
     }
 
     private void inflateRCV() {
@@ -76,7 +73,6 @@ public class ManageExpensesActivity extends AppCompatActivity implements ManageE
     }
 
     private void initializeUiElements() {
-        item_type = GenericItemType.Expenses;
         rcv_expense_list = findViewById(R.id.rcv_expense_list);
         inflateRCV();
     }
@@ -94,12 +90,30 @@ public class ManageExpensesActivity extends AppCompatActivity implements ManageE
             filtered_expenses.addAll(databaseCallbackObject.getDataList());
             expense_list.addAll(databaseCallbackObject.getDataList());
             simple_adapter.notifyDataSetChanged();
+            rcv_expense_list.invalidateItemDecorations();
         }
 
         @Override
         public void onFailure(Exception e) {
             Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
             Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Couldn't fetch expenses", ERROR);
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations deleteCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Expense deleted successfully", SUCCESS);
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Couldn't delete expense", ERROR);
         }
 
         @Override

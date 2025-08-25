@@ -26,20 +26,18 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
 
     private final Context context;
     private final List<GenericItem> dataList;
-    private final Click_Interface simpleList_clickListener;
+    private final Click_Interface expenseList_clickListener;
 
     public interface Click_Interface {
         void delete_item(int item_id);
 
         void edit_item(GenericItem item);
-
-        void database_updated();
     }
 
-    public ManageExpensesAdapter(Context context, List<GenericItem> dataList, Click_Interface simpleListClickListener) {
+    public ManageExpensesAdapter(Context context, List<GenericItem> dataList, Click_Interface expenseListClickListener) {
         this.context = context;
         this.dataList = dataList;
-        simpleList_clickListener = simpleListClickListener;
+        expenseList_clickListener = expenseListClickListener;
     }
 
     @NonNull
@@ -56,15 +54,9 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
         holder.item_name.setText(item.get_item_name());
         holder.item_amount.setText("\u20B9" + item.get_item_amount());
         holder.item_date.setText(Utility_DateFormats.convertLongToDate_DD_MM_YY(item.get_date()));
+        holder.edit_item.setOnClickListener(v -> expenseList_clickListener.edit_item(item));
 
-        holder.item_amount.setVisibility(View.VISIBLE);
-        holder.item_date.setVisibility(View.VISIBLE);
-
-        holder.edit_item.setOnClickListener(v -> fun_delete_item(item));
-
-        holder.delete_item.setOnClickListener(v -> {
-
-        });
+        holder.delete_item.setOnClickListener(v -> fun_delete_item(item));
     }
 
     @Override
@@ -74,27 +66,6 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
 
     public GenericItem getItemAtCurrentPos(int index) {
         return this.dataList.get(index);
-    }
-
-    private void fun_edit_item(GenericItem item, int position) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View dialog_layout = LayoutInflater.from(context).inflate(R.layout.dialog_expense_editor, null);
-        builder.setView(dialog_layout);
-
-        Dialog dialog = builder.create();
-
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        TextView positive_btn, negative_btn;
-
-        positive_btn = dialog_layout.findViewById(R.id.positive_btn);
-        negative_btn = dialog_layout.findViewById(R.id.negative_btn);
-
-        positive_btn.setOnClickListener(v -> simpleList_clickListener.edit_item(item));
-
-        negative_btn.setOnClickListener(v -> dialog.dismiss());
     }
 
     @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
@@ -109,7 +80,10 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        TextView dialog_title, dialog_msg, positive_btn, negative_btn;
+        TextView dialog_title;
+        TextView dialog_msg;
+        TextView positive_btn;
+        TextView negative_btn;
 
         dialog_title = dialog_layout.findViewById(R.id.dialog_title);
         dialog_msg = dialog_layout.findViewById(R.id.dialog_msg);
@@ -123,8 +97,7 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
         positive_btn.setText("Delete");
 
         positive_btn.setOnClickListener(v -> {
-            simpleList_clickListener.delete_item(item.get_item_id());
-            simpleList_clickListener.database_updated();
+            expenseList_clickListener.delete_item(item.get_item_id());
             dialog.dismiss();
         });
 
