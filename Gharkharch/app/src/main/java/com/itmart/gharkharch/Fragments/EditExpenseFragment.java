@@ -206,7 +206,6 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
                 utilityKeyboard.close_keyboard(v);
                 dismiss();
                 return;
-
             }
 //            utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
 //            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
