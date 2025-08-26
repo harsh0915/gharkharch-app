@@ -69,10 +69,6 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
     private long selected_date;
     private static final int INVALID_EXPENSE_ID = -1;
 
-    public EditExpenseFragment() {
-        // Required empty public constructor
-    }
-
     public static EditExpenseFragment newInstance(ExpenseItem item) {
         EditExpenseFragment fragment = new EditExpenseFragment();
         Bundle args = new Bundle();
