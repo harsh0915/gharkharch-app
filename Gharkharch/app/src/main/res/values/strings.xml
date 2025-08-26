@@ -35,6 +35,8 @@
     <string name="view_details_instruction_desc">Instructions for viewing details on a bar tap</string>
     <string name="reset_instruction_desc">Instructions to reset filters</string>
     <string name="rotate_phone">Please rotate you phone for a better viewing experience</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

@@ -1,0 +1,313 @@
+package com.itmart.gharkharch.Fragments;
+
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
+
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.itmart.gharkharch.Adapters.SearchListAdapter;
+import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
+import com.itmart.gharkharch.DataModels.Expense;
+import com.itmart.gharkharch.DataModels.ExpenseItem;
+import com.itmart.gharkharch.DataModels.GenericItem;
+import com.itmart.gharkharch.DataModels.PaymentMode;
+import com.itmart.gharkharch.R;
+import com.itmart.gharkharch.Utilities.Utility_Calendar;
+import com.itmart.gharkharch.Utilities.Utility_DBOperations;
+import com.itmart.gharkharch.Utilities.Utility_DateFormats;
+import com.itmart.gharkharch.Utilities.Utility_Keyboard;
+import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.List;
+
+public class EditExpenseFragment extends BottomSheetDialogFragment implements SearchListAdapter.ItemClicked {
+
+    private Expense item;
+    private LinearLayout listContainer;
+    private View separator;
+    private List<GenericItem> sub_category_search_list;
+    private List<GenericItem> filtered_sub_cat_search_list;
+    private HashSet<String> sub_category_fast_lookup;
+    private SearchListAdapter search_adapter;
+    private RecyclerView rcv_sub_category_search;
+    private Utility_DBOperations utilityDbOperations;
+    private Utility_Keyboard utilityKeyboard;
+    private TextView date_picker;
+    private EditText input_expense_name;
+    private EditText input_expense_amount;
+    private EditText input_expense_remarks;
+    private TextView modes_of_payment;
+    private Button addBtn;
+    private Button cancelBtn;
+    private PaymentMode selected_mode_of_payment;
+    private int under_sub_category_id;
+    private int expenseId;
+    private long selected_date;
+    private static final int INVALID_EXPENSE_ID = -1;
+
+    public EditExpenseFragment() {
+        // Required empty public constructor
+    }
+
+    public static EditExpenseFragment newInstance(ExpenseItem item) {
+        EditExpenseFragment fragment = new EditExpenseFragment();
+        Bundle args = new Bundle();
+        Expense expense = new Expense(item.get_item_id(), item.get_item_name(), item.get_under_id(), item.get_item_amount(), item.get_date(), item.get_mode_of_payment(), item.get_remarks());
+        args.putParcelable("item", expense);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            item = getArguments().getParcelable("item");
+        }
+        utilityDbOperations = Utility_DBOperations.getInstance(requireContext());
+        utilityKeyboard = Utility_Keyboard.getInstance(requireContext());
+        filtered_sub_cat_search_list = new ArrayList<>();
+        sub_category_search_list = new ArrayList<>();
+        sub_category_fast_lookup = new HashSet<>();
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_book_expense, container, false);
+        listContainer = view.findViewById(R.id.list_container);
+        separator = view.findViewById(R.id.separator);
+        rcv_sub_category_search = view.findViewById(R.id.rcv_sub_category_search_list);
+        input_expense_name = view.findViewById(R.id.input_expense_name);
+        input_expense_amount = view.findViewById(R.id.input_expense_amount);
+        input_expense_remarks = view.findViewById(R.id.input_expense_remarks);
+        date_picker = view.findViewById(R.id.date_picker);
+        modes_of_payment = view.findViewById(R.id.modes_of_payment);
+        addBtn = view.findViewById(R.id.addBtn);
+        cancelBtn = view.findViewById(R.id.cancelBtn);
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        toggleViews();
+        inflateViews();
+        inflateSearchRCV();
+
+        date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
+
+        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (input_expense_name.hasFocus()) input_expense_name.clearFocus();
+                else {
+                    setEnabled(false);
+                    requireActivity().getOnBackPressedDispatcher().onBackPressed();
+                    setEnabled(true);
+                }
+            }
+        });
+
+        input_expense_name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0) rcv_sub_category_search.setVisibility(View.GONE);
+                else rcv_sub_category_search.setVisibility(View.VISIBLE);
+                String query = s.toString().toLowerCase();
+                filterList(query, filtered_sub_cat_search_list, sub_category_search_list);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        input_expense_name.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus && input_expense_name.getText().toString().length() > 1) {
+                rcv_sub_category_search.setVisibility(View.VISIBLE);
+            } else {
+                rcv_sub_category_search.setVisibility(View.GONE);
+            }
+        });
+
+        date_picker.setOnClickListener(v -> {
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selected_date).setTheme(R.style.custom_date_picker).build();
+
+            datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
+
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                selected_date = selection;
+                date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selection));
+            });
+        });
+
+        addBtn.setOnClickListener(v -> {
+            utilityKeyboard.close_keyboard(v);
+            String expense_name = input_expense_name.getText().toString();
+            String amountString = input_expense_amount.getText().toString();
+            String expense_remark = input_expense_remarks.getText().toString().trim();
+
+            //empty expense name
+            if (expense_name.isEmpty()) {
+                Utility_UiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!", WARNING);
+                utilityKeyboard.close_keyboard(v);
+                dismiss();
+                return;
+            }
+            //trying to use a category without defining it first
+            if (!sub_category_fast_lookup.contains(expense_name)) {
+                utilityKeyboard.close_keyboard(v);
+                Utility_UiAlerts.generateSnackBar(addBtn, "No such head found!", WARNING);
+                dismiss();
+                return;
+            }
+            //amount can't be empty
+            if (amountString.isEmpty()) {
+                Utility_UiAlerts.generateSnackBar(addBtn, "Amount cannot be empty", WARNING);
+                utilityKeyboard.close_keyboard(v);
+                dismiss();
+                return;
+            }
+
+            if (expenseId == INVALID_EXPENSE_ID) {
+                Utility_UiAlerts.generateSnackBar(addBtn, "Invalid expense", ERROR);
+                utilityKeyboard.close_keyboard(v);
+                dismiss();
+                return;
+            }
+//            utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
+//            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
+            utilityKeyboard.close_keyboard(v);
+            dismiss();
+        });
+    }
+
+    @Override
+    public void on_item_clicked(GenericItem clicked_item) {
+        expenseId = clicked_item.get_item_id();
+        input_expense_name.setText(clicked_item.get_item_name());
+        under_sub_category_id = clicked_item.get_item_id();
+        //this line moves the cursor to the end of the text inside the edi text
+        input_expense_name.setSelection(input_expense_name.getText().length());
+        rcv_sub_category_search.setVisibility(View.GONE);
+    }
+
+    private void inflateSearchRCV() {
+        utilityDbOperations.fetch_sub_category_list(fetchSubCatCallback);
+        search_adapter = new SearchListAdapter(requireContext(), filtered_sub_cat_search_list, this);
+        rcv_sub_category_search.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rcv_sub_category_search.setAdapter(search_adapter);
+    }
+
+    private void toggleViews() {
+        listContainer.setVisibility(View.GONE);
+        separator.setVisibility(View.GONE);
+        cancelBtn.setVisibility(View.VISIBLE);
+    }
+
+    private void inflateViews() {
+        input_expense_amount.setText(String.valueOf(item.getExpense_amount()));
+        input_expense_name.setText(item.get_item_name());
+        input_expense_remarks.setText(item.get_remarks());
+        expenseId = item.getExpense_id();
+        under_sub_category_id = item.get_under_id();
+        selected_mode_of_payment = PaymentMode.fromValue(item.get_mode_of_payment());
+        selected_date = item.get_date();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void filterList(String query, List<GenericItem> list_toBeFiltered, List<GenericItem> filterFrom) {
+        list_toBeFiltered.clear();
+
+        if (query.isEmpty()) {
+            // If query is empty, show all names
+            list_toBeFiltered.addAll(filterFrom);
+        } else {
+            // Iterate through the original, sorted list
+            for (GenericItem item : filterFrom) {
+                if (item.get_item_name().toLowerCase().startsWith(query)) {
+                    list_toBeFiltered.add(item);
+                }
+                // Optional: Performance optimization for very large lists and specific criteria
+                // If checking startsWith and the list is sorted, you could potentially break early
+                // if the current name's first character is greater than the query's first character.
+                // However, for typical prefix matching, it's often simpler to just iterate.
+            }
+        }
+        search_adapter.notifyDataSetChanged();
+    }
+
+    private final Utility_DBOperations.Callback_DBOperations fetchSubCatCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @SuppressLint("NotifyDataSetChanged")
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseCallbackObject) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
+                        filtered_sub_cat_search_list.clear();
+                        sub_category_search_list.clear();
+                        sub_category_fast_lookup.clear();
+                        filtered_sub_cat_search_list.addAll(databaseCallbackObject.getDataList());
+                        sub_category_search_list.addAll(databaseCallbackObject.getDataList());
+                        sub_category_fast_lookup.addAll(databaseCallbackObject.getDataFastLookup());
+                        search_adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                view.post(() -> {
+                    View fragmentView = getView();
+                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                        Log.e("harshTagFetchSubCat", "Error : " + e.getMessage());
+                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expense heads", ERROR);
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+
+}

@@ -8,7 +8,7 @@ import dotenv from "dotenv"
 import { initDB, getUserDetails, insertPassword, checkSubStatus, COLUMNS } from './database.js'
 import { generateTokens, generateAccesToken } from './token_generator.js'
 
-dotenv.config();
+dotenv.config({debug: false});
 
 const app = express()
 app.use(express.json())

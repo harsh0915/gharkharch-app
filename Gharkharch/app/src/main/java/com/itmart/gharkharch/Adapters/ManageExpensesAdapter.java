@@ -31,7 +31,7 @@ public class ManageExpensesAdapter extends RecyclerView.Adapter<ManageExpensesAd
     public interface Click_Interface {
         void delete_item(int item_id);
 
-        void edit_item(GenericItem item);
+        void edit_item(ExpenseItem item);
     }
 
     public ManageExpensesAdapter(Context context, List<GenericItem> dataList, Click_Interface expenseListClickListener) {

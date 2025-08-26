@@ -63,6 +63,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private TextView date_picker;
     private EditText input_expense_name;
     private EditText input_expense_amount;
+    private TextView modes_of_payment;
     private EditText input_expense_remarks;
     private List<GenericItem> expense_list;
     private List<GenericItem> sub_category_search_list;
@@ -75,9 +76,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private Button cancelBtn;
     private Utility_DBOperations utilityDbOperations;
     private long selected_date;
-    private TextView modes_of_payment;
     private GenericItemType item_type;
-    private int under_sub_category_id;
     private ImageView search_button;
     private SearchView search_view;
     private TextView list_title;
@@ -91,6 +90,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private ImageView showCalendar;
     private Calendar startDate;
     private Calendar endDate;
+    private int under_sub_category_id;
     private int expenseId;
     private int selectedMonth;
     private static final int INVALID_EXPENSE_ID = -1;
