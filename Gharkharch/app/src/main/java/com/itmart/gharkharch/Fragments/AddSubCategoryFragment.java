@@ -40,7 +40,6 @@ import java.util.List;
 
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 
-import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_Keyboard;
@@ -205,9 +204,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             resetForm();
         });
 
-        cancelBtn.setOnClickListener(v -> {
-            resetForm();
-        });
+        cancelBtn.setOnClickListener(v -> resetForm());
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -225,7 +222,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
@@ -244,6 +241,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     }
 
     //beginning of callbacks
+    @SuppressLint("SetTextI18n")
     @Override
     public void edit_item(GenericItem item) {
         SubCatItem subCatItem = (SubCatItem) item;
@@ -301,6 +299,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_sub_category_list.setAdapter(simple_adapter);
     }
 
+    @SuppressLint("SetTextI18n")
     public void resetForm() {
         isEditMode = false;
         inputCategory.setText("");

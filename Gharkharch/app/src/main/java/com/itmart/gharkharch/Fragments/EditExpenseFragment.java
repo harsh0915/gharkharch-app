@@ -38,7 +38,6 @@ import com.itmart.gharkharch.DataModels.Expense;
 import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.PaymentMode;
-import com.itmart.gharkharch.MainActivity;
 import com.itmart.gharkharch.R;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_DateFormats;
@@ -257,9 +256,7 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
             this.dismiss();
         });
 
-        cancelBtn.setOnClickListener(v -> {
-            this.dismiss();
-        });
+        cancelBtn.setOnClickListener(v -> this.dismiss());
     }
 
     @Override
