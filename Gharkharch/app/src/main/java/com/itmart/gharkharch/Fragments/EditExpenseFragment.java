@@ -1,14 +1,19 @@
 package com.itmart.gharkharch.Fragments;
 
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.ERROR;
+import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.SUCCESS;
 import static com.itmart.gharkharch.Utilities.Utility_UiAlerts.WARNING;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,26 +31,29 @@ import android.widget.TextView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.itmart.gharkharch.Activities.ManageExpensesActivity;
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 import com.itmart.gharkharch.DataModels.DatabaseCallbackObject;
 import com.itmart.gharkharch.DataModels.Expense;
 import com.itmart.gharkharch.DataModels.ExpenseItem;
 import com.itmart.gharkharch.DataModels.GenericItem;
 import com.itmart.gharkharch.DataModels.PaymentMode;
+import com.itmart.gharkharch.MainActivity;
 import com.itmart.gharkharch.R;
-import com.itmart.gharkharch.Utilities.Utility_Calendar;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_DateFormats;
 import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
 public class EditExpenseFragment extends BottomSheetDialogFragment implements SearchListAdapter.ItemClicked {
 
+    private final String CASH = "CASH";
+    private final String UPI = "UPI";
+    private final String CARD = "CARD";
     private Expense item;
     private LinearLayout listContainer;
     private View separator;
@@ -118,7 +126,7 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
 
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
 
-        requireActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (input_expense_name.hasFocus()) input_expense_name.clearFocus();
@@ -129,6 +137,18 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
                 }
             }
         });
+
+        date_picker.setOnClickListener(v -> {
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selected_date).setTheme(R.style.custom_date_picker).build();
+
+            datePicker.show(((AppCompatActivity) requireContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
+
+            datePicker.addOnPositiveButtonClickListener(selection -> {
+                selected_date = selection;
+                date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selection));
+            });
+        });
+
 
         input_expense_name.addTextChangedListener(new TextWatcher() {
             @Override
@@ -158,15 +178,42 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
             }
         });
 
-        date_picker.setOnClickListener(v -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selected_date).setTheme(R.style.custom_date_picker).build();
+        modes_of_payment.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            View dialog_layout = LayoutInflater.from(requireContext()).inflate(R.layout.dilaog_modes_of_payment, null);
+            builder.setView(dialog_layout);
 
-            datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
+            Dialog dialog = builder.create();
 
-            datePicker.addOnPositiveButtonClickListener(selection -> {
-                selected_date = selection;
-                date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selection));
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            }
+
+            TextView cash, upi, card;
+
+            cash = dialog_layout.findViewById(R.id.modeCash);
+            upi = dialog_layout.findViewById(R.id.modeUpi);
+            card = dialog_layout.findViewById(R.id.modeCard);
+
+            cash.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.CASH;
+                modes_of_payment.setText(CASH);
+                dialog.dismiss();
             });
+
+            upi.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.UPI;
+                modes_of_payment.setText(UPI);
+                dialog.dismiss();
+            });
+
+            card.setOnClickListener(item -> {
+                selected_mode_of_payment = PaymentMode.CARD;
+                modes_of_payment.setText(CARD);
+                dialog.dismiss();
+            });
+
+            dialog.show();
         });
 
         addBtn.setOnClickListener(v -> {
@@ -179,40 +226,44 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
             if (expense_name.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense name can't be empty!", WARNING);
                 utilityKeyboard.close_keyboard(v);
-                dismiss();
+                this.dismiss();
                 return;
             }
             //trying to use a category without defining it first
             if (!sub_category_fast_lookup.contains(expense_name)) {
                 utilityKeyboard.close_keyboard(v);
                 Utility_UiAlerts.generateSnackBar(addBtn, "No such head found!", WARNING);
-                dismiss();
+                this.dismiss();
                 return;
             }
             //amount can't be empty
             if (amountString.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "Amount cannot be empty", WARNING);
                 utilityKeyboard.close_keyboard(v);
-                dismiss();
+                this.dismiss();
                 return;
             }
 
             if (expenseId == INVALID_EXPENSE_ID) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "Invalid expense", ERROR);
                 utilityKeyboard.close_keyboard(v);
-                dismiss();
+                this.dismiss();
                 return;
             }
-//            utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
-//            utilityDbOperations.fetch_expenses(startDate.getTimeInMillis(), endDate.getTimeInMillis(), fetchExpensesCallback);
+            utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
+            ManageExpensesActivity activity = (ManageExpensesActivity)requireActivity();
+            activity.expenseUpdated();
             utilityKeyboard.close_keyboard(v);
-            dismiss();
+            this.dismiss();
+        });
+
+        cancelBtn.setOnClickListener(v -> {
+            this.dismiss();
         });
     }
 
     @Override
     public void on_item_clicked(GenericItem clicked_item) {
-        expenseId = clicked_item.get_item_id();
         input_expense_name.setText(clicked_item.get_item_name());
         under_sub_category_id = clicked_item.get_item_id();
         //this line moves the cursor to the end of the text inside the edi text
@@ -296,6 +347,30 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
                         Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expense heads", ERROR);
                     }
                 });
+            }
+        }
+
+        @Override
+        public void onWarning() {
+
+        }
+    };
+
+    private final Utility_DBOperations.Callback_DBOperations editExpenseCallback = new Utility_DBOperations.Callback_DBOperations() {
+        @Override
+        public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
+            View view = getView();
+            if (view != null) {
+                Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS);
+            }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+            View view = getView();
+            if (view != null) {
+                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
             }
         }
 

@@ -258,9 +258,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             resetForm();
         });
 
-        cancelBtn.setOnClickListener(v -> {
-            resetForm();
-        });
+        cancelBtn.setOnClickListener(v -> resetForm());
 
         modes_of_payment.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -298,7 +296,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             });
 
             dialog.show();
-
         });
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -315,13 +312,11 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             }
         });
 
-        showCalendar.setOnClickListener(v -> {
-            showMonthPickerDialog();
-        });
+        showCalendar.setOnClickListener(v -> showMonthPickerDialog());
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
@@ -341,6 +336,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     }
 
     //beginning of callbacks
+    @SuppressLint("SetTextI18n")
     @Override
     public void edit_item(GenericItem item) {
         ExpenseItem expense = (ExpenseItem) item;
@@ -353,10 +349,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         input_expense_remarks.setText(expense.get_remarks() == null ? "" : expense.get_remarks());
         selected_mode_of_payment = PaymentMode.fromValue(expense.get_mode_of_payment());
         setModeOfPayment();
-        under_sub_category_id = expense.get_under_id();
         selected_date = expense.get_date();
         date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
         expenseId = expense.get_item_id();
+        under_sub_category_id = expense.get_under_id();
         rcv_sub_category_search.setVisibility(View.GONE);
     }
 
@@ -367,7 +363,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
     @Override
     public void on_item_clicked(GenericItem clicked_item) {
-        expenseId = clicked_item.get_item_id();
         input_expense_name.setText(clicked_item.get_item_name());
         under_sub_category_id = clicked_item.get_item_id();
         //this line moves the cursor to the end of the text inside the edi text
@@ -420,6 +415,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         }
     }
 
+    @SuppressLint("SetTextI18n")
     public void resetForm() {
         addBtn.setText("Save");
         input_expense_amount.setText("");
