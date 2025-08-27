@@ -46,9 +46,10 @@ import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 
 public class AddSubCategoryFragment extends Fragment implements SearchListAdapter.ItemClicked, SimpleListAdapter.SimpleList_Interface {
+
+    private final int INVALID_ID = -1;
     private Button addBtn;
     private Button cancelBtn;
-
     private EditText inputSubCategory;
     private EditText inputCategory;
     private List<GenericItem> category_search_list;
@@ -71,7 +72,6 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     private boolean isEditMode;
     private int under_catId;
     private int subCatId;
-    private static final int INVALID_SUB_CAT_ID = -1;
 
     private enum ListType {
         Search,
@@ -186,14 +186,14 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
                 return;
             }
             if (isEditMode) {
-                if (subCatId == INVALID_SUB_CAT_ID) {
+                if (subCatId == INVALID_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Invalid expense", ERROR);
                     resetForm();
                     return;
                 }
                 utilityDbOperations.edit_sub_category(subCatId, under_catId, sub_cat_name, editedSubCatCallback);
             } else {
-                if (under_catId == INVALID_SUB_CAT_ID) {
+                if (under_catId == INVALID_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_sub_category_list, "Please select a category from the list!", WARNING);
                     return;
                 }
@@ -314,6 +314,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             search_view.setQuery("", false);
         }
         inputSubCategory.requestFocus();
+        under_catId = -1;
+        subCatId = -1;
     }
 
     @SuppressLint("NotifyDataSetChanged")

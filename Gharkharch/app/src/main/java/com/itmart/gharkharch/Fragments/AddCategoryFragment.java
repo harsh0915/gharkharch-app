@@ -33,12 +33,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import com.itmart.gharkharch.DatabaseHelper.DatabaseHelper;
 import com.itmart.gharkharch.Utilities.Utility_UiAlerts;
 import com.itmart.gharkharch.Utilities.Utility_DBOperations;
 import com.itmart.gharkharch.Utilities.Utility_Keyboard;
 
 public class AddCategoryFragment extends Fragment implements SimpleListAdapter.SimpleList_Interface {
+
+    private final int INVALID_ID = -1;
     private EditText inputCategory;
     private Button addBtn;
     private Button cancelBtn;
@@ -57,7 +58,6 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     private List<GenericItem> filtered_categories_list;
     private int catId;
     private boolean isEditMode;
-    private static final int INVALID_CAT_ID = -1;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -111,7 +111,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
                  return;
             }
             if (isEditMode) {
-                if (catId == INVALID_CAT_ID) {
+                if (catId == INVALID_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_category_list, "Invalid category", ERROR);
                     resetForm();
                     return;

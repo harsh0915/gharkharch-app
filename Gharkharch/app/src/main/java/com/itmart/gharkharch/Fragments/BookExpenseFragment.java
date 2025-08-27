@@ -33,6 +33,8 @@ import android.widget.NumberPicker;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.itmart.gharkharch.Adapters.SearchListAdapter;
 import com.itmart.gharkharch.Adapters.SimpleListAdapter;
@@ -59,6 +61,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private final String CASH = "CASH";
     private final String UPI = "UPI";
     private final String CARD = "CARD";
+    private static final int INVALID_ID = -1;
     private final int CURRENT_YEAR = Utility_Calendar.getYear(System.currentTimeMillis());
     private TextView date_picker;
     private EditText input_expense_name;
@@ -93,7 +96,6 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     private int under_sub_category_id;
     private int expenseId;
     private int selectedMonth;
-    private static final int INVALID_EXPENSE_ID = -1;
 
     private enum ListType {
         Search, Simple
@@ -117,6 +119,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         endDate = Utility_Calendar.getEndOfMonth(selected_date);
         selectedMonth = Utility_Calendar.getMonth(selected_date);
         expenseId = -1;
+        under_sub_category_id = -1;
         isEditMode = false;
     }
 
@@ -195,7 +198,20 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         });
 
         date_picker.setOnClickListener(v -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker().setTitleText("Select a date").setSelection(selected_date).setTheme(R.style.custom_date_picker).build();
+            // Create constraints for the DatePicker
+            long todayUtc = MaterialDatePicker.todayInUtcMilliseconds();
+
+            // Create constraints
+            CalendarConstraints.Builder date_bounds = new CalendarConstraints.Builder()
+                    .setEnd(todayUtc) // stops scrolling past today’s month
+                    .setValidator(DateValidatorPointBackward.before(todayUtc));
+
+            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
+                    .setTitleText("Select a date")
+                    .setSelection(selected_date)
+                    .setTheme(R.style.custom_date_picker)
+                    .setCalendarConstraints(date_bounds.build())
+                    .build();
 
             datePicker.show(((AppCompatActivity) v.getContext()).getSupportFragmentManager(), "MATERIAL_DATE_PICKER");
 
@@ -238,7 +254,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             }
 
             if (isEditMode) {
-                if (expenseId == INVALID_EXPENSE_ID) {
+                if (expenseId == INVALID_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Invalid expense", ERROR);
 //                    utilityKeyboard.close_keyboard(v);
                     resetForm();
@@ -246,7 +262,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
                 }
                 utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
             } else {
-                if (expenseId == INVALID_EXPENSE_ID) {
+                if (under_sub_category_id == INVALID_ID) {
                     Utility_UiAlerts.generateSnackBar(rcv_expense_list, "Please select a head from the list!", WARNING);
 //                    utilityKeyboard.close_keyboard(v);
                     return;
@@ -437,6 +453,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         }
         isEditMode = false;
         expenseId = -1;
+        under_sub_category_id = -1;
         input_expense_name.requestFocus();
     }
 
