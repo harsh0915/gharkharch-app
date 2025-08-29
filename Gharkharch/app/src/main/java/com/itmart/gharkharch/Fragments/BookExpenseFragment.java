@@ -223,10 +223,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
 
         search_button.setOnClickListener(v -> toggle_search_view());
 
-        close_button.setOnClickListener(v -> {
-            toggle_search_view();
-            search_view.setQuery("", false);
-        });
+        close_button.setOnClickListener(v -> toggle_search_view());
 
         addBtn.setOnClickListener(v -> {
             utilityKeyboard.close_keyboard(v);
@@ -370,6 +367,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         expenseId = expense.get_item_id();
         under_sub_category_id = expense.get_under_id();
         rcv_sub_category_search.setVisibility(View.GONE);
+        if(search_view.getVisibility()==View.VISIBLE){
+            toggle_search_view();
+        }
     }
 
     @Override
@@ -390,6 +390,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
     public void toggle_search_view() {
         if (search_button.getVisibility() == View.VISIBLE) {
             search_view.setVisibility(View.VISIBLE);
+            search_view.requestFocus();
+            utilityKeyboard.show_keyboard(search_view);
             close_button.setVisibility(View.VISIBLE);
             search_button.setVisibility(View.GONE);
             list_title.setVisibility(View.GONE);
@@ -398,6 +400,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             close_button.setVisibility(View.GONE);
             search_button.setVisibility(View.VISIBLE);
             list_title.setVisibility(View.VISIBLE);
+            search_view.setQuery("", false);
         }
     }
 
@@ -447,9 +450,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             endDate = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
             selectedMonth = Utility_Calendar.getMonth(selected_date);
         }
-        if (search_button.getVisibility() == View.GONE) {
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
-            search_view.setQuery("", false);
         }
         isEditMode = false;
         expenseId = -1;

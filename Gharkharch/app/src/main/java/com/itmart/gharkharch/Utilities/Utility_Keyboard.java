@@ -26,4 +26,9 @@ public class Utility_Keyboard {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
+
+    public void show_keyboard(View v) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
+        imm.showSoftInput(v, 0);
+    }
 }

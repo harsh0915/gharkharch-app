@@ -164,10 +164,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
 
         search_button.setOnClickListener(v -> toggle_search_view());
 
-        close_button.setOnClickListener(v -> {
-            toggle_search_view();
-            search_view.setQuery("", false);
-        });
+        close_button.setOnClickListener(v -> toggle_search_view());
 
         addBtn.setOnClickListener(v -> {
             utilityKeyboard.close_keyboard(v);
@@ -254,6 +251,9 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputSubCategory.setText(subCatItem.get_item_name());
         inputCategory.setText(subCatItem.get_under_cat_name());
         rcv_category_search.setVisibility(View.GONE);
+        if(search_view.getVisibility()==View.VISIBLE){
+            toggle_search_view();
+        }
     }
 
     @Override
@@ -274,6 +274,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
     public void toggle_search_view() {
         if (search_button.getVisibility() == View.VISIBLE) {
             search_view.setVisibility(View.VISIBLE);
+            search_view.requestFocus();
+            utilityKeyboard.show_keyboard(search_view);
             close_button.setVisibility(View.VISIBLE);
             search_button.setVisibility(View.GONE);
             list_title.setVisibility(View.GONE);
@@ -282,6 +284,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
             close_button.setVisibility(View.GONE);
             search_button.setVisibility(View.VISIBLE);
             list_title.setVisibility(View.VISIBLE);
+            search_view.setQuery("", false);
         }
     }
 
@@ -309,9 +312,8 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         rcv_category_search.setVisibility(View.GONE);
         inputCategory.setHint(R.string.hint_category);
         inputSubCategory.setHint(R.string.hint_sub_category);
-        if (search_button.getVisibility() == View.GONE) {
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
-            search_view.setQuery("", false);
         }
         inputSubCategory.requestFocus();
         under_catId = -1;

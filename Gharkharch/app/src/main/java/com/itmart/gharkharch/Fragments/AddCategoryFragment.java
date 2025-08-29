@@ -97,10 +97,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
         search_button.setOnClickListener(v -> toggle_search_view());
 
-        close_button.setOnClickListener(v -> {
-            toggle_search_view();
-            search_view.setQuery("", false);
-        });
+        close_button.setOnClickListener(v -> toggle_search_view());
 
         addBtn.setOnClickListener(v -> {
             utilityKeyboard.close_keyboard(v);
@@ -166,6 +163,9 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         cancelBtn.setVisibility(View.VISIBLE);
         inputCategory.setText(item.get_item_name());
         isEditMode = true;
+        if(search_view.getVisibility()==View.VISIBLE){
+            toggle_search_view();
+        }
     }
 
     @Override
@@ -176,6 +176,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
     public void toggle_search_view() {
         if (search_button.getVisibility() == View.VISIBLE) {
             search_view.setVisibility(View.VISIBLE);
+            search_view.requestFocus();
+            utilityKeyboard.show_keyboard(search_view);
             close_button.setVisibility(View.VISIBLE);
             search_button.setVisibility(View.GONE);
             list_title.setVisibility(View.GONE);
@@ -184,6 +186,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             close_button.setVisibility(View.GONE);
             search_button.setVisibility(View.VISIBLE);
             list_title.setVisibility(View.VISIBLE);
+            search_view.setQuery("", false);
         }
 
     }
@@ -201,9 +204,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         cancelBtn.setVisibility(View.GONE);
         inputCategory.setText("");
         inputCategory.setHint(R.string.hint_category);
-        if (search_button.getVisibility() == View.GONE) {
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
-            search_view.setQuery("", false);
         }
     }
 
