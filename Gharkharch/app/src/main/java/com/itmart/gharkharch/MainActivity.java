@@ -19,10 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.itmart.gharkharch.Activities.AnalyseExpensesActivity;
-import com.itmart.gharkharch.Activities.EditProfileActivity;
 import com.itmart.gharkharch.Activities.ManageExpensesActivity;
-import com.itmart.gharkharch.Activities.BackupDataActivity;
-import com.itmart.gharkharch.Activities.RestoreDataActivity;
 import com.itmart.gharkharch.Fragments.AddCategoryFragment;
 import com.itmart.gharkharch.Fragments.AddSubCategoryFragment;
 import com.itmart.gharkharch.Fragments.BookExpenseFragment;
@@ -52,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initializeUiElements();
-        setupClickListeners();
+        setupEventListeners();
 
         if (savedInstanceState == null) {
             bottomNavigationView.setSelectedItemId(R.id.nav_addCategory);
@@ -101,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         restore_data = findViewById(R.id.restore_data);
     }
 
-    private void setupClickListeners() {
+    private void setupEventListeners() {
 
         bottomNavigationView.setOnItemSelectedListener((item) -> {
             Fragment selectedFragment = null;

@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="horizontal"
-        android:textSize="@dimen/text_size_medium"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
@@ -27,7 +26,8 @@
             android:layout_weight="1"
             android:paddingVertical="@dimen/padding_large"
             android:text="Manage Expenses"
-            android:textSize="@dimen/text_size_medium" />
+            android:textSize="@dimen/text_size_large"
+            android:textStyle="bold" />
 
         <SearchView
             android:id="@+id/search_view"

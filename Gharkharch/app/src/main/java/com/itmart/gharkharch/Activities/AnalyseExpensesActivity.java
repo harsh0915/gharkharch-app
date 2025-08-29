@@ -75,7 +75,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
             isAltered = false;
         }
         initializeUiElements();
-        setupClickListeners();
+        setupEventListeners();
         fetchData();
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             topBar.setVisibility(View.GONE);
@@ -126,7 +126,7 @@ public class AnalyseExpensesActivity extends AppCompatActivity {
         utilityDbOperations.fetchExpensesByGroup(selectedTimeInMillis, groupBy, fetchExpenseCallback);
     }
 
-    private void setupClickListeners() {
+    private void setupEventListeners() {
 
         help.setOnClickListener(v -> showChartHelp());
 
