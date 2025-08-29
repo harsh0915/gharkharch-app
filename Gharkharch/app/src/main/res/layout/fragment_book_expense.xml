@@ -205,7 +205,6 @@
             android:id="@+id/search_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/margin_medium"
             android:layout_weight="1"
             android:background="@drawable/search_bar_border"
             android:closeIcon="@null"
@@ -223,20 +222,20 @@
             android:visibility="gone" />
 
         <ImageView
-            android:id="@+id/show_calendar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:importantForAccessibility="no"
-            android:padding="@dimen/padding_large"
-            android:src="@drawable/calendar_icon" />
-
-        <ImageView
             android:id="@+id/search_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
             android:padding="@dimen/padding_large"
             android:src="@drawable/search_icon" />
+
+        <ImageView
+            android:id="@+id/show_calendar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:padding="@dimen/padding_large"
+            android:src="@drawable/calendar_icon" />
 
     </LinearLayout>
 

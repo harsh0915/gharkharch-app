@@ -33,7 +33,9 @@ public class Utility_MonthHeaderRCV extends RecyclerView.ItemDecoration {
 
         textPaint = new Paint();
         textPaint.setColor(context.getColor(R.color.primaryTextColor));
-        textPaint.setTextSize(40f);
+        float textSizeSp = 16f; // your desired size in sp
+        float scaledSizeInPx = textSizeSp * context.getResources().getDisplayMetrics().scaledDensity;
+        textPaint.setTextSize(scaledSizeInPx);
         textPaint.setAntiAlias(true);
 
         monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
