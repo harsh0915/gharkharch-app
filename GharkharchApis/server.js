@@ -12,12 +12,14 @@ dotenv.config({debug: false});
 
 const app = express()
 app.use(express.json())
+//read the certificate and key in the options object and provide it 
+//to the https server, and use the express app for the api endpoint listener
 const options = {
 	key: fs.readFileSync('./openssl/private.key'),
 	cert: fs.readFileSync('./openssl/certificate.crt')
 }
 
-//pass the express app
+//provide the express app and options obj
 const server = https.createServer(options, app);
 
 (async () => {

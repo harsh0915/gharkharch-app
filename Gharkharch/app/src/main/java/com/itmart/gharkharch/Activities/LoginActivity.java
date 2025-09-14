@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private final String TAG = "LoginDebugger";
     private EditText passwordET, usernameET;
     private Button loginBtn;
+    private Button bypassBtn;
     private RemoteRepository remoteRepository;
     private Utility_UserPreferences persistent_storage;
 
@@ -70,6 +71,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
 
+        bypassBtn.setOnClickListener(v->{
+            Intent main = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(main);
+            finish();
+        });
+
         loginBtn.setOnClickListener(v -> {
             String username = usernameET.getText().toString();
             String password = passwordET.getText().toString();
@@ -90,6 +97,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initializeUiElements() {
         loginBtn = findViewById(R.id.loginBtn);
+        bypassBtn = findViewById(R.id.bypassBtn);
         passwordET = findViewById(R.id.passwordET);
         usernameET = findViewById(R.id.usernameET);
     }
@@ -120,6 +128,11 @@ public class LoginActivity extends AppCompatActivity {
                 }
 
                 @Override
+                public void onServerError(String message) {
+                    showServerErrorDialog();
+                }
+
+                @Override
                 public void onError(String e) {
                     Log.e(TAG, "Error : " + e);
                 }
@@ -145,6 +158,11 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onServerError(String message) {
+                showServerErrorDialog();
+            }
+
+            @Override
             public void onError(String e) {
                 Log.e(TAG, "Error : " + e);
             }
@@ -167,6 +185,11 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onAccessRevoked() {
                     showRevokedDialog();
+                }
+
+                @Override
+                public void onServerError(String message) {
+                    showServerErrorDialog();
                 }
 
                 @Override
@@ -225,6 +248,31 @@ public class LoginActivity extends AppCompatActivity {
         pstBtn.setOnClickListener(v -> dialog.dismiss());
 
         dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showServerErrorDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        View layout = LayoutInflater.from(LoginActivity.this).inflate(R.layout.dialog_generic, null);
+        builder.setView(layout);
+
+        Dialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        TextView dialog_title = layout.findViewById(R.id.dialog_title);
+        TextView dialog_msg = layout.findViewById(R.id.dialog_msg);
+        TextView negBtn = layout.findViewById(R.id.negative_btn);
+        TextView exitBtn = layout.findViewById(R.id.positive_btn);
+
+        negBtn.setVisibility(View.GONE);
+        dialog_title.setText("Server Down!");
+        dialog_msg.setText("Internal server issue, please be patient");
+        exitBtn.setText("Ok");
+
+        exitBtn.setOnClickListener(v -> dialog.dismiss());
+
         dialog.show();
     }
 

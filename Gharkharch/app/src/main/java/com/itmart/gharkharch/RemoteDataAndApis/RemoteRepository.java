@@ -52,6 +52,8 @@ public class RemoteRepository {
         void onError(String message);
 
         void onAccessRevoked();
+
+        void onServerError(String message);
     }
 
     public void login(String name, String password, Context context, final ResCallback<TokensJSON> callback) {
@@ -89,6 +91,7 @@ public class RemoteRepository {
                 } else {
                     Log.e(TAG, "Unknown network error", e);
                 }
+                handler.post(() -> callback.onServerError(e.getMessage()));
             }
 
             @Override
@@ -154,6 +157,7 @@ public class RemoteRepository {
                 } else {
                     Log.e(TAG, "Unknown network error", e);
                 }
+                handler.post(() -> callback.onServerError(e.getMessage()));
             }
 
             @Override
@@ -226,6 +230,7 @@ public class RemoteRepository {
                 } else {
                     Log.e(TAG, "Unknown network error", e);
                 }
+                handler.post(() -> callback.onServerError(e.getMessage()));
             }
 
             @Override
