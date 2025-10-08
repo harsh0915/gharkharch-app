@@ -39,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
     private final String TAG = "LoginDebugger";
     private EditText passwordET, usernameET;
     private Button loginBtn;
-    private Button bypassBtn;
     private RemoteRepository remoteRepository;
     private Utility_UserPreferences persistent_storage;
 
@@ -66,16 +65,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Utility_UiAlerts.dismissLoadingDialog();
         Utility_NetworkMonitor.unregisterNetworkCallback(LoginActivity.this, networkMonitorCallback);
     }
 
     private void setupClickListeners() {
-
-        bypassBtn.setOnClickListener(v->{
-            Intent main = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(main);
-            finish();
-        });
 
         loginBtn.setOnClickListener(v -> {
             String username = usernameET.getText().toString();
@@ -97,7 +91,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initializeUiElements() {
         loginBtn = findViewById(R.id.loginBtn);
-        bypassBtn = findViewById(R.id.bypassBtn);
         passwordET = findViewById(R.id.passwordET);
         usernameET = findViewById(R.id.usernameET);
     }
@@ -276,6 +269,7 @@ public class LoginActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     private final ConnectivityManager.NetworkCallback networkMonitorCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(@NonNull Network network) {
@@ -283,6 +277,7 @@ public class LoginActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).post(() -> {
                 loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.buttonColor));
                 autoLogin();
+                Utility_UiAlerts.showLoadingDialog(LoginActivity.this, "Logging In...");
             });
         }
 
@@ -290,6 +285,7 @@ public class LoginActivity extends AppCompatActivity {
         public void onLost(@NonNull Network network) {
             super.onLost(network);
             new Handler(Looper.getMainLooper()).post(() -> {
+                Utility_UiAlerts.dismissLoadingDialog();
                 showNoInternetDialog();
                 loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.inactiveButtonColor));
             });

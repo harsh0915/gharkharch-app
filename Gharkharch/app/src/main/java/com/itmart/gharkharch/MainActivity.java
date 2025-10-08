@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupEventListeners() {
 
         bottomNavigationView.setOnItemSelectedListener((item) -> {
-            Fragment selectedFragment = null;
+            Fragment selectedFragment;
             int id = item.getItemId();
 
             if (fragmentMap.containsKey(id)) selectedFragment = fragmentMap.get(id);
@@ -160,16 +160,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onDrawerStateChanged(int newState) {
-
-                if (
-                        (newState == DrawerLayout.STATE_DRAGGING)
-                                || (newState == DrawerLayout.STATE_IDLE && landing_page.isDrawerOpen(drawer_panel))
-                                || (newState == DrawerLayout.STATE_SETTLING)
-                ) {
-                    menu_button.setImageResource(R.drawable.menu_icon_active);
-                } else {
-                    menu_button.setImageResource(R.drawable.menu_icon);
-                }
             }
 
         });

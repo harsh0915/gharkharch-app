@@ -215,7 +215,7 @@ public class Utility_DBOperations {
                         " on (exp." + DatabaseHelper.COLUMN_UNDER_SUB_CATEGORY + " = sub." + DatabaseHelper.COLUMN_SUB_CATEGORY_ID + ") " +
                         " where exp." + DatabaseHelper.COLUMN_EXPENSE_DATE + " >= " + startDate + " and " +
                         " exp." + DatabaseHelper.COLUMN_EXPENSE_DATE + " <= " + endDate +
-                        " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc";
+                        " order by " + DatabaseHelper.COLUMN_EXPENSE_DATE + " desc , " + DatabaseHelper.COLUMN_EXPENSE_ID + " desc";
                 Cursor cursor = null;
 
                 try {

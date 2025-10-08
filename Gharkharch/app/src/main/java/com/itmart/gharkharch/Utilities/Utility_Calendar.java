@@ -1,14 +1,18 @@
 package com.itmart.gharkharch.Utilities;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 public class Utility_Calendar {
 
+    private static Calendar newCalendar() {
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    }
+
     private static final String[] MONTHS = {"Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
 
+    /*
     private static final String[] QUARTERS = {"Qrt1", "Qrt2", "Qrt3", "Qrt4"};
 
     private static final String[] WEEKS = new String[52];
@@ -19,11 +23,13 @@ public class Utility_Calendar {
             WEEKS[i] = "Week " + (i + 1);
         }
     }
+    */
 
     public static String[] getMonths() {
         return Arrays.copyOf(MONTHS, MONTHS.length);
     }
 
+    /*
     public static String[] getQuarters() {
         return Arrays.copyOf(QUARTERS, QUARTERS.length);
     }
@@ -32,32 +38,9 @@ public class Utility_Calendar {
         return Arrays.copyOf(WEEKS, WEEKS.length);
     }
 
-    public static Calendar getStartOfMonth(long time) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTimeInMillis(time);
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar;
-    }
-
-    public static Calendar getEndOfMonth(long time) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        calendar.setTimeInMillis(time);
-        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 59);
-        calendar.set(Calendar.SECOND, 59);
-        calendar.set(Calendar.MILLISECOND, 999);
-        return calendar;
-    }
-
     public static Calendar getFYQuarterStart(long financialYear, int quarter) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = newCalendar();
         calendar.clear();
-        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         int year = (int) financialYear;
 
@@ -111,9 +94,32 @@ public class Utility_Calendar {
         calendar.set(Calendar.MILLISECOND, 999);
         return calendar;
     }
+    */
+
+    public static Calendar getStartOfMonth(long time) {
+        Calendar calendar = newCalendar();
+        calendar.setTimeInMillis(time);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+    }
+
+    public static Calendar getEndOfMonth(long time) {
+        Calendar calendar = newCalendar();
+        calendar.setTimeInMillis(time);
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar;
+    }
 
     public static Calendar getMonthInMillis(int monthIndex, int year) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = newCalendar();
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, monthIndex);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -125,7 +131,7 @@ public class Utility_Calendar {
     }
 
     public static Long getYearInMillis(int year) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = newCalendar();
         calendar.set(Calendar.YEAR, year);
         calendar.set(Calendar.MONTH, Calendar.JANUARY);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -137,26 +143,26 @@ public class Utility_Calendar {
     }
 
     public static int getMonth(Long timeInMillis) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = newCalendar();
         calendar.setTimeInMillis(timeInMillis);
         return calendar.get(Calendar.MONTH);
     }
 
     public static int getYear(Long timeInMillis) {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = newCalendar();
         calendar.setTimeInMillis(timeInMillis);
         return calendar.get(Calendar.YEAR);
     }
 
     public static Calendar getLastTenYears() {
-        Calendar now = Calendar.getInstance();
+        Calendar now = newCalendar();
         Calendar start = (Calendar) now.clone();
         start.add(Calendar.YEAR, -10);
         return start;
     }
 
     public static Calendar getStartOfYear(long time) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = newCalendar();
         calendar.setTimeInMillis(time);
         calendar.set(Calendar.MONTH, Calendar.JANUARY);
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -168,7 +174,7 @@ public class Utility_Calendar {
     }
 
     public static Calendar getEndOfYear(long time) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = newCalendar();
         calendar.setTimeInMillis(time);
         calendar.set(Calendar.MONTH, Calendar.DECEMBER);
         calendar.set(Calendar.DAY_OF_MONTH, 31);

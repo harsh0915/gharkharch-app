@@ -30,7 +30,8 @@ import okhttp3.Response;
 public class RemoteRepository {
 
     private final String TAG = "RemoteRepositoryDebugger";
-    private final String base_url = "https://192.168.29.160:443";
+    //    private final String base_url = "https://192.168.29.160:443";
+    private final String base_url = "https://premiere-wallace-bali-acquisition.trycloudflare.com";
     private final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static RemoteRepository instance = null;
     private final Handler handler;

@@ -21,7 +21,7 @@
     <color name="inactiveButtonColor">#8EA7CA</color>
     <color name="iconColor">#3B4A5E</color>
     <color name="dialog_bg">#FFFFFF</color>
-
+    <!--for some texts-->
     <color name="white_A_black">#011B37</color>
 
     <!--color for custom views-->

@@ -49,16 +49,4 @@
         android:textSize="@dimen/text_size_medium"
         android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/bypassBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin_large"
-        android:backgroundTint="@color/backgroundColorVariant"
-        android:padding="@dimen/padding_medium"
-        android:text="temp - bypass login"
-        android:textSize="@dimen/text_size_medium"
-        android:textStyle="bold" />
-
-
 </LinearLayout>

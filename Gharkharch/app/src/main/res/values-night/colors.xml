@@ -10,7 +10,7 @@
     <color name="inactiveButtonColor">#97AFD2</color>
     <color name="iconColor">#CDDEED</color>
     <color name="dialog_bg">#3E5C76</color>
-
+    <!--for some texts-->
     <color name="white_A_black">#768897</color>
 
     <!--color for custom views-->

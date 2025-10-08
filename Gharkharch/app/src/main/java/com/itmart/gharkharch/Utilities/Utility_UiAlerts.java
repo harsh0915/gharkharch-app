@@ -1,5 +1,6 @@
 package com.itmart.gharkharch.Utilities;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -28,7 +29,7 @@ public class Utility_UiAlerts {
     public static final String SUCCESS = "success";
     public static final String WARNING = "warning";
     public static final String DEFAULT = "default";
-    private Dialog dialog;
+    private static Dialog loadingDialog;
 
     public static void generateSnackBar(View view, String msg, String type) {
         new Handler(Looper.getMainLooper()).post(() -> {
@@ -84,20 +85,25 @@ public class Utility_UiAlerts {
         });
     }
 
-    public void showLoadingDialog(Context context) {
+    @SuppressLint("SetTextI18n")
+    public static void showLoadingDialog(Context context, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View layout = LayoutInflater.from(context).inflate(R.layout.dialog_generic, null);
+        View layout = LayoutInflater.from(context).inflate(R.layout.dialog_loading, null);
         builder.setView(layout);
-        dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        loadingDialog = builder.create();
+        if (loadingDialog.getWindow() != null) {
+            loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        dialog.setCancelable(false);
-        dialog.show();
+        TextView dialog_title = layout.findViewById(R.id.dialog_title);
+
+        dialog_title.setText(msg);
+        loadingDialog.setCancelable(false);
+        loadingDialog.show();
     }
 
-    public void dismissLoadingDialog() {
-        dialog.dismiss();
+    public static void dismissLoadingDialog() {
+        if (loadingDialog != null) loadingDialog.dismiss();
     }
 
     public static void generateToast(String msg, Context context) {

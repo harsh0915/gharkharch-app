@@ -25,6 +25,7 @@ public class OkHTTPClient {
         if (client == null) {
 
             try {
+                /*
                 // Load the certificate from a resource file
                 InputStream certificateInputStream = context.getResources().openRawResource(R.raw.certificate);
 
@@ -42,10 +43,11 @@ public class OkHTTPClient {
                 // Create an SSLContext with our custom TrustManager
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(null, new X509TrustManager[]{trustManager}, null);
+                */
 
                 // Build the OkHttp client
                 client = new OkHttpClient.Builder()
-                        .sslSocketFactory(sslContext.getSocketFactory(), trustManager)
+//                        .sslSocketFactory(sslContext.getSocketFactory(), trustManager)
                         .build();
 
             } catch (Exception e) {

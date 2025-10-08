@@ -8,10 +8,13 @@ import dotenv from "dotenv"
 import { initDB, getUserDetails, insertPassword, checkSubStatus, COLUMNS } from './database.js'
 import { generateTokens, generateAccesToken } from './token_generator.js'
 
-dotenv.config({debug: false});
+dotenv.config({ debug: false });
 
 const app = express()
 app.use(express.json())
+
+/* uncomment when using https
+
 //read the certificate and key in the options object and provide it 
 //to the https server, and use the express app for the api endpoint listener
 const options = {
@@ -22,20 +25,17 @@ const options = {
 //provide the express app and options obj
 const server = https.createServer(options, app);
 
-(async () => {
-	try {
-		//initilaize db then start listening for requests
-		await initDB()
+*/
 
-		server.listen(process.env.PORT, () => {
-			console.log("Serever listening at port 443")
-		})
-	}
-	catch (e) {
-		console.log(`DB init failed ${e.message}`)
-		process.exit(1);
-	}
-})()
+/* using http
+	*/
+try {
+	initDB()
+	console.log("DB initialized")
+}
+catch (e) {
+	console.log(`DB init failed ${e.message}`)
+}
 
 app.post('/login', async (req, res) => {
 	try {
@@ -143,8 +143,35 @@ app.post('/refresh', async (req, res) => {
 	}
 })
 
+
 //debugger to listen for any non exisisting endpoints
 app.use((req, res) => {
 	console.log(`No route matched: ${req.method} ${req.url}`);
 	res.status(404).send("Not Found");
 });
+
+/* listen using http
+	*/
+app.listen(process.env.PORT, () => {
+	console.log("Server up and running");
+})
+
+/* listen using https
+	
+//start listening, after the endpoints have been defined
+(async () => {
+	try {
+		//initilaize db then start listening for requests
+		await initDB()
+
+		server.listen(process.env.PORT, () => {
+			console.log("Serever listening at port 443")
+		})
+	}
+	catch (e) {
+		console.log(`DB init failed ${e.message}`)
+		process.exit(1);
+	}
+})()
+
+*/

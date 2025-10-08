@@ -114,7 +114,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         sub_category_search_list = new ArrayList<>();
         selected_mode_of_payment = PaymentMode.CASH;
         //all time based vars
-        selected_date = System.currentTimeMillis();
+        selected_date = MaterialDatePicker.todayInUtcMilliseconds();
         startDate = Utility_Calendar.getStartOfMonth(selected_date);
         endDate = Utility_Calendar.getEndOfMonth(selected_date);
         selectedMonth = Utility_Calendar.getMonth(selected_date);
@@ -205,6 +205,8 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             CalendarConstraints.Builder date_bounds = new CalendarConstraints.Builder()
                     .setEnd(todayUtc) // stops scrolling past today’s month
                     .setValidator(DateValidatorPointBackward.before(todayUtc));
+
+            //if (getParentFragmentManager().findFragmentByTag("MATERIAL_DATE_PICKER") != null) return;
 
             MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
                     .setTitleText("Select a date")
@@ -367,7 +369,7 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         expenseId = expense.get_item_id();
         under_sub_category_id = expense.get_under_id();
         rcv_sub_category_search.setVisibility(View.GONE);
-        if(search_view.getVisibility()==View.VISIBLE){
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
         }
     }
@@ -444,10 +446,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         cancelBtn.setVisibility(View.GONE);
         rcv_sub_category_search.setVisibility(View.GONE);
         if (isHidden()) {
-            selected_date = System.currentTimeMillis();
+            selected_date = MaterialDatePicker.todayInUtcMilliseconds();
             date_picker.setText(Utility_DateFormats.convertLongToDate_DD_MM_YYYY(selected_date));
-            startDate = Utility_Calendar.getStartOfMonth(System.currentTimeMillis());
-            endDate = Utility_Calendar.getEndOfMonth(System.currentTimeMillis());
+            startDate = Utility_Calendar.getStartOfMonth(selected_date);
+            endDate = Utility_Calendar.getEndOfMonth(selected_date);
             selectedMonth = Utility_Calendar.getMonth(selected_date);
         }
         if (search_view.getVisibility() == View.VISIBLE) {
