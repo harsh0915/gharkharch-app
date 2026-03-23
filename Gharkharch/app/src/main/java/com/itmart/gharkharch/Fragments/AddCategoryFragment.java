@@ -105,7 +105,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             String new_category = inputCategory.getText().toString();
             if (new_category.trim().isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
-                 return;
+                return;
             }
             if (isEditMode) {
                 if (catId == INVALID_ID) {
@@ -121,9 +121,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
             resetForm();
         });
 
-        cancelBtn.setOnClickListener(v -> {
-            resetForm();
-        });
+        cancelBtn.setOnClickListener(v -> resetForm());
 
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -163,7 +161,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         cancelBtn.setVisibility(View.VISIBLE);
         inputCategory.setText(item.get_item_name());
         isEditMode = true;
-        if(search_view.getVisibility()==View.VISIBLE){
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
         }
     }
@@ -256,9 +254,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
 
             View view = getView();
             if (view != null) {
-                view.post(() -> {
-                    Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't fetch categories", ERROR);
-                });
+                view.post(() -> Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't fetch categories", ERROR));
             }
         }
 
@@ -273,9 +269,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                view.post(() -> {
-                    Utility_UiAlerts.generateSnackBar(addBtn, "Category added successfully", SUCCESS);
-                });
+                view.post(() -> Utility_UiAlerts.generateSnackBar(addBtn, "Category added successfully", SUCCESS));
             }
         }
 
@@ -283,9 +277,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                view.post(() -> {
-                    Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't add category", ERROR);
-                });
+                view.post(() -> Utility_UiAlerts.generateSnackBar(addBtn, "Couldn't add category", ERROR));
             }
         }
 
@@ -293,9 +285,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                view.post(() -> {
-                    Utility_UiAlerts.generateSnackBar(addBtn, "Category already exists!!", WARNING);
-                });
+                view.post(() -> Utility_UiAlerts.generateSnackBar(addBtn, "Category already exists!!", WARNING));
             }
         }
     };
@@ -305,7 +295,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Category edited successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Category edited successfully", SUCCESS));
             }
         }
 
@@ -313,7 +303,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR));
             }
         }
 
@@ -321,7 +311,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Category already exists", ERROR);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Category already exists", ERROR));
             }
         }
     };
@@ -331,7 +321,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Category deleted successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Category deleted successfully", SUCCESS));
             }
         }
 
@@ -339,8 +329,10 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
+                });
             }
         }
 
@@ -348,7 +340,7 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING));
             }
         }
     };

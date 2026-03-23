@@ -138,6 +138,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        Log.i(TAG, "Updating database version from " + oldVersion + " to " + newVersion);
+
         if (oldVersion < 2) {
             db.beginTransaction();
             try {
@@ -203,9 +206,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private boolean doesColumnExist(SQLiteDatabase db, String tableName, String columnName) {
         boolean exists = false;
-        Cursor cursor = null;
-        try {
-            cursor = db.rawQuery("pragma table_info (" + tableName + ")", null);
+        try (Cursor cursor = db.rawQuery("pragma table_info (" + tableName + ")", null)) {
             if (cursor.moveToFirst()) {
                 do {
                     String name = cursor.getString(cursor.getColumnIndexOrThrow("name"));
@@ -218,9 +219,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
             Log.e(TAG, "Database Updating Failed : Updating Disturbed Data Integrity.");
             throw new RuntimeException("Failed to check column existence", e);
-        } finally {
-            if (cursor != null)
-                cursor.close();
         }
         return exists;
     }

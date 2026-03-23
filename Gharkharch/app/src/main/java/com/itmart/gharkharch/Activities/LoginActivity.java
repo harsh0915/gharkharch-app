@@ -72,8 +72,8 @@ public class LoginActivity extends AppCompatActivity {
     private void setupClickListeners() {
 
         loginBtn.setOnClickListener(v -> {
-            String username = usernameET.getText().toString();
-            String password = passwordET.getText().toString();
+            String username = usernameET.getText().toString().trim();
+            String password = passwordET.getText().toString().trim();
 
             if (!password.matches("^[\\x20-\\x7E]{1,72}$")) {
                 passwordET.setError("Invalid characters used in password");
@@ -100,9 +100,41 @@ public class LoginActivity extends AppCompatActivity {
         persistent_storage = new Utility_UserPreferences(LoginActivity.this);
     }
 
+    private void login(String username, String password) {
+
+        remoteRepository.login(username, password, this, new RemoteRepository.ResCallback<>() {
+            @Override
+            public void onSuccess(TokensJSON response) {
+                persistent_storage.saveUsername(username);
+                persistent_storage.saveTokens(response.getRefresh_token(), response.getAccess_token());
+                Intent main = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(main);
+                finish();
+            }
+
+            @Override
+            public void onAccessRevoked() {
+                Utility_UiAlerts.dismissLoadingDialog();
+                showRevokedDialog();
+            }
+
+            @Override
+            public void onServerError(String message) {
+                showServerErrorDialog();
+            }
+
+            @Override
+            public void onError(String e) {
+                Log.e(TAG, "Error : " + e);
+            }
+        });
+    }
+
     private void autoLogin() {
 
         if (persistent_storage.getAccessToken() != null) {
+
+            Utility_UiAlerts.showLoadingDialog(LoginActivity.this, "Logging In...");
 
             remoteRepository.verify(persistent_storage.getAccessToken(), LoginActivity.this, new RemoteRepository.ResCallback<>() {
                 @Override
@@ -133,35 +165,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void login(String username, String password) {
-
-        remoteRepository.login(username, password, this, new RemoteRepository.ResCallback<>() {
-            @Override
-            public void onSuccess(TokensJSON response) {
-                persistent_storage.saveUsername(username);
-                persistent_storage.saveTokens(response.getRefresh_token(), response.getAccess_token());
-                Intent main = new Intent(LoginActivity.this, MainActivity.class);
-                startActivity(main);
-                finish();
-            }
-
-            @Override
-            public void onAccessRevoked() {
-                showRevokedDialog();
-            }
-
-            @Override
-            public void onServerError(String message) {
-                showServerErrorDialog();
-            }
-
-            @Override
-            public void onError(String e) {
-                Log.e(TAG, "Error : " + e);
-            }
-        });
-    }
-
     private void refreshTokens() {
 
         if (persistent_storage.getRefreshToken() != null && persistent_storage.getUsername() != null) {
@@ -177,6 +180,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onAccessRevoked() {
+                    Utility_UiAlerts.dismissLoadingDialog();
                     showRevokedDialog();
                 }
 
@@ -277,7 +281,6 @@ public class LoginActivity extends AppCompatActivity {
             new Handler(Looper.getMainLooper()).post(() -> {
                 loginBtn.setBackgroundTintList(ContextCompat.getColorStateList(LoginActivity.this, R.color.buttonColor));
                 autoLogin();
-                Utility_UiAlerts.showLoadingDialog(LoginActivity.this, "Logging In...");
             });
         }
 

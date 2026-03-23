@@ -250,7 +250,7 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
                 return;
             }
             utilityDbOperations.edit_expense(expenseId, under_sub_category_id, Integer.parseInt(amountString), selected_date, selected_mode_of_payment.getValue(), expense_remark, editExpenseCallback);
-            ManageExpensesActivity activity = (ManageExpensesActivity)requireActivity();
+            ManageExpensesActivity activity = (ManageExpensesActivity) requireActivity();
             activity.expenseUpdated();
             utilityKeyboard.close_keyboard(v);
             this.dismiss();
@@ -358,7 +358,7 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS));
             }
         }
 
@@ -366,8 +366,10 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
+                });
             }
         }
 
@@ -376,6 +378,5 @@ public class EditExpenseFragment extends BottomSheetDialogFragment implements Se
 
         }
     };
-
 
 }

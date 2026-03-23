@@ -540,10 +540,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             View view = getView();
             if (view != null) {
                 view.post(() -> {
-                    View fragmentView = getView();
-                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
                         Log.e("harshTagFetchSubCat", "Error : " + e.getMessage());
-                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expense heads", ERROR);
+                        Utility_UiAlerts.generateSnackBar(view, "Couldn't fetch expense heads", ERROR);
                     }
                 });
             }
@@ -578,10 +577,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
             View view = getView();
             if (view != null) {
                 view.post(() -> {
-                    View fragmentView = getView();
-                    if (isAdded() && !isHidden() && fragmentView.getWindowToken() != null) {
+                    if (isAdded() && !isHidden() && view.getWindowToken() != null) {
                         Log.e("harshTagFetchExpense", "Error : " + e.getMessage());
-                        Utility_UiAlerts.generateSnackBar(fragmentView, "Couldn't fetch expenses", ERROR);
+                        Utility_UiAlerts.generateSnackBar(view, "Couldn't fetch expenses", ERROR);
                     }
                 });
             }
@@ -598,7 +596,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense booked successfully", SUCCESS);
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(view, "Expense booked successfully", SUCCESS);
+                });
             }
             rcv_sub_category_search.setVisibility(View.GONE);
         }
@@ -607,8 +607,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagBookExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't book expense", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagBookExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't book expense", ERROR);
+                });
             }
             rcv_sub_category_search.setVisibility(View.GONE);
         }
@@ -624,7 +626,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS);
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(view, "Expense edited successfully", SUCCESS);
+                });
             }
         }
 
@@ -632,8 +636,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't edit expense", ERROR);
+                });
             }
         }
 
@@ -648,7 +654,9 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense deleted successfully", SUCCESS);
+                view.post(() -> {
+                    Utility_UiAlerts.generateSnackBar(view, "Expense deleted successfully", SUCCESS);
+                });
             }
         }
 
@@ -656,8 +664,10 @@ public class BookExpenseFragment extends Fragment implements SearchListAdapter.I
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense", ERROR);
+                });
             }
         }
 

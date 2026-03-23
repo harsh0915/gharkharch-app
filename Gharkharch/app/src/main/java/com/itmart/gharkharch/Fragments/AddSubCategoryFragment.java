@@ -251,7 +251,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         inputSubCategory.setText(subCatItem.get_item_name());
         inputCategory.setText(subCatItem.get_under_cat_name());
         rcv_category_search.setVisibility(View.GONE);
-        if(search_view.getVisibility()==View.VISIBLE){
+        if (search_view.getVisibility() == View.VISIBLE) {
             toggle_search_view();
         }
     }
@@ -425,7 +425,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(addBtn, "Expense head added successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(addBtn, "Expense head added successfully", SUCCESS));
             }
             rcv_category_search.setVisibility(View.GONE);
         }
@@ -434,8 +434,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagBookExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't add expense head", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagBookExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't add expense head", ERROR);
+                });
             }
             rcv_category_search.setVisibility(View.GONE);
         }
@@ -444,7 +446,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense head already exists!!", WARNING);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Expense head already exists!!", WARNING));
             }
             rcv_category_search.setVisibility(View.GONE);
         }
@@ -455,7 +457,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense head edited successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Expense head edited successfully", SUCCESS));
             }
         }
 
@@ -463,7 +465,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Couldn't edit category", ERROR));
             }
         }
 
@@ -471,7 +473,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense head already exists", ERROR);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Expense head already exists", ERROR));
             }
         }
     };
@@ -481,7 +483,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onSuccess(DatabaseCallbackObject databaseObjectsList) {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Expense Head deleted successfully", SUCCESS);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Expense Head deleted successfully", SUCCESS));
             }
             rcv_category_search.setVisibility(View.GONE);
         }
@@ -490,8 +492,10 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onFailure(Exception e) {
             View view = getView();
             if (view != null) {
-                Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
-                Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
+                view.post(() -> {
+                    Log.e("harshTagDeleteExpense", "Error : " + e.getMessage());
+                    Utility_UiAlerts.generateSnackBar(view, "Couldn't delete expense head", ERROR);
+                });
             }
         }
 
@@ -499,7 +503,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         public void onWarning() {
             View view = getView();
             if (view != null) {
-                Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING);
+                view.post(() -> Utility_UiAlerts.generateSnackBar(view, "Sorry, already in use", WARNING));
             }
         }
     };

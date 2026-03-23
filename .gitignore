@@ -5,15 +5,11 @@ logs/
 node_modules/
 
 #ignored files for android proejct
+/.idea/
+*.iml
 *.iml
 .gradle
 /local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
 .DS_Store
 /build
 /captures

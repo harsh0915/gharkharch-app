@@ -32,7 +32,6 @@ public class Utility_UiAlerts {
     private static Dialog loadingDialog;
 
     public static void generateSnackBar(View view, String msg, String type) {
-        new Handler(Looper.getMainLooper()).post(() -> {
             Snackbar snackbar = Snackbar.make(view, " ", 800);
 
             int iconRes;
@@ -82,7 +81,6 @@ public class Utility_UiAlerts {
             }
             snackbar.setBackgroundTint(bgColor);
             snackbar.show();
-        });
     }
 
     @SuppressLint("SetTextI18n")
