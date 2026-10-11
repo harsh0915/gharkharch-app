@@ -81,7 +81,7 @@ public class Utility_DBOperations {
             try {
                 SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category.trim());
+                values.put(DatabaseHelper.COLUMN_SUB_CATEGORY_NAME, new_sub_category);
                 values.put(DatabaseHelper.COLUMN_UNDER_CATEGORY, under_cat_id);
                 try {
                     writeable_db.insertOrThrow(DatabaseHelper.TABLE_SUB_CATEGORIES, null, values);
@@ -101,7 +101,7 @@ public class Utility_DBOperations {
             try {
                 SQLiteDatabase writeable_db = databaseHelper.getWritableDatabase();
                 ContentValues values = new ContentValues();
-                values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category.trim());
+                values.put(DatabaseHelper.COLUMN_CATEGORY_NAME, new_category);
                 try {
                     writeable_db.insertOrThrow(DatabaseHelper.TABLE_CATEGORIES, null, values);
                     callbackDbOperations.onSuccess(new DatabaseCallbackObject());

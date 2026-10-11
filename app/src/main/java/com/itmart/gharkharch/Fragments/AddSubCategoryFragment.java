@@ -169,7 +169,7 @@ public class AddSubCategoryFragment extends Fragment implements SearchListAdapte
         addBtn.setOnClickListener(v -> {
             utilityKeyboard.close_keyboard(v);
 
-            String sub_cat_name = inputSubCategory.getText().toString(), cat_name = inputCategory.getText().toString();
+            String sub_cat_name = inputSubCategory.getText().toString().trim(), cat_name = inputCategory.getText().toString();
             if (sub_cat_name.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(addBtn, "An expense head name can't be empty!", WARNING);
                 return;

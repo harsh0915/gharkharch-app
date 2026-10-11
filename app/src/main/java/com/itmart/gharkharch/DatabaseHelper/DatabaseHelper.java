@@ -151,7 +151,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                                     " add column " + COLUMN_INDEXED_DATE + " text"
                     );
                 }
-                //fill existing data into the new crated column
+                //fill existing data into the new column
                 db.execSQL(
                         "UPDATE " + TABLE_EXPENSES +
                                 " SET " + COLUMN_INDEXED_DATE + " = date(datetime(" + COLUMN_EXPENSE_DATE + "/1000, 'unixepoch'));"

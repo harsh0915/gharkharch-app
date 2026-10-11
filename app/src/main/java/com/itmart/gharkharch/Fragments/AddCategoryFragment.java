@@ -102,8 +102,8 @@ public class AddCategoryFragment extends Fragment implements SimpleListAdapter.S
         addBtn.setOnClickListener(v -> {
             utilityKeyboard.close_keyboard(v);
 
-            String new_category = inputCategory.getText().toString();
-            if (new_category.trim().isEmpty()) {
+            String new_category = inputCategory.getText().toString().trim();
+            if (new_category.isEmpty()) {
                 Utility_UiAlerts.generateSnackBar(v, "A category name can't be empty!", WARNING);
                 return;
             }
